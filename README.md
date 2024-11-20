@@ -1,2 +1,2 @@
-# tiga_pixaris
+# Pixaris
 Repository for evaluation framework for image generation cases

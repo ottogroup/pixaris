@@ -1,0 +1,57 @@
+name: Deploy to dev
+run-name: ${{ github.actor }} - ${{ github.event.head_commit.message }}
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+          cache: poetry
+      - name: Install dependencies
+        run: poetry install
+      - name: Lint code
+        run: poetry run ruff format --check
+      - name: Check code
+        run: poetry run ruff check
+  
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+          cache: poetry
+      - name: Install dependencies
+        run: poetry install
+      - name: Test code
+        run: poetry run pytest
