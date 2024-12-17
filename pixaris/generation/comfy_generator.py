@@ -1,5 +1,5 @@
 from generation.generation import ImageGenerator
-from utils.normalization import normalize_image
+from utils.load_images import normalize_image, open_image
 from generation.workflow import ComfyWorkflow
 from PIL import Image
 import hashlib
@@ -10,13 +10,11 @@ class ComfyGenerator(ImageGenerator):
         self,
         api_host: str,
         workflow_apiformat_path: str,
-        inspiration_image: Image.Image,
         norm_image: bool = False,
         adjust_to_one_image: bool = True,
     ):
         self.api_host = api_host
         self.workflow_apiformat_path = workflow_apiformat_path
-        self.inspiration_image = inspiration_image
         self.norm_image = norm_image
         self.adjust_to_one_image = adjust_to_one_image
 
@@ -33,15 +31,13 @@ class ComfyGenerator(ImageGenerator):
         unique_number = int(img_hash, 16)
         final_seed = (unique_number % 1000000) + 1  # cannot be too big for comfy
         return final_seed
-
+    
     def run_workflow_from_local(
         self,
         api_host: str,
         workflow_apiformat_path: str,
         input_image: Image.Image,
-        mask_image: Image.Image = None,
-        object_image: Image.Image = None,
-        inspiration_image: Image.Image = None,
+        image_paths: list[dict],
         hyperparameters: list[dict] = [],
         norm_image: bool = False,
         adjust_to_one_image: bool = True,
@@ -80,42 +76,22 @@ class ComfyGenerator(ImageGenerator):
             workflow.set_hyperparameters(hyperparameters)
 
         workflow = self.set_image(workflow, input_image, "Load Image", norm_image)
-
-        # Load mask image if Load Mask Image Node and mask filepath exists
-        if mask_image:
-            if workflow.check_if_node_exists("Load Mask Image"):
-                workflow = self.set_image(
-                    workflow, mask_image, "Load Mask Image", norm_image
-                )
-            else:
+        
+        # assert each element of image_paths has the keys "image_path", "node_name", and image paths are strings
+        for image_info in image_paths:
+            if not all(key in image_info for key in ["node_name", "image_path"]):
                 raise ValueError(
-                    "Mask file path is given, but the workflow does not have a node 'Load Mask Image'"
+                    "Each image dictionary should contain the keys 'image_path', and 'node_name'."
                 )
-
-        # Load object image if Load Object Image Node and Object filepath exists
-        if object_image:
-            if workflow.check_if_node_exists("Load Object Image"):
-                workflow = self.set_image(
-                    workflow, object_image, "Load Object Image", norm_image
-                )
-            else:
+            if not isinstance(image_info["image_path"], str):
                 raise ValueError(
-                    "Object file path is given, but the workflow does not have a node 'Load Object Image'"
+                    "The image_path should be a string. Do not pass the image object directly."
                 )
-
-        # Load inspiration image if Load Inspo Image Node and inspo filepath exists
-        if inspiration_image:
-            if workflow.check_if_node_exists("Load Inspo Image"):
-                workflow = self.set_image(
-                    workflow,
-                    inspiration_image,
-                    "Load Inspo Image",
-                    norm_image=False,  # do not norm inspo image
-                )
-            else:
-                raise ValueError(
-                    "Inspo file path is given, but the workflow does not have a node 'Load Inspo Image'"
-                )
+        
+        # load and set all images
+        for image_info in image_paths:
+            input_img = open_image(image_info["image_path"], norm_image)
+            workflow.set_image(image_info["node_name"], input_img)
 
         # set seed
         if workflow.check_if_node_exists(
@@ -153,10 +129,9 @@ class ComfyGenerator(ImageGenerator):
         return self.run_workflow_from_local(
             api_host=self.api_host,
             workflow_apiformat_path=self.workflow_apiformat_path,
-            input_image=args["input_image"],
-            mask_image=args["mask_image"],
-            inspiration_image=self.inspiration_image,
-            hyperparameters=args["hyperparameters"],
+            input_image=args['input_image'],
+            image_paths=args['image_paths'],
+            hyperparameters=args['hyperparameters'],
             norm_image=self.norm_image,
             adjust_to_one_image=self.adjust_to_one_image,
         )

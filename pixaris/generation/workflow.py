@@ -215,7 +215,7 @@ class ComfyWorkflow:
     def get_image(self, node_name: str) -> list[Image.Image]:
         """Get the output image of a node."""
         node_id = self.node_id_for_name(node_name)
-
+        
         return [
             self.download_image(img["filename"], img["subfolder"], img["type"])
             for img in self.last_history["outputs"][node_id]["images"]

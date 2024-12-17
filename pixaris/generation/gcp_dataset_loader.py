@@ -7,21 +7,19 @@ from typing import Iterable
 
 
 class GCPDatasetLoader(DatasetLoader):
-    def __init__(
-        self,
-        gcp_project_id: str,
-        gcp_bucket_name: str,
-        object_dir: str = None,
-        mask_dir: str = None,
-        inspo_dir: str = None,
-        eval_dir_local: str = "eval_data",
-        force_download: bool = False,
-    ):
+    def __init__(self, 
+                 gcp_project_id: str,
+                 gcp_bucket_name: str,
+                 object_dir: str = None,
+                 mask_dir: str = None,
+                 inspo_image: str = None,
+                 eval_dir_local: str = "eval_data",
+                 force_download: bool = False):
         self.gcp_project_id = gcp_project_id
         self.bucket_name = gcp_bucket_name
         self.object_dir = object_dir
         self.mask_dir = mask_dir
-        self.inspo_dir = inspo_dir
+        self.inspo_image = inspo_image
         self.eval_dir_local = eval_dir_local
         self.force_download = force_download
         self.download_eval_images()
@@ -85,10 +83,8 @@ class GCPDatasetLoader(DatasetLoader):
 
         if self.mask_dir:
             self.download_bucket_dir(bucket, self.mask_dir)
-
-        if self.inspo_dir:
-            self.download_bucket_dir(bucket, self.inspo_dir)
-
+    
+    
     def load_dataset(self) -> Iterable[dict[str, any]]:
         """
         returns all images in the evaluation set as an iterator of dictionaries.
@@ -100,15 +96,21 @@ class GCPDatasetLoader(DatasetLoader):
         for name in names:
             datapoint = {}
             if self.object_dir:
-                datapoint["input_image"] = Image.open(
-                    os.path.join(self.eval_dir_local, self.object_dir, name)
-                )
+                datapoint["input_image"] = Image.open(os.path.join(self.eval_dir_local, self.object_dir, name))
+            
+            datapoint["image_paths"] = []
             if self.mask_dir:
-                datapoint["mask_image"] = Image.open(
-                    os.path.join(self.eval_dir_local, self.mask_dir, name)
+                datapoint["image_paths"].append(
+                    {
+                        "node_name": "Load Mask Image", 
+                        "image_path": os.path.join(self.eval_dir_local, self.mask_dir, name)
+                    }
                 )
-            if self.inspo_dir:
-                datapoint["inspo_image"] = Image.open(
-                    os.path.join(self.eval_dir_local, self.inspo_dir, name)
+            if self.inspo_image:
+                datapoint["image_paths"].append(
+                    {
+                        "node_name": "Load Inspo Image", 
+                        "image_path": self.inspo_image
+                    }
                 )
             yield datapoint
