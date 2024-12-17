@@ -4,6 +4,7 @@ from generation.workflow import ComfyWorkflow
 from PIL import Image
 import hashlib
 
+
 class ComfyGenerator(ImageGenerator):
     def __init__(
         self,
@@ -11,15 +12,14 @@ class ComfyGenerator(ImageGenerator):
         workflow_apiformat_path: str,
         inspiration_image: Image.Image,
         norm_image: bool = False,
-        adjust_to_one_image: bool = True
+        adjust_to_one_image: bool = True,
     ):
         self.api_host = api_host
         self.workflow_apiformat_path = workflow_apiformat_path
         self.inspiration_image = inspiration_image
         self.norm_image = norm_image
         self.adjust_to_one_image = adjust_to_one_image
-    
-    
+
     def get_unique_int_for_image(self, img: Image.Image) -> int:
         """
         Gets the hash of an image. This is needed to have a unique seed for the experiments but have the same seed for the same image in different experiments.
@@ -33,8 +33,7 @@ class ComfyGenerator(ImageGenerator):
         unique_number = int(img_hash, 16)
         final_seed = (unique_number % 1000000) + 1  # cannot be too big for comfy
         return final_seed
-    
-    
+
     def run_workflow_from_local(
         self,
         api_host: str,
@@ -136,30 +135,28 @@ class ComfyGenerator(ImageGenerator):
                 "Connection Error. Did you forget to build the iap tunnel to ComfyUI on port 8188?"
             )
             raise e
-        
-    
+
     def set_image(
-        self, 
-        workflow: ComfyWorkflow, 
-        img: Image.Image, 
-        node_name: str, 
-        norm_image: bool = False
+        self,
+        workflow: ComfyWorkflow,
+        img: Image.Image,
+        node_name: str,
+        norm_image: bool = False,
     ):
         if norm_image:
             img = normalize_image(img)
-        
+
         workflow.set_image(node_name, img)
         return workflow
-
 
     def generate_single_image(self, args: dict[str, any]) -> Image.Image:
         return self.run_workflow_from_local(
             api_host=self.api_host,
             workflow_apiformat_path=self.workflow_apiformat_path,
-            input_image=args['input_image'],
-            mask_image=args['mask_image'],
+            input_image=args["input_image"],
+            mask_image=args["mask_image"],
             inspiration_image=self.inspiration_image,
-            hyperparameters=args['hyperparameters'],
+            hyperparameters=args["hyperparameters"],
             norm_image=self.norm_image,
             adjust_to_one_image=self.adjust_to_one_image,
         )

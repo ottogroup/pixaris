@@ -1,13 +1,14 @@
 from PIL import Image
 
+
 def normalize_image(image: Image, max_size=(1024, 1024)) -> Image:
     """
-    Normalize the given image by placing it on a white background, scaling it while preserving aspect ratio,
-    and returning the resulting image.
-    Parameters:
-- image (PIL.Image): The input image to be normalized.
-    Returns:
-    - PIL.Image: The normalized image with a white background.
+        Normalize the given image by placing it on a white background, scaling it while preserving aspect ratio,
+        and returning the resulting image.
+        Parameters:
+    - image (PIL.Image): The input image to be normalized.
+        Returns:
+        - PIL.Image: The normalized image with a white background.
     """
     # place on white background
     if image.mode != "RGBA":

@@ -7,14 +7,16 @@ from typing import Iterable
 
 
 class GCPDatasetLoader(DatasetLoader):
-    def __init__(self, 
-                 gcp_project_id: str,
-                 gcp_bucket_name: str,
-                 object_dir: str = None,
-                 mask_dir: str = None,
-                 inspo_dir: str = None,
-                 eval_dir_local: str = "eval_data",
-                 force_download: bool = False):
+    def __init__(
+        self,
+        gcp_project_id: str,
+        gcp_bucket_name: str,
+        object_dir: str = None,
+        mask_dir: str = None,
+        inspo_dir: str = None,
+        eval_dir_local: str = "eval_data",
+        force_download: bool = False,
+    ):
         self.gcp_project_id = gcp_project_id
         self.bucket_name = gcp_bucket_name
         self.object_dir = object_dir
@@ -23,8 +25,7 @@ class GCPDatasetLoader(DatasetLoader):
         self.eval_dir_local = eval_dir_local
         self.force_download = force_download
         self.download_eval_images()
-        
-        
+
     def download_bucket_dir(self, bucket: storage.Bucket, dir_name: str):
         """
         Downloads all files from a specified directory in a Google Cloud Storage bucket to a local directory.
@@ -36,10 +37,10 @@ class GCPDatasetLoader(DatasetLoader):
         Returns:
             None
         """
-        
+
         if os.path.exists(os.path.join(self.eval_dir_local, dir_name)):
-                return None
-        else: 
+            return None
+        else:
             os.makedirs(os.path.join(self.eval_dir_local, dir_name))
 
         blobs = bucket.list_blobs(prefix=f"{dir_name}/")
@@ -52,8 +53,9 @@ class GCPDatasetLoader(DatasetLoader):
             filename = blob.name.split("/")[-1]
             if filename:
                 print("downloading", filename)
-                blob.download_to_filename(os.path.join(self.eval_dir_local, dir_name, filename))
-
+                blob.download_to_filename(
+                    os.path.join(self.eval_dir_local, dir_name, filename)
+                )
 
     def download_eval_images(self):
         """
@@ -70,24 +72,23 @@ class GCPDatasetLoader(DatasetLoader):
 
         Returns:
             None
-        """ 
+        """
         storage_client = storage.Client(project=self.gcp_project_id)
         bucket = storage_client.get_bucket(self.bucket_name)
-        
+
         if self.force_download:
             if os.path.exists(self.eval_dir_local):
                 shutil.rmtree(self.eval_dir_local)
-            
+
         if self.object_dir:
             self.download_bucket_dir(bucket, self.object_dir)
-        
+
         if self.mask_dir:
             self.download_bucket_dir(bucket, self.mask_dir)
-            
+
         if self.inspo_dir:
             self.download_bucket_dir(bucket, self.inspo_dir)
-    
-    
+
     def load_dataset(self) -> Iterable[dict[str, any]]:
         """
         returns all images in the evaluation set as an iterator of dictionaries.
@@ -99,9 +100,15 @@ class GCPDatasetLoader(DatasetLoader):
         for name in names:
             datapoint = {}
             if self.object_dir:
-                datapoint["input_image"] = Image.open(os.path.join(self.eval_dir_local, self.object_dir, name))
+                datapoint["input_image"] = Image.open(
+                    os.path.join(self.eval_dir_local, self.object_dir, name)
+                )
             if self.mask_dir:
-                datapoint["mask_image"] = Image.open(os.path.join(self.eval_dir_local, self.mask_dir, name))
+                datapoint["mask_image"] = Image.open(
+                    os.path.join(self.eval_dir_local, self.mask_dir, name)
+                )
             if self.inspo_dir:
-                datapoint["inspo_image"] = Image.open(os.path.join(self.eval_dir_local, self.inspo_dir, name))
+                datapoint["inspo_image"] = Image.open(
+                    os.path.join(self.eval_dir_local, self.inspo_dir, name)
+                )
             yield datapoint
