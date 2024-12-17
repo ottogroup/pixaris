@@ -7,11 +7,14 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+pillow = "^11.0.0"
+google-cloud-storage = "^2.18.2"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.7.4"
 poetry-plugin-export = "^1.8.0"
 pytest = "^8.2.2"
+ipykernel = "^6.29.5"
 
 [build-system]
 requires = ["poetry-core"]
