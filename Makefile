@@ -1,5 +1,5 @@
 .ONESHELL:
-.PHONY: install lint fmt
+.PHONY: install lint fmt test
 
 install:
 	poetry install

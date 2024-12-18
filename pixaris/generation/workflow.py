@@ -43,6 +43,17 @@ class ComfyWorkflow:
                 return True
         return False
 
+    def count_node_class_occurances(self, node_name: str, node_class: str) -> int:
+        """Count the number of occurances of a node in the workflow."""
+        count = 0
+        for id in self.prompt_workflow:
+            if (
+                self.prompt_workflow[id]["class_type"] == node_name
+                and self.prompt_workflow[id]["_meta"]["title"] == node_name
+            ):
+                count += 1
+        return count
+
     def check_if_parameter_exists(self, node_name: str, parameter: str) -> bool:
         """Check if a parameter exists for a node."""
         node_id = self.node_id_for_name(node_name)
@@ -215,7 +226,7 @@ class ComfyWorkflow:
     def get_image(self, node_name: str) -> list[Image.Image]:
         """Get the output image of a node."""
         node_id = self.node_id_for_name(node_name)
-        
+
         return [
             self.download_image(img["filename"], img["subfolder"], img["type"])
             for img in self.last_history["outputs"][node_id]["images"]
