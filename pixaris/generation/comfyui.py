@@ -2,42 +2,43 @@ from pixaris.generation.base import ImageGenerator
 from pixaris.generation.comfyui_utils.workflow import ComfyWorkflow
 from PIL import Image
 import hashlib
+import os
 
 
 class ComfyGenerator(ImageGenerator):
     """
     ComfyGenerator is a class that extends the ImageGenerator class to provide functionality for generating images using a specified workflow and API host.
     Methods:
-        __init__(api_host: str, workflow_apiformat_path: str):
+        __init__(api_host: str):
             Initializes the ComfyGenerator with the specified parameters.
         _get_unique_int_for_image(img: Image.Image) -> int:
             Gets the hash of an image to generate a unique seed for experiments.
-        run_workflow_from_local(image_paths: dict[str, str], hyperparameters: list[dict] = []) -> Image:
+        run_workflow(workflow_apiformat_path: str, image_paths: dict[str, str], hyperparameters: list[dict] = []) -> Image:
         generate_single_image(args: dict[str, any]) -> Image.Image:
             Generates a single image using the specified arguments.
     """
 
     def __init__(
         self,
-        api_host: str,
-        workflow_apiformat_path: str,
+        api_host: str = "localhost:8188",
     ):
         """
         api_host (str): The API host URL. For local experimenting, put "localhost:8188".
-        workflow_apiformat_path (str): The path to the workflow file in API format.
         """
         self.api_host = api_host
-        self.workflow_apiformat_path = workflow_apiformat_path
 
-    def _get_unique_int_for_image(self, img: Image.Image) -> int:
+    def _get_unique_int_for_image(self, img_path: str) -> int:
         """
-        Gets the hash of an image. This is needed to have a unique seed for the experiments but have the same seed for the same image in different experiments.
+        Gets a unique int for an image calculated from image name and hash. This is needed to have a unique
+        seed for the experiments but have the same seed for the same image in different experiments.
         Args:
-            img (Image): The image to get the hash from.
+            img_path (str): The path to the image.
         Returns:
             int: The unique integer for the image.
         """
-        img_bytes = img.tobytes()
+        img = Image.open(img_path)
+        file_name = os.path.basename(img_path)
+        img_bytes = file_name.encode("utf-8") + img.tobytes()
         img_hash = hashlib.md5(img_bytes).hexdigest()
         unique_number = int(img_hash, 16)
         final_seed = (unique_number % 1000000) + 1  # cannot be too big for comfy
@@ -45,53 +46,105 @@ class ComfyGenerator(ImageGenerator):
 
     def run_workflow(
         self,
-        image_paths: dict[str, str],
-        hyperparameters: list[dict] = [],
+        workflow_apiformat_path: str,
+        image_paths: list[dict[str, str]] = [],
+        hyperparameters: list[dict[str, str, any]] = [],
     ):
         """
-        Executes a workflow from a local file and processes images according to the specified parameters.
+        Runs a workflow from the local machine using the specified workflow file and object image file.
+        The workflow can be modified to only generate one image or to make images square before running the workflow.
+        Seed will be calculated based on the input image file name and content if the workflow has a node "KSampler (Efficient) - Generation".
+
         Args:
-            image_paths (dict[str, str]): A dictionary mapping node names to image file paths.
-            hyperparameters (list[dict], optional): A list of dictionaries containing hyperparameters. Defaults to [].
+            workflow_apiformat_path (str): The path to the workflow file.
+            image_paths (list[dict[str, str]]): The image paths to be used in the workflow. Each dictionary should contain the keys "image_path" and "node_name".
+            hyperparameters (list[dict[str, str, any]]): The hyperparameters to be used in the workflow. Defaults to []. This means that no modifications will be performed to the workflow's hyperparameters.
+            workflow_apiformat_path (str): The path to the workflow file in API format.
+
         Returns:
             Image: The generated image.
         Raises:
-            ConnectionError: If there is an issue connecting to the API host.
+            ConnectionError: If there is a connection error while executing the workflow.
+                Likely to happen if you dont have a running virtual machine
+
+        Example Usage:
+        comfy_generator = ComfyGenerator(api_host="localhost:8188")
+        comfy_generator.run_workflow_from_local(
+            workflow_apiformat_path='workflow-apiformat.json',
+            hyperparameters=[
+                {
+                "node_name": "KSampler (Efficient) - Generation",
+                "input": "steps",
+                "value": 2,
+                },
+            ],
+            image_paths=[
+                {
+                    "node_name": "Load Input Image",
+                    "image_path": "/Users/henrike.meyer/Development/TIGA/ottointerior-leger-inputs/priyasessel_onwhite_1216_832.jpeg"
+                },
+                {
+                    "node_name": "Load Inspo Image",
+                    "image_path": "/Users/henrike.meyer/Development/TIGA/ottointerior-leger-inputs/LeGer Home by Lena Gercke 3-Sitzer PIARA, Couch mit Kedernaht, Sofa in Cord oder Leinenoptik, schwarze Füße, bequemer Sitzkomfort.png"
+                },
+            ],
+        )
         """
+
+        # assert each existing element of hyperparameters has the keys "node_name", "input", "value"
+        for value_info in hyperparameters:
+            if not all(key in value_info for key in ["node_name", "input", "value"]):
+                raise ValueError(
+                    "Each hyperparameter dictionary should contain the keys 'node_name', 'input', and 'value'."
+                )
+
+        # assert each element of image_paths has the keys "image_path", "node_name", and image paths are strings
+        for image_info in image_paths:
+            if not all(key in image_info for key in ["node_name", "image_path"]):
+                raise ValueError(
+                    "Each image dictionary should contain the keys 'image_path', and 'node_name'."
+                )
+            if not isinstance(image_info["image_path"], str):
+                raise ValueError(
+                    "The image_path should be a string. Do not pass the image object directly."
+                )
+
         workflow = ComfyWorkflow(
             api_host=self.api_host,
-            workflow_file_url=self.workflow_apiformat_path,
+            workflow_file_url=workflow_apiformat_path,
         )
 
         workflow.adjust_workflow_to_generate_one_image_only()
 
+        # adjust all hyperparameters
         if hyperparameters:
             workflow.set_hyperparameters(hyperparameters)
 
-        # If only one node of type "LoadImage" with name "Load Image" exists and only one image is passed, set the image.
+        # Load and set images from image_paths
         if (
-            workflow.count_node_class_occurances(
-                node_name="Load Image", node_class="LoadImage"
-            )
-            == 1
+            workflow.count_node_class_occurances(node_class="LoadImage") == 1
             and len(image_paths) == 1
         ):
             input_image = Image.open(list(image_paths.values())[0])
             workflow.set_image(node_name="Load Image", image=input_image)
         else:
             # load and set all images
-            for node_name, image_path in image_paths.items():
-                input_image = Image.open(image_path)
-                workflow.set_image(node_name, input_image)
+            for image_info in image_paths:
+                input_image = Image.open(image_info["image_path"])
+                workflow.set_image(image_info["node_name"], input_image)
 
-        # set seed
+        # set seed or warn if it is not being set.
         if workflow.check_if_node_exists(
             "KSampler (Efficient) - Generation"
         ):  # not present e.g. in mask workflows
             workflow.set_value(
                 "KSampler (Efficient) - Generation",
                 "seed",
-                self._get_unique_int_for_image(input_image),
+                self._get_unique_int_for_image(image_paths[0]["image_path"]),
+            )
+        else:
+            print(
+                "Node 'KSampler (Efficient) - Generation' not found in the workflow. Seed will not be set."
             )
 
         try:
@@ -121,6 +174,12 @@ class ComfyGenerator(ImageGenerator):
         Returns:
             Image.Image: The generated image.
         """
+        assert (
+            "workflow_apiformat_path" in args
+        ), "The key 'workflow_apiformat_path' is missing."
+
         return self.run_workflow(
-            image_paths=args["image_paths"], hyperparameters=args["hyperparameters"]
+            workflow_apiformat_path=args["workflow_apiformat_path"],
+            image_paths=args.get("image_paths", []),
+            hyperparameters=args.get("hyperparameters", []),
         )

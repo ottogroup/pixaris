@@ -12,9 +12,14 @@ def generate_images_based_on_eval_set(
     dataset_loader: DatasetLoader, image_generator: ImageGenerator, args: dict[str, any]
 ) -> Iterable[Image.Image]:
     dataset = dataset_loader.load_dataset()
+
+    # TODO: Why and when would yield be beneficial?
+    generated_images = []
     for data in dataset:
         args.update(data)
-        yield image_generator.generate_single_image(args)
+        generated_images.append(image_generator.generate_single_image(args))
+
+    return generated_images
 
 
 def generate_images_for_hyperparameters_based_on_eval_set():

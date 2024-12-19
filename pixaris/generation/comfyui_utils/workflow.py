@@ -43,14 +43,11 @@ class ComfyWorkflow:
                 return True
         return False
 
-    def count_node_class_occurances(self, node_name: str, node_class: str) -> int:
-        """Count the number of occurances of a node in the workflow."""
+    def count_node_class_occurances(self, node_class: str) -> int:
+        """Count the number of occurances of a node class in the workflow."""
         count = 0
         for id in self.prompt_workflow:
-            if (
-                self.prompt_workflow[id]["class_type"] == node_name
-                and self.prompt_workflow[id]["_meta"]["title"] == node_name
-            ):
+            if self.prompt_workflow[id]["class_type"] == node_class:
                 count += 1
         return count
 
