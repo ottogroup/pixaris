@@ -239,20 +239,24 @@ class ComfyWorkflow:
 
     def adjust_workflow_to_generate_one_image_only(self):
         """Remove all nodes that generate multiple images and their connection to the sampler node via script input."""
+        try:
+            # Only if there is some sort of XY plot, it is necessary to adjust the image. Otherwise no action needed.
+            if self.check_if_node_exists("XY Plot"):
+                nodes_to_remove = [
+                    "XY Input: Sampler/Scheduler",
+                    "XY Input: Seeds++ Batch",
+                    "XY Plot",
+                ]
 
-        # Only if there is some sort of XY plot, it is necessary to adjust the image. Otherwise no action needed.
-        if self.check_if_node_exists("XY Plot"):
-            nodes_to_remove = [
-                "XY Input: Sampler/Scheduler",
-                "XY Input: Seeds++ Batch",
-                "XY Plot",
-            ]
+                for node in nodes_to_remove:
+                    if self.check_if_node_exists(node):
+                        self.delete_complete_node(node)
 
-            for node in nodes_to_remove:
-                if self.check_if_node_exists(node):
-                    self.delete_complete_node(node)
-
-            # the sampler node's connection via script to the removed nodes needs to be removed as well
-            sampler_node_id = self.node_id_for_name("KSampler (Efficient) - Generation")
-            if "script" in self.prompt_workflow[sampler_node_id]["inputs"]:
-                self.prompt_workflow[sampler_node_id]["inputs"].pop("script")
+                # the sampler node's connection via script to the removed nodes needs to be removed as well
+                sampler_node_id = self.node_id_for_name(
+                    "KSampler (Efficient) - Generation"
+                )
+                if "script" in self.prompt_workflow[sampler_node_id]["inputs"]:
+                    self.prompt_workflow[sampler_node_id]["inputs"].pop("script")
+        except Exception as e:
+            print(f"Error adjusting workflow to one image only.: {e} . CONTINUING ...")

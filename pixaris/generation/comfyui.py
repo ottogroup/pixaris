@@ -1,6 +1,5 @@
-from pixaris.generation.generation import ImageGenerator
-from pixaris.utils.load_images import normalize_image, open_image
-from pixaris.generation.workflow import ComfyWorkflow
+from pixaris.generation.base import ImageGenerator
+from pixaris.generation.comfyui_utils.workflow import ComfyWorkflow
 from PIL import Image
 import hashlib
 
@@ -8,17 +7,12 @@ import hashlib
 class ComfyGenerator(ImageGenerator):
     """
     ComfyGenerator is a class that extends the ImageGenerator class to provide functionality for generating images using a specified workflow and API host.
-    Attributes:
-        norm_image (bool): Whether to normalize the image. Defaults to False.
-        adjust_to_one_image (bool): Whether to adjust the workflow to generate only one image. Defaults to True.
     Methods:
-        __init__(api_host: str, workflow_apiformat_path: str, norm_image: bool = False, adjust_to_one_image: bool = True):
+        __init__(api_host: str, workflow_apiformat_path: str):
             Initializes the ComfyGenerator with the specified parameters.
         _get_unique_int_for_image(img: Image.Image) -> int:
             Gets the hash of an image to generate a unique seed for experiments.
-        run_workflow_from_local(image_paths: dict[str, str], hyperparameters: list[dict] = [], norm_image: bool = False, adjust_to_one_image: bool = True) -> Image:
-        _set_image(workflow: ComfyWorkflow, img: Image.Image, node_name: str, norm_image: bool = False):
-            Sets an image in the workflow for a specified node.
+        run_workflow_from_local(image_paths: dict[str, str], hyperparameters: list[dict] = []) -> Image:
         generate_single_image(args: dict[str, any]) -> Image.Image:
             Generates a single image using the specified arguments.
     """
@@ -27,19 +21,13 @@ class ComfyGenerator(ImageGenerator):
         self,
         api_host: str,
         workflow_apiformat_path: str,
-        norm_image: bool = False,
-        adjust_to_one_image: bool = True,
     ):
         """
         api_host (str): The API host URL. For local experimenting, put "localhost:8188".
         workflow_apiformat_path (str): The path to the workflow file in API format.
-        norm_image (bool, optional): Whether to normalize the image. Defaults to False.
-        adjust_to_one_image (bool, optional): Whether to adjust the workflow to generate only one image. Defaults to True.
         """
         self.api_host = api_host
         self.workflow_apiformat_path = workflow_apiformat_path
-        self.norm_image = norm_image
-        self.adjust_to_one_image = adjust_to_one_image
 
     def _get_unique_int_for_image(self, img: Image.Image) -> int:
         """
@@ -49,14 +37,13 @@ class ComfyGenerator(ImageGenerator):
         Returns:
             int: The unique integer for the image.
         """
-        # TODO: implement changes from paws
         img_bytes = img.tobytes()
         img_hash = hashlib.md5(img_bytes).hexdigest()
         unique_number = int(img_hash, 16)
         final_seed = (unique_number % 1000000) + 1  # cannot be too big for comfy
         return final_seed
 
-    def run_workflow_from_local(
+    def run_workflow(
         self,
         image_paths: dict[str, str],
         hyperparameters: list[dict] = [],
@@ -75,8 +62,8 @@ class ComfyGenerator(ImageGenerator):
             api_host=self.api_host,
             workflow_file_url=self.workflow_apiformat_path,
         )
-        if self.adjust_to_one_image:
-            workflow.adjust_workflow_to_generate_one_image_only()
+
+        workflow.adjust_workflow_to_generate_one_image_only()
 
         if hyperparameters:
             workflow.set_hyperparameters(hyperparameters)
@@ -89,14 +76,12 @@ class ComfyGenerator(ImageGenerator):
             == 1
             and len(image_paths) == 1
         ):
-            input_image = open_image(list(image_paths.values())[0], self.norm_image)
-            workflow = self._set_image(
-                workflow, input_image, "Load Image", self.norm_image
-            )
+            input_image = Image.open(list(image_paths.values())[0])
+            workflow.set_image(node_name="Load Image", image=input_image)
         else:
             # load and set all images
             for node_name, image_path in image_paths.items():
-                input_image = open_image(image_path, self.norm_image)
+                input_image = Image.open(image_path)
                 workflow.set_image(node_name, input_image)
 
         # set seed
@@ -118,20 +103,6 @@ class ComfyGenerator(ImageGenerator):
             )
             raise e
 
-    def _set_image(
-        self,
-        workflow: ComfyWorkflow,
-        img: Image.Image,
-        node_name: str,
-    ):
-        if (
-            self.norm_image
-        ):  # TODO: this should be done earlier, Then _set_image function is not needed
-            img = normalize_image(img)
-
-        workflow.set_image(node_name, img)
-        return workflow
-
     def generate_single_image(self, args: dict[str, any]) -> Image.Image:
         """
         Generates a single image based on the provided arguments.
@@ -150,6 +121,6 @@ class ComfyGenerator(ImageGenerator):
         Returns:
             Image.Image: The generated image.
         """
-        return self.run_workflow_from_local(
+        return self.run_workflow(
             image_paths=args["image_paths"], hyperparameters=args["hyperparameters"]
         )

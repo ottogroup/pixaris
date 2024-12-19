@@ -2,7 +2,7 @@ import os
 import shutil
 from google.cloud import storage
 from google.cloud.storage import transfer_manager
-from pixaris.generation.generation import DatasetLoader
+from pixaris.data_loaders.base import DatasetLoader
 from typing import Iterable
 
 

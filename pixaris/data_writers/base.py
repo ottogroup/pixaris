@@ -3,7 +3,7 @@ from typing import Iterator
 from PIL import Image
 
 
-class Storage:
+class DataWriter:
     @abstractmethod
     def store_results(
         self,

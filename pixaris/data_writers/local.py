@@ -3,11 +3,10 @@ import json
 from typing import Iterable
 from PIL import Image
 import os
+from pixaris.data_writers.base import DataWriter
 
-from storage.storage import Storage
 
-
-class LocalStorage(Storage):
+class LocalDataWriter(DataWriter):
     def store_results(
         self,
         eval_set: str,
