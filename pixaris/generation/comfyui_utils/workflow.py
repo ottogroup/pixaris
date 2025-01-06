@@ -8,6 +8,10 @@ import time
 import os
 
 
+# TODO: Add modify, validate workflow methods
+# TODO: Add _get_unique_int_for_image to utils
+
+
 class ComfyWorkflow:
     api_host = ""
     prompt_workflow = {}
@@ -76,17 +80,17 @@ class ComfyWorkflow:
 
         self.prompt_workflow[node_id]["inputs"][parameter] = value
 
-    def check_if_parameter_is_valid(self, hyperparameters: list[dict]):
+    def check_if_parameter_is_valid(self, generation_params: list[dict]):
         """
-        Validates a list of hyperparameters for the workflow.
-        This method performs several checks on each hyperparameter in the provided list:
+        Validates a list of generation_params for the workflow.
+        This method performs several checks on each generation_param in the provided list:
         1. Verifies that the node specified by 'node_name' exists in the workflow.
         2. Checks that the specified input parameter exists for the given node.
         3. Ensures that the input parameter has the correct type.
         4. Attempts to set the value of the input parameter for the node.
         If any of these checks fail, a ValueError is raised with an appropriate error message.
         Args:
-            hyperparameters (list[dict]): A list of dictionaries, each containing:
+            generation_params (list[dict]): A list of dictionaries, each containing:
             - 'node_name' (str): The name of the node.
             - 'input' (str): The name of the input parameter.
             - 'value' (any): The value to set for the input parameter.
@@ -94,44 +98,44 @@ class ComfyWorkflow:
             ValueError: If any of the validation checks fail.
         """
 
-        for hyperparameter in hyperparameters:
+        for generation_param in generation_params:
             # check if node exists
-            if not self.check_if_node_exists(hyperparameter["node_name"]):
+            if not self.check_if_node_exists(generation_param["node_name"]):
                 raise ValueError(
-                    f"Node {hyperparameter['node_name']} does not exist in the workflow."
+                    f"Node {generation_param['node_name']} does not exist in the workflow."
                 )
             if not self.check_if_parameter_exists(
-                hyperparameter["node_name"], hyperparameter["input"]
+                generation_param["node_name"], generation_param["input"]
             ):
                 raise ValueError(
-                    f"Node {hyperparameter['node_name']} does not have input {hyperparameter['input']}"
+                    f"Node {generation_param['node_name']} does not have input {generation_param['input']}"
                 )
             if not self.check_if_parameter_has_correct_type(
-                hyperparameter["node_name"],
-                hyperparameter["input"],
-                type(hyperparameter["value"]),
+                generation_param["node_name"],
+                generation_param["input"],
+                type(generation_param["value"]),
             ):
                 raise ValueError(
-                    f"Node {hyperparameter['node_name']} input {hyperparameter['input']} has the wrong type"
+                    f"Node {generation_param['node_name']} input {generation_param['input']} has the wrong type"
                 )
             try:
                 self.set_value(
-                    hyperparameter["node_name"],
-                    hyperparameter["input"],
-                    hyperparameter["value"],
+                    generation_param["node_name"],
+                    generation_param["input"],
+                    generation_param["value"],
                 )
             except ValueError:
                 raise ValueError(
-                    f"Node {hyperparameter['node_name']} can't set input {hyperparameter['input']} to value {hyperparameter['value']}"
+                    f"Node {generation_param['node_name']} can't set input {generation_param['input']} to value {generation_param['value']}"
                 )
 
-    def set_hyperparameters(self, hyperparameters: list[dict]):
-        """Set the hyperparameters for the workflow."""
-        for hyperparameter in hyperparameters:
+    def set_generation_params(self, generation_params: list[dict]):
+        """Set the generation_params for the workflow."""
+        for generation_param in generation_params:
             self.set_value(
-                hyperparameter["node_name"],
-                hyperparameter["input"],
-                hyperparameter["value"],
+                generation_param["node_name"],
+                generation_param["input"],
+                generation_param["value"],
             )
 
     def get_value(self, node_name: str, parameter: str):

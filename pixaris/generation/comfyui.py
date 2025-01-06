@@ -13,7 +13,7 @@ class ComfyGenerator(ImageGenerator):
             Initializes the ComfyGenerator with the specified parameters.
         _get_unique_int_for_image(img: Image.Image) -> int:
             Gets the hash of an image to generate a unique seed for experiments.
-        run_workflow(workflow_apiformat_path: str, image_paths: dict[str, str], hyperparameters: list[dict] = []) -> Image:
+        run_workflow(workflow_apiformat_path: str, image_paths: dict[str, str], generation_params: list[dict] = []) -> Image:
         generate_single_image(args: dict[str, any]) -> Image.Image:
             Generates a single image using the specified arguments.
     """
@@ -44,58 +44,24 @@ class ComfyGenerator(ImageGenerator):
         final_seed = (unique_number % 1000000) + 1  # cannot be too big for comfy
         return final_seed
 
-    def run_workflow(
+    def _validate_input_parameters(
         self,
-        workflow_apiformat_path: str,
         image_paths: list[dict[str, str]] = [],
-        hyperparameters: list[dict[str, str, any]] = [],
-    ):
+        generation_params: list[dict[str, str, any]] = [],
+    ) -> str:
         """
-        Runs a workflow from the local machine using the specified workflow file and object image file.
-        The workflow can be modified to only generate one image or to make images square before running the workflow.
-        Seed will be calculated based on the input image file name and content if the workflow has a node "KSampler (Efficient) - Generation".
-
+        Validates the workflow file to ensure that it is in the correct format.
         Args:
             workflow_apiformat_path (str): The path to the workflow file.
-            image_paths (list[dict[str, str]]): The image paths to be used in the workflow. Each dictionary should contain the keys "image_path" and "node_name".
-            hyperparameters (list[dict[str, str, any]]): The hyperparameters to be used in the workflow. Defaults to []. This means that no modifications will be performed to the workflow's hyperparameters.
-            workflow_apiformat_path (str): The path to the workflow file in API format.
-
         Returns:
-            Image: The generated image.
-        Raises:
-            ConnectionError: If there is a connection error while executing the workflow.
-                Likely to happen if you dont have a running virtual machine
-
-        Example Usage:
-        comfy_generator = ComfyGenerator(api_host="localhost:8188")
-        comfy_generator.run_workflow_from_local(
-            workflow_apiformat_path='workflow-apiformat.json',
-            hyperparameters=[
-                {
-                "node_name": "KSampler (Efficient) - Generation",
-                "input": "steps",
-                "value": 2,
-                },
-            ],
-            image_paths=[
-                {
-                    "node_name": "Load Input Image",
-                    "image_path": "/Users/henrike.meyer/Development/TIGA/ottointerior-leger-inputs/priyasessel_onwhite_1216_832.jpeg"
-                },
-                {
-                    "node_name": "Load Inspo Image",
-                    "image_path": "/Users/henrike.meyer/Development/TIGA/ottointerior-leger-inputs/LeGer Home by Lena Gercke 3-Sitzer PIARA, Couch mit Kedernaht, Sofa in Cord oder Leinenoptik, schwarze Füße, bequemer Sitzkomfort.png"
-                },
-            ],
-        )
+            str: The path to the validated workflow file.
         """
 
-        # assert each existing element of hyperparameters has the keys "node_name", "input", "value"
-        for value_info in hyperparameters:
+        # assert each existing element of generation_params has the keys "node_name", "input", "value"
+        for value_info in generation_params:
             if not all(key in value_info for key in ["node_name", "input", "value"]):
                 raise ValueError(
-                    "Each hyperparameter dictionary should contain the keys 'node_name', 'input', and 'value'."
+                    "Each generation_param dictionary should contain the keys 'node_name', 'input', and 'value'."
                 )
 
         # assert each element of image_paths has the keys "image_path", "node_name", and image paths are strings
@@ -109,6 +75,12 @@ class ComfyGenerator(ImageGenerator):
                     "The image_path should be a string. Do not pass the image object directly."
                 )
 
+    def _modify_workflow(
+        self,
+        workflow_apiformat_path: str,
+        image_paths: list[dict[str, str]] = [],
+        generation_params: list[dict[str, str, any]] = [],
+    ):
         workflow = ComfyWorkflow(
             api_host=self.api_host,
             workflow_file_url=workflow_apiformat_path,
@@ -116,9 +88,9 @@ class ComfyGenerator(ImageGenerator):
 
         workflow.adjust_workflow_to_generate_one_image_only()
 
-        # adjust all hyperparameters
-        if hyperparameters:
-            workflow.set_hyperparameters(hyperparameters)
+        # adjust all generation_params
+        if generation_params:
+            workflow.set_generation_params(generation_params)
 
         # Load and set images from image_paths
         if (
@@ -147,6 +119,52 @@ class ComfyGenerator(ImageGenerator):
                 "Node 'KSampler (Efficient) - Generation' not found in the workflow. Seed will not be set."
             )
 
+        return workflow
+
+    def generate_single_image(self, args: dict[str, any]) -> Image.Image:
+        """
+        Generates a single image based on the provided arguments. For this it validates
+        the input args, modifies the workflow, and executes it to generate the image.
+        Args:
+            args (dict[str, any]): A dictionary containing the following keys:
+            - "workflow_apiformat_path" (str): The path to the workflow file in API format. (ABSOLUTE PATH)!
+                    "example.json"
+            - "image_paths" (list[dict]): A dict of [str, str].
+                    The keys should be Node names
+                    The values should be the paths to the images to be loaded.
+                "image_paths": [{
+                    "node_name": "Load Input Image",
+                    "image_path": "eval_data/z_test_correct/Input/model_90310595.jpg",}]
+            - "generation_params" (list[dict]): A dictionary of generation_params for the image generation process.
+                It should look like this:
+                [{
+                    "node_name": "GroundingDinoSAMSegment (segment anything)",
+                    "input": "prompt",
+                    "value": "model, bag, hair",
+                }],
+        Returns:
+            Image.Image: The generated image.
+        """
+
+        assert (
+            "workflow_apiformat_path" in args
+        ), "The key 'workflow_apiformat_path' is missing."
+
+        workflow_apiformat_path = args["workflow_apiformat_path"]
+        image_paths = args.get("image_paths", [])
+        generation_params = args.get("generation_params", [])
+
+        self._validate_input_parameters(
+            image_paths=image_paths,
+            generation_params=generation_params,
+        )
+
+        workflow = self._modify_workflow(
+            workflow_apiformat_path=workflow_apiformat_path,
+            image_paths=image_paths,
+            generation_params=generation_params,
+        )
+
         try:
             workflow.execute()
             return workflow.get_image("Save Image")[0]
@@ -155,31 +173,3 @@ class ComfyGenerator(ImageGenerator):
                 "Connection Error. Did you forget to build the iap tunnel to ComfyUI on port 8188?"
             )
             raise e
-
-    def generate_single_image(self, args: dict[str, any]) -> Image.Image:
-        """
-        Generates a single image based on the provided arguments.
-        Args:
-            args (dict[str, any]): A dictionary containing the following keys:
-            - "image_paths" (dict): A dict of [str, str].
-                The keys should be Node names
-                The values should be the paths to the images to be loaded.
-            - "hyperparameters" (list[dict]): A dictionary of hyperparameters for the image generation process.
-                The dict should look like this:
-                {
-                    "node_name": "GroundingDinoSAMSegment (segment anything)",
-                    "input": "prompt",
-                    "value": "model, bag, hair",
-                },
-        Returns:
-            Image.Image: The generated image.
-        """
-        assert (
-            "workflow_apiformat_path" in args
-        ), "The key 'workflow_apiformat_path' is missing."
-
-        return self.run_workflow(
-            workflow_apiformat_path=args["workflow_apiformat_path"],
-            image_paths=args.get("image_paths", []),
-            hyperparameters=args.get("hyperparameters", []),
-        )

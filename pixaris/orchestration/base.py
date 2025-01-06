@@ -22,6 +22,6 @@ def generate_images_based_on_eval_set(
     return generated_images
 
 
-def generate_images_for_hyperparameters_based_on_eval_set():
+def generate_images_for_hyperparameter_search_based_on_eval_set():
     pass
-    # TODO how do we want to call the hyperparameters? We need to distinguish between the args that are passed to workflow, e.g. adjust seed to one, and a set pf hyperparameters to loop through, e.g. try this workflow with different seeds.
+    # TODO how do we want to call the hyperparameters? We need to distinguish between the args that are passed to workflow, e.g. adjust seed to one, and a set pf generation_params to loop through, e.g. try this workflow with different seeds.
