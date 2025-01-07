@@ -6,6 +6,7 @@ import urllib.parse
 import requests
 import time
 import os
+from pixaris.utils.retry import retry
 
 
 # TODO: Add modify, validate workflow methods
@@ -176,6 +177,7 @@ class ComfyWorkflow:
         ) as response:
             return json.loads(response.read())
 
+    @retry(tries=3, delay=5, max_delay=30)
     def queue_prompt(self, prompt: str):
         """Queue a prompt. This is the crucial step to start a workflow."""
         print(f"Start workflow on {self.api_host}")
@@ -186,6 +188,7 @@ class ComfyWorkflow:
         )
         return json.loads(urllib.request.urlopen(req, timeout=10).read())
 
+    @retry(tries=3, delay=5, max_delay=30)
     def wait_for_done(self, prompt_id: str):
         """Wait for a prompt to be completed."""
         while True:
@@ -198,6 +201,7 @@ class ComfyWorkflow:
             else:
                 time.sleep(1)
 
+    @retry(tries=3, delay=5, max_delay=30)
     def check_for_error(self, history):
         status = history.get(list(history.keys())[0])["status"]["status_str"]
         if status == "error":

@@ -13,12 +13,30 @@ def generate_images_based_on_eval_set(
 ) -> Iterable[Image.Image]:
     dataset = dataset_loader.load_dataset()
 
+    failed_args = []
+
     # TODO: Why and when would yield be beneficial?
     generated_images = []
     for data in dataset:
         args.update(data)
-        generated_images.append(image_generator.generate_single_image(args))
+        try:
+            result = image_generator.generate_single_image(args)
+            generated_images.append(result)
+        except Exception as e:
+            failed_args.append({"error_message": e, "args": args})
+            print("WARNING", e, "continuing with next image.")
 
+    # if all generations fail, raise an exception, because something went wrong here :(
+    if len(failed_args) == len(data):
+        raise Exception(
+            f"Failed to generate images for all {len(data)} images. \nLast error message: {failed_args[-1]['error_message']}"
+        )
+
+    print("Generation done.")
+    if failed_args:
+        print(
+            f"Failed to generate images for {len(failed_args)} of {len(data)}. \nFailed arguments: {failed_args}"
+        )
     return generated_images
 
 
