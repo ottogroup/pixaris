@@ -11,8 +11,6 @@ class DataWriter:
         run_name: str,
         images: Iterator[Image.Image],
         metrics: dict[str, float],
-        params: dict[str, any],
-        artifacts: dict[str, bytes],
-        tags: dict[str, str],
+        args: dict[str, any],
     ) -> None:
         pass

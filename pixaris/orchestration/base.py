@@ -1,5 +1,6 @@
 from pixaris.data_loaders.base import DatasetLoader
 from pixaris.generation.base import ImageGenerator
+from pixaris.data_writers.base import DataWriter
 from pixaris.utils.helpers import merge_dicts
 from typing import Iterable
 from PIL import Image
@@ -10,14 +11,30 @@ def generate_single_image():
 
 
 def generate_images_based_on_eval_set(
-    dataset_loader: DatasetLoader, image_generator: ImageGenerator, args: dict[str, any]
+    data_loader: DatasetLoader,
+    image_generator: ImageGenerator,
+    data_writer: DataWriter,
+    args: dict[str, any],
 ) -> Iterable[Image.Image]:
-    dataset = dataset_loader.load_dataset()
+    """
+    Generates images based on an evaluation set.
+    This function loads a dataset using the provided data loader, generates images
+    using the provided image generator, and stores the results using the provided
+    data writer.
+    Args:
+        data_loader (DatasetLoader): An instance of DatasetLoader to load the dataset.
+        image_generator (ImageGenerator): An instance of ImageGenerator to generate images.
+        data_writer (DataWriter): An instance of DataWriter to store the generated images and results.
+        args (dict[str, any]): A dictionary of arguments to be used for image generation and storing results.
+    Returns:
+        Iterable[Image.Image]: A list of generated images.
+    """
 
-    failed_args = []
+    dataset = data_loader.load_dataset()
 
     # TODO: Why and when would yield be beneficial?
     generated_images = []
+    failed_args = []
     for data in dataset:
         consolidated_args = merge_dicts(args, data)
         generated_images.append(
@@ -41,6 +58,14 @@ def generate_images_based_on_eval_set(
         print(
             f"Failed to generate images for {len(failed_args)} of {len(data)}. \nFailed arguments: {failed_args}"
         )
+
+    data_writer.store_results(
+        eval_set=args["eval_set"],
+        run_name=args["run_name"],
+        images=generated_images,
+        metrics={},  # TODO: change this to calculated metrics
+        args=args,
+    )
     return generated_images
 
 
