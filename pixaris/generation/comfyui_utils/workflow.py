@@ -147,6 +147,8 @@ class ComfyWorkflow:
     def set_image(self, node_name: str, image: Image.Image):
         """Set the image input for a node."""
         node_id = self.node_id_for_name(node_name)
+        if node_id is None:
+            raise ValueError(f"Node '{node_name}' does not exist in the workflow.")
 
         metadata = self.upload_image(image, "input")
         self.prompt_workflow[node_id]["inputs"]["image"] = (

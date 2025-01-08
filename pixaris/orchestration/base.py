@@ -1,5 +1,6 @@
 from pixaris.data_loaders.base import DatasetLoader
 from pixaris.generation.base import ImageGenerator
+from pixaris.utils.helpers import merge_dicts
 from typing import Iterable
 from PIL import Image
 
@@ -18,7 +19,10 @@ def generate_images_based_on_eval_set(
     # TODO: Why and when would yield be beneficial?
     generated_images = []
     for data in dataset:
-        args.update(data)
+        consolidated_args = merge_dicts(args, data)
+        generated_images.append(
+            image_generator.generate_single_image(consolidated_args)
+        )
         try:
             result = image_generator.generate_single_image(args)
             generated_images.append(result)
