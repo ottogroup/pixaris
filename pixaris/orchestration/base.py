@@ -32,17 +32,14 @@ def generate_images_based_on_eval_set(
 
     dataset = data_loader.load_dataset()
 
-    # TODO: Why and when would yield be beneficial?
     generated_images = []
     failed_args = []
     for data in dataset:
         consolidated_args = merge_dicts(args, data)
-        generated_images.append(
-            image_generator.generate_single_image(consolidated_args)
-        )
         try:
-            result = image_generator.generate_single_image(args)
-            generated_images.append(result)
+            generated_images.append(
+                image_generator.generate_single_image(consolidated_args)
+            )
         except Exception as e:
             failed_args.append({"error_message": e, "args": args})
             print("WARNING", e, "continuing with next image.")
