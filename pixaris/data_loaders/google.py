@@ -49,7 +49,8 @@ class GCPDatasetLoader(DatasetLoader):
         """
         Downloads evaluation images for a given evaluation set.
         """
-        self._verify_bucket_folder_exists()
+        if self.force_download:
+            self._verify_bucket_folder_exists()
 
         # only download if the local directory does not exist or is empty
         if self._decide_if_download_needed():

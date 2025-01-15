@@ -97,8 +97,8 @@ class ComfyGenerator(ImageGenerator):
             workflow.count_node_class_occurances(node_class="LoadImage") == 1
             and len(image_paths) == 1
         ):
-            input_image = Image.open(list(image_paths.values())[0])
-            workflow.set_image(node_name="Load Image", image=input_image)
+            input_image = Image.open(image_paths[0]["image_path"])
+            self.workflow.set_image(node_name="Load Image", image=input_image)
         else:
             # load and set all images
             for image_info in image_paths:
