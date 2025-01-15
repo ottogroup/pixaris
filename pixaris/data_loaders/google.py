@@ -37,7 +37,7 @@ class GCPDatasetLoader(DatasetLoader):
         self.eval_set = eval_set
         self.eval_dir_local = eval_dir_local
         self.force_download = force_download
-        self.download_eval_set()
+        self._download_eval_set()
 
         self.image_dirs = [
             name
@@ -45,7 +45,7 @@ class GCPDatasetLoader(DatasetLoader):
             if os.path.isdir(os.path.join(self.eval_dir_local, self.eval_set, name))
         ]
 
-    def download_eval_set(self):
+    def _download_eval_set(self):
         """
         Downloads evaluation images for a given evaluation set.
         """
