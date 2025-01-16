@@ -32,6 +32,30 @@ class TensorboardWriter(DataWriter):
                 for item in image_paths
             ), "Each dictionary must contain the keys 'node_name' and 'image_path'."
 
+    def _extract_workflow(self, image_path: str):
+        """Extracts the 'workflow' metadata from an image file and saves it as a JSON file.
+
+        Parameters:
+        - image_path (str): The file path of the image from which to extract the workflow metadata.
+
+        Returns:
+        json_data (str): The embedded workflow as a string of the json content.
+
+        Raises:
+        Exception: If the image cannot be opened, if the 'workflow' key is not found in the metadata,
+                    or if the JSON cannot be decoded or saved.
+        """
+        image = Image.open(image_path)
+        image_metadata = image.info
+
+        workflow_data = image_metadata.get("workflow")
+        if not workflow_data:
+            print("Error: 'workflow' key not found in image metadata.")
+
+        json_data = json.loads(workflow_data)
+
+        return json_data
+
     def _save_args_entry(
         self, args: (dict[str, any])
     ):  # TODO: test this behemoth on TIGA-643
@@ -55,6 +79,7 @@ class TensorboardWriter(DataWriter):
                         [np.asarray(Image.open(value)) / 255],
                         step=0,
                     )
+
                 # check if value is a path to a json file
                 elif value.endswith(".json") and os.path.exists(value):
                     with open(value, "r") as f:
@@ -80,6 +105,11 @@ class TensorboardWriter(DataWriter):
             # rest is dumped as a json
             else:
                 tf.summary.text(key, json.dumps(value), step=0)
+
+            # save the workflow behind the image as a json string
+            if key == "workflow_image_path":
+                json_data = self._extract_workflow(value)
+                tf.summary.text("worflow_image_json", json.dumps(json_data), step=0)
 
     def store_results(
         self,
