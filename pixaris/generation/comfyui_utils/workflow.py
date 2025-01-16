@@ -81,7 +81,7 @@ class ComfyWorkflow:
 
         self.prompt_workflow[node_id]["inputs"][parameter] = value
 
-    def check_if_parameter_is_valid(self, generation_params: list[dict]):
+    def check_if_parameters_are_valid(self, generation_params: list[dict]):
         """
         Validates a list of generation_params for the workflow.
         This method performs several checks on each generation_param in the provided list:
@@ -98,6 +98,12 @@ class ComfyWorkflow:
         Raises:
             ValueError: If any of the validation checks fail.
         """
+        # assert each existing element of generation_params has the keys "node_name", "input", "value"
+        for value_info in generation_params:
+            if not all(key in value_info for key in ["node_name", "input", "value"]):
+                raise ValueError(
+                    "Each generation_param dictionary should contain the keys 'node_name', 'input', and 'value'."
+                )
 
         for generation_param in generation_params:
             # check if node exists
@@ -105,12 +111,14 @@ class ComfyWorkflow:
                 raise ValueError(
                     f"Node {generation_param['node_name']} does not exist in the workflow."
                 )
+            # check if input exists
             if not self.check_if_parameter_exists(
                 generation_param["node_name"], generation_param["input"]
             ):
                 raise ValueError(
                     f"Node {generation_param['node_name']} does not have input {generation_param['input']}"
                 )
+            # check if input has correct type
             if not self.check_if_parameter_has_correct_type(
                 generation_param["node_name"],
                 generation_param["input"],

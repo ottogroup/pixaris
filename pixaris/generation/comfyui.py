@@ -1,3 +1,4 @@
+from typing import List
 from pixaris.generation.base import ImageGenerator
 from pixaris.generation.comfyui_utils.workflow import ComfyWorkflow
 from PIL import Image
@@ -20,12 +21,18 @@ class ComfyGenerator(ImageGenerator):
 
     def __init__(
         self,
+        workflow_apiformat_path: str,
         api_host: str = "localhost:8188",
     ):
         """
         api_host (str): The API host URL. For local experimenting, put "localhost:8188".
         """
         self.api_host = api_host
+        self.workflow_apiformat_path = workflow_apiformat_path
+        self.workflow = ComfyWorkflow(
+            api_host=self.api_host,
+            workflow_file_url=self.workflow_apiformat_path,
+        )
 
     def _get_unique_int_for_image(self, img_path: str) -> int:
         """
@@ -44,10 +51,10 @@ class ComfyGenerator(ImageGenerator):
         final_seed = (unique_number % 1000000) + 1  # cannot be too big for comfy
         return final_seed
 
-    def _validate_input_parameters(
+    def validate_inputs_and_parameters(
         self,
-        image_paths: list[dict[str, str]] = [],
-        generation_params: list[dict[str, str, any]] = [],
+        dataset: List[dict[str, List[dict[str, str]]]] = [],
+        parameters: list[dict[str, str, any]] = [],
     ) -> str:
         """
         Validates the workflow file to ensure that it is in the correct format.
@@ -58,43 +65,47 @@ class ComfyGenerator(ImageGenerator):
         """
 
         # assert each existing element of generation_params has the keys "node_name", "input", "value"
-        for value_info in generation_params:
+        for value_info in parameters:
             if not all(key in value_info for key in ["node_name", "input", "value"]):
                 raise ValueError(
                     "Each generation_param dictionary should contain the keys 'node_name', 'input', and 'value'."
                 )
 
+        # assert the params can be applied to the workflow
+        self.workflow.check_if_parameters_are_valid(parameters)
+
         # assert each element of image_paths has the keys "image_path", "node_name", and image paths are strings
-        for image_info in image_paths:
-            if not all(key in image_info for key in ["node_name", "image_path"]):
+        for image_info in dataset:
+            image_set = image_info.get("image_paths", [])
+            # check if "node_name", "image_path" are keys in image_info
+            if not all(
+                key in image_dict
+                for image_dict in image_set
+                for key in ["node_name", "image_path"]
+            ):
                 raise ValueError(
-                    "Each image dictionary should contain the keys 'image_path', and 'node_name'."
+                    "Each image_paths dictionary should contain the keys 'node_name' and 'image_path'."
                 )
-            if not isinstance(image_info["image_path"], str):
-                raise ValueError(
-                    "The image_path should be a string. Do not pass the image object directly."
-                )
+            # check if all image_paths are strings
+            if not all(
+                isinstance(image_dict["image_path"], str) for image_dict in image_set
+            ):
+                raise ValueError("All image_paths should be strings.")
 
     def _modify_workflow(
         self,
-        workflow_apiformat_path: str,
         image_paths: list[dict[str, str]] = [],
         generation_params: list[dict[str, str, any]] = [],
     ):
-        workflow = ComfyWorkflow(
-            api_host=self.api_host,
-            workflow_file_url=workflow_apiformat_path,
-        )
-
-        workflow.adjust_workflow_to_generate_one_image_only()
+        self.workflow.adjust_workflow_to_generate_one_image_only()
 
         # adjust all generation_params
         if generation_params:
-            workflow.set_generation_params(generation_params)
+            self.workflow.set_generation_params(generation_params)
 
         # Load and set images from image_paths
         if (
-            workflow.count_node_class_occurances(node_class="LoadImage") == 1
+            self.workflow.count_node_class_occurances(node_class="LoadImage") == 1
             and len(image_paths) == 1
         ):
             input_image = Image.open(image_paths[0]["image_path"])
@@ -103,13 +114,13 @@ class ComfyGenerator(ImageGenerator):
             # load and set all images
             for image_info in image_paths:
                 input_image = Image.open(image_info["image_path"])
-                workflow.set_image(image_info["node_name"], input_image)
+                self.workflow.set_image(image_info["node_name"], input_image)
 
         # set seed or warn if it is not being set.
-        if workflow.check_if_node_exists(
+        if self.workflow.check_if_node_exists(
             "KSampler (Efficient) - Generation"
         ):  # not present e.g. in mask workflows
-            workflow.set_value(
+            self.workflow.set_value(
                 "KSampler (Efficient) - Generation",
                 "seed",
                 self._get_unique_int_for_image(image_paths[0]["image_path"]),
@@ -119,7 +130,7 @@ class ComfyGenerator(ImageGenerator):
                 "Node 'KSampler (Efficient) - Generation' not found in the workflow. Seed will not be set."
             )
 
-        return workflow
+        return self.workflow
 
     def generate_single_image(self, args: dict[str, any]) -> Image.Image:
         """
@@ -150,24 +161,17 @@ class ComfyGenerator(ImageGenerator):
             "workflow_apiformat_path" in args
         ), "The key 'workflow_apiformat_path' is missing."
 
-        workflow_apiformat_path = args["workflow_apiformat_path"]
         image_paths = args.get("image_paths", [])
         generation_params = args.get("generation_params", [])
 
-        self._validate_input_parameters(
-            image_paths=image_paths,
-            generation_params=generation_params,
-        )
-
-        workflow = self._modify_workflow(
-            workflow_apiformat_path=workflow_apiformat_path,
+        self.workflow = self._modify_workflow(
             image_paths=image_paths,
             generation_params=generation_params,
         )
 
         try:
-            workflow.execute()
-            return workflow.get_image("Save Image")[0]
+            self.workflow.execute()
+            return self.workflow.get_image("Save Image")[0]
         except ConnectionError as e:
             print(
                 "Connection Error. Did you forget to build the iap tunnel to ComfyUI on port 8188?"

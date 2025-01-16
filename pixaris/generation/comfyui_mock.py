@@ -17,8 +17,8 @@ class ComfyMockGenerator(ComfyGenerator):
             ValueError: If args are invalid.
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, workflow_apiformat_path: str = ""):
+        super().__init__(workflow_apiformat_path)
 
     def generate_single_image(self, args: dict[str, any]) -> Image.Image:
         """
@@ -33,12 +33,6 @@ class ComfyMockGenerator(ComfyGenerator):
         """
 
         image_paths = args.get("image_paths", [])
-        generation_params = args.get("generation_params", [])
-
-        self._validate_input_parameters(
-            image_paths=image_paths,
-            generation_params=generation_params,
-        )
 
         for item in image_paths:
             if item.get("image_path", False):

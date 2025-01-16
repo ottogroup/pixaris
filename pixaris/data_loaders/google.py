@@ -3,7 +3,7 @@ import shutil
 from google.cloud import storage
 from google.cloud.storage import transfer_manager
 from pixaris.data_loaders.base import DatasetLoader
-from typing import Iterable
+from typing import List
 
 
 class GCPDatasetLoader(DatasetLoader):
@@ -113,12 +113,16 @@ class GCPDatasetLoader(DatasetLoader):
                     )
                 )
 
-    def load_dataset(self) -> Iterable[dict[str, any]]:
+    def load_dataset(
+        self,
+    ) -> List[
+        dict[str, List[dict[str, str]]]
+    ]:  # TODO: maybe introduce a class for this clearly readable return type
         """
         returns all images in the evaluation set as an iterator of dictionaries.
 
         Returns:
-            Iterable[dict[str, dict]]: The data loaded from the bucket.
+            List[dict[str, List[dict[str, str]]]]: The data loaded from the bucket.
                 the key will always be "image_paths"
                 The value is a dict mapping node names to image file paths.
                     This dict has a key for each directory in the image_dirs list representing a Node Name,
@@ -130,6 +134,7 @@ class GCPDatasetLoader(DatasetLoader):
         """
         image_names = self._retrieve_and_check_dataset_image_names()
 
+        dataset = []
         for image_name in image_names:
             image_paths = []
             for image_dir in self.image_dirs:
@@ -141,8 +146,8 @@ class GCPDatasetLoader(DatasetLoader):
                         ),
                     }
                 )
-
-            yield {"image_paths": image_paths}
+            dataset.append({"image_paths": image_paths})
+        return dataset
 
     def _retrieve_and_check_dataset_image_names(self):
         """
