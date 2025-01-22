@@ -171,7 +171,8 @@ class ComfyGenerator(ImageGenerator):
 
         try:
             self.workflow.execute()
-            return self.workflow.get_image("Save Image")[0]
+            image = self.workflow.get_image("Save Image")[0]
+            return image
         except ConnectionError as e:
             print(
                 "Connection Error. Did you forget to build the iap tunnel to ComfyUI on port 8188?"

@@ -43,20 +43,20 @@ def generate_images_based_on_eval_set(
                 image_generator.generate_single_image(consolidated_args)
             )
         except Exception as e:
-            failed_args.append({"error_message": e, "args": args})
-            print("WARNING", e, "continuing with next image.")
+            failed_args.append({"error_message": e, "args": consolidated_args})
+            print("WARNING", e)
+            print("continuing with next image.")
 
     # if all generations fail, raise an exception, because something went wrong here :(
     if len(generated_images) == 0:
         raise Exception(
-            f"Failed to generate images for all {len(data)} images. \nLast error message: {failed_args[-1]['error_message']}"
+            f"Failed to generate images for all {len(dataset)} images. \nLast error message: {failed_args[-1]['error_message']}"
         )
 
     print("Generation done.")
     if failed_args:
-        print(
-            f"Failed to generate images for {len(failed_args)} of {len(data)}. \nFailed arguments: {failed_args}"
-        )
+        print(f"Failed to generate images for {len(failed_args)} of {len(dataset)}.")
+        print(f"Failed arguments: {failed_args}")
 
     data_writer.store_results(
         eval_set=args["eval_set"],

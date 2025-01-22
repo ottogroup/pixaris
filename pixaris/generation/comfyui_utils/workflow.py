@@ -229,7 +229,9 @@ class ComfyWorkflow:
         self.check_for_error(history)
         self.last_history = history[prompt_id]
 
-    def download_image(self, filename: str, subfolder: str, folder_type: str):
+    def download_image(
+        self, filename: str, subfolder: str, folder_type: str
+    ) -> Image.Image:
         """Download an image from the server."""
         data = {"filename": filename, "subfolder": subfolder, "type": folder_type}
         url_values = urllib.parse.urlencode(data)
