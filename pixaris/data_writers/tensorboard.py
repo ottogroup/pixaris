@@ -1,4 +1,5 @@
 from pixaris.data_writers.base import DataWriter
+from pixaris.data_writers.utils import upload_workflow_file_to_bucket
 from typing import Iterable
 from PIL import Image
 from google.cloud import aiplatform
@@ -10,9 +11,23 @@ import json
 
 
 class TensorboardWriter(DataWriter):
-    def __init__(self, project: str, location: str):
-        self.project = project
+    def __init__(
+        self,
+        project_id: str,
+        location: str,
+        bucket_name: str = None,
+    ):
+        """
+        Initializes the TensorboardWriter.
+        Args:
+            project_id (str): The Google Cloud project_id ID.
+            location (str): The Google Cloud location.
+            bucket_name (str): The name of the Google Cloud Storage bucket to store the workflow image. If None,
+                the workflow image will not be stored in a bucket. Defaults to None.
+        """
+        self.project_id = project_id
         self.location = location
+        self.bucket_name = bucket_name
 
     def _validate_args(self, args: dict[str, any]):
         # check if all keys are strings
@@ -32,33 +47,7 @@ class TensorboardWriter(DataWriter):
                 for item in image_paths
             ), "Each dictionary must contain the keys 'node_name' and 'image_path'."
 
-    def _extract_workflow(self, image_path: str):
-        """Extracts the 'workflow' metadata from an image file and saves it as a JSON file.
-
-        Parameters:
-        - image_path (str): The file path of the image from which to extract the workflow metadata.
-
-        Returns:
-        json_data (str): The embedded workflow as a string of the json content.
-
-        Raises:
-        Exception: If the image cannot be opened, if the 'workflow' key is not found in the metadata,
-                    or if the JSON cannot be decoded or saved.
-        """
-        image = Image.open(image_path)
-        image_metadata = image.info
-
-        workflow_data = image_metadata.get("workflow")
-        if not workflow_data:
-            print("Error: 'workflow' key not found in image metadata.")
-
-        json_data = json.loads(workflow_data)
-
-        return json_data
-
-    def _save_args_entry(
-        self, args: (dict[str, any])
-    ):  # TODO: test this behemoth on TIGA-643
+    def _save_args_entry(self, args: (dict[str, any])):
         """
         Saves all args to TensorBoard.
             if value is a path to an image, save as image
@@ -93,7 +82,7 @@ class TensorboardWriter(DataWriter):
             elif isinstance(value, (int, float)):
                 tf.summary.scalar(key, value, step=0)
 
-            # if key is "image_paths", save the images under their node names. Validity checked beforehand
+            # if key is "image_paths", save the images under their node names. Validity checked beforehand.
             elif key == "image_paths":
                 for image_path_dict in value:
                     tf.summary.image(
@@ -105,11 +94,6 @@ class TensorboardWriter(DataWriter):
             # rest is dumped as a json
             else:
                 tf.summary.text(key, json.dumps(value), step=0)
-
-            # save the workflow behind the image as a json string
-            if key == "workflow_image_path":
-                json_data = self._extract_workflow(value)
-                tf.summary.text("worflow_image_json", json.dumps(json_data), step=0)
 
     def store_results(
         self,
@@ -134,7 +118,7 @@ class TensorboardWriter(DataWriter):
 
         aiplatform.init(
             experiment=eval_set.replace("_", "-"),
-            project=self.project,
+            project=self.project_id,
             location=self.location,
             experiment_tensorboard=True,
         )
@@ -156,7 +140,7 @@ class TensorboardWriter(DataWriter):
                     )
 
                 # save metrics
-                print("logging metrics")
+                print("Logging metrics")
                 for metric, value in metrics.items():
                     assert isinstance(
                         value, (int, float)
@@ -164,8 +148,22 @@ class TensorboardWriter(DataWriter):
                     tf.summary.scalar(metric, value, step=0)
 
                 # save all args depending on their type
-                print("logging args")
+                print("Logging args")
                 self._save_args_entry(args)
+
+                # save workflow image with metadata to bucket
+                if self.bucket_name and args["workflow_image_path"]:
+                    print("Saving workflow image to bucket")
+                    link_to_workflow_in_bucket = upload_workflow_file_to_bucket(
+                        project_id=self.project_id,
+                        bucket_name=self.bucket_name,
+                        eval_set=eval_set,
+                        run_name=run_name,
+                        local_file_path=args["workflow_image_path"],
+                    )
+                    tf.summary.text(
+                        "link_to_workflow_image", link_to_workflow_in_bucket, step=0
+                    )
 
             aiplatform.upload_tb_log(
                 tensorboard_experiment_name=eval_set.replace("_", "-"),
