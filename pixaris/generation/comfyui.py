@@ -90,7 +90,27 @@ class ComfyGenerator(ImageGenerator):
             if not all(
                 isinstance(image_dict["image_path"], str) for image_dict in image_set
             ):
-                raise ValueError("All image_paths should be strings.")
+                wrong_types = [
+                    type(image_dict["image_path"])
+                    for image_dict in image_set
+                    if not isinstance(image_dict["image_path"], str)
+                ]
+                raise ValueError(
+                    "All image_paths should be strings. Got: ", wrong_types
+                )
+            # check if all image_paths are valid paths
+            if not all(
+                os.path.exists(image_dict["image_path"]) for image_dict in image_set
+            ):
+                raise ValueError(
+                    f"All image_paths should be valid paths. These paths do not exist: {
+                        [
+                            image_dict["image_path"]
+                            for image_dict in image_set
+                            if not os.path.exists(image_dict["image_path"])
+                        ]
+                    }"
+                )
 
     def _modify_workflow(
         self,

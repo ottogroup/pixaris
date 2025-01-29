@@ -49,7 +49,7 @@ def generate_images_based_on_eval_set(
 
     # if all generations fail, raise an exception, because something went wrong here :(
     if len(generated_images) == 0:
-        raise Exception(
+        raise ValueError(
             f"Failed to generate images for all {len(dataset)} images. \nLast error message: {failed_args[-1]['error_message']}"
         )
 
