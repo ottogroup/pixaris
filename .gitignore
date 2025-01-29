@@ -164,6 +164,7 @@ cython_debug/
 # ruff
 .ruff_cache
 
+config.yaml
 eval_data
 temp
 temp.ipynb
