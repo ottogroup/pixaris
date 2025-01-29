@@ -1,0 +1,45 @@
+{
+  "365": {
+    "inputs": {
+      "image": "24142135-yxv4RlbB.png",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Input Image"
+    }
+  },
+  "366": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "365",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "367": {
+    "inputs": {
+      "image": "24142135-yxv4RlbB.png",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Mask Image"
+    }
+  },
+  "368": {
+    "inputs": {
+      "image": "24142135-yxv4RlbB.png",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Inspo Image"
+    }
+  }
+}

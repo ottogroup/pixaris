@@ -1,0 +1,246 @@
+{
+  "12": {
+    "inputs": {
+      "ckpt_name": "Realistic_Vision_V5.1_fp16-no-ema.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Load Checkpoint"
+    }
+  },
+  "76": {
+    "inputs": {
+      "seed": 663659183951983,
+      "steps": 15,
+      "cfg": 7,
+      "sampler_name": "euler_ancestral",
+      "scheduler": "normal",
+      "denoise": 0.9500000000000001,
+      "preview_method": "auto",
+      "vae_decode": "true",
+      "model": [
+        "12",
+        0
+      ],
+      "positive": [
+        "152",
+        0
+      ],
+      "negative": [
+        "104",
+        0
+      ],
+      "latent_image": [
+        "219",
+        0
+      ],
+      "optional_vae": [
+        "176",
+        0
+      ]
+    },
+    "class_type": "KSampler (Efficient)",
+    "_meta": {
+      "title": "KSampler (Efficient) - Generation"
+    }
+  },
+  "103": {
+    "inputs": {
+      "text": "autumn field, beige colors, low contrast, warm lighting, pastel colors",
+      "clip": [
+        "12",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt) - POSITIVE"
+    }
+  },
+  "104": {
+    "inputs": {
+      "text": "high contrast, dark colors, deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime, text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck, persons",
+      "clip": [
+        "12",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt) - NEGATIVE"
+    }
+  },
+  "111": {
+    "inputs": {
+      "samples": [
+        "76",
+        3
+      ],
+      "vae": [
+        "76",
+        4
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "135": {
+    "inputs": {
+      "image": "172618_dame_hw24_q4_sortiv_pullover_TNA_1600x600.jpg",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Input Image"
+    }
+  },
+  "151": {
+    "inputs": {
+      "control_net_name": "control_sd15_canny.pth"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load ControlNet Model"
+    }
+  },
+  "152": {
+    "inputs": {
+      "strength": 1,
+      "conditioning": [
+        "103",
+        0
+      ],
+      "control_net": [
+        "151",
+        0
+      ],
+      "image": [
+        "173",
+        0
+      ]
+    },
+    "class_type": "ControlNetApply",
+    "_meta": {
+      "title": "Apply ControlNet (OLD)"
+    }
+  },
+  "172": {
+    "inputs": {
+      "images": [
+        "173",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "173": {
+    "inputs": {
+      "low_threshold": 100,
+      "high_threshold": 255,
+      "resolution": 1024,
+      "image": [
+        "135",
+        0
+      ]
+    },
+    "class_type": "CannyEdgePreprocessor",
+    "_meta": {
+      "title": "Canny Edge"
+    }
+  },
+  "176": {
+    "inputs": {
+      "vae_name": "vae-ft-mse-840000-ema-pruned.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE"
+    }
+  },
+  "219": {
+    "inputs": {
+      "grow_mask_by": 5,
+      "pixels": [
+        "135",
+        0
+      ],
+      "vae": [
+        "176",
+        0
+      ],
+      "mask": [
+        "410",
+        0
+      ]
+    },
+    "class_type": "VAEEncodeForInpaint",
+    "_meta": {
+      "title": "VAE Encode (for Inpainting)"
+    }
+  },
+  "337": {
+    "inputs": {
+      "mask": [
+        "410",
+        0
+      ]
+    },
+    "class_type": "MaskToImage",
+    "_meta": {
+      "title": "Convert Mask to Image"
+    }
+  },
+  "346": {
+    "inputs": {
+      "images": [
+        "337",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "409": {
+    "inputs": {
+      "image": "172618_dame_hw24_q4_sortiv_pullover_TNA_1600x600.jpg",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Mask Image"
+    }
+  },
+  "410": {
+    "inputs": {
+      "method": "intensity",
+      "image": [
+        "409",
+        0
+      ]
+    },
+    "class_type": "Image To Mask",
+    "_meta": {
+      "title": "Image To Mask"
+    }
+  },
+  "411": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "111",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  }
+}
