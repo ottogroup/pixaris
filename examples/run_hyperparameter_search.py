@@ -23,7 +23,7 @@ comfy_generator = ComfyGenerator(
 writer = TensorboardWriter(
     project_id=config["gcp_project_id"],
     location=config["gcp_location"],
-    bucket_name="pixaris",
+    bucket_name=config["gcp_bucket_name"],
 )
 # Define the arguments
 args = {

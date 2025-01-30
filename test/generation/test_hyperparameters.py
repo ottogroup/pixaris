@@ -9,6 +9,9 @@ from pixaris.utils.hyperparameters import (
 
 class TestHyperparameters(unittest.TestCase):
     def test_expand_hyperparameters(self):
+        """
+        test if expanding works.
+        """
         self.maxDiff = None
         hyperparameters = [
             {
@@ -50,6 +53,9 @@ class TestHyperparameters(unittest.TestCase):
         )
 
     def test_generate_hyperparameter_grid(self):
+        """
+        test if grid generation works.
+        """
         hyperparameters = [
             {
                 "node_name": "test1",
