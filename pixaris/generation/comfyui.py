@@ -152,7 +152,7 @@ class ComfyGenerator(ImageGenerator):
 
         return self.workflow
 
-    def generate_single_image(self, args: dict[str, any]) -> Image.Image:
+    def generate_single_image(self, args: dict[str, any]) -> tuple[Image.Image, str]:
         """
         Generates a single image based on the provided arguments. For this it validates
         the input args, modifies the workflow, and executes it to generate the image.
@@ -184,6 +184,9 @@ class ComfyGenerator(ImageGenerator):
         image_paths = args.get("image_paths", [])
         generation_params = args.get("generation_params", [])
 
+        # since the names should all be the same, we can just take the first.
+        image_name = image_paths[0]["image_path"].split("/")[-1]
+
         self.workflow = self._modify_workflow(
             image_paths=image_paths,
             generation_params=generation_params,
@@ -192,7 +195,7 @@ class ComfyGenerator(ImageGenerator):
         try:
             self.workflow.execute()
             image = self.workflow.get_image("Save Image")[0]
-            return image
+            return image, image_name
         except ConnectionError as e:
             print(
                 "Connection Error. Did you forget to build the iap tunnel to ComfyUI on port 8188?"

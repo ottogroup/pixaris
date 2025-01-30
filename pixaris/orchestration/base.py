@@ -34,12 +34,12 @@ def generate_images_based_on_eval_set(
     generation_params = args.get("generation_params", [])
     image_generator.validate_inputs_and_parameters(dataset, generation_params)
 
-    generated_images = []
+    generated_image_name_pairs = []
     failed_args = []
     for data in dataset:
-        consolidated_args = merge_dicts(args, data)
+        consolidated_args = merge_dicts(data, args)
         try:
-            generated_images.append(
+            generated_image_name_pairs.append(
                 image_generator.generate_single_image(consolidated_args)
             )
         except Exception as e:
@@ -48,7 +48,7 @@ def generate_images_based_on_eval_set(
             print("continuing with next image.")
 
     # if all generations fail, raise an exception, because something went wrong here :(
-    if len(generated_images) == 0:
+    if len(generated_image_name_pairs) == 0:
         raise ValueError(
             f"Failed to generate images for all {len(dataset)} images. \nLast error message: {failed_args[-1]['error_message']}"
         )
@@ -61,11 +61,11 @@ def generate_images_based_on_eval_set(
     data_writer.store_results(
         eval_set=args["eval_set"],
         run_name=args["run_name"],
-        images=generated_images,
+        image_name_pairs=generated_image_name_pairs,
         metrics={},  # TODO: change this to calculated metrics
         args=args,
     )
-    return generated_images
+    return generated_image_name_pairs
 
 
 def generate_images_for_hyperparameter_search_based_on_eval_set(

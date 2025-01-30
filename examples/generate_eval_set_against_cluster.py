@@ -48,5 +48,5 @@ args = {
     "generation_params": [],
 }
 
-out = generator.generate_single_image(args)
-out.show()
+image, name = generator.generate_single_image(args)
+image, name.show()

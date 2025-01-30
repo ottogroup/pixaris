@@ -7,7 +7,7 @@ import yaml
 
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 EVAL_SET = "z_test_correct"
-WORKFLOW_PATH = os.getcwd() + "/test/assets/test-background-generation.json"
+WORKFLOW_PATH = os.getcwd() + "/test/assets/test_inspo_apiformat.json"
 WORKFLOW_IMAGE_PATH = os.getcwd() + "/test/assets/test-just-load-and-save.png"
 
 # Define the components
@@ -17,6 +17,7 @@ loader = GCPDatasetLoader(
     eval_set=EVAL_SET,
     eval_dir_local="eval_data",
 )
+
 comfy_generator = ComfyGenerator(workflow_apiformat_path=WORKFLOW_PATH)
 writer = TensorboardWriter(
     project_id=config["gcp_project_id"],
@@ -28,6 +29,12 @@ args = {
     "workflow_apiformat_path": WORKFLOW_PATH,
     "workflow_image_path": WORKFLOW_IMAGE_PATH,
     "eval_set": EVAL_SET,
+    "image_paths": [
+        {
+            "node_name": "Load Inspo Image",
+            "image_path": "test/assets/test_inspo_image.jpg",
+        }
+    ],
     "run_name": "example_run",
 }
 

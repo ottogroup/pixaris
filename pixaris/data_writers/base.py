@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Iterator
+from typing import Iterable
 from PIL import Image
 
 
@@ -9,7 +9,7 @@ class DataWriter:
         self,
         eval_set: str,
         run_name: str,
-        images: Iterator[Image.Image],
+        image_name_pairs: Iterable[tuple[Image.Image, str]],
         metrics: dict[str, float],
         args: dict[str, any],
     ) -> None:

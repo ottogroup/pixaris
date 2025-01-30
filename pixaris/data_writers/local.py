@@ -11,7 +11,7 @@ class LocalDataWriter(DataWriter):
         self,
         eval_set: str,
         run_name: str,
-        images: Iterable[Image.Image],
+        image_name_pairs: Iterable[tuple[Image.Image, str]],
         metrics: dict[str, float],
         args: dict[str, any] = {},
         experiment_folder: str = "local_experiment_tracking",
@@ -35,8 +35,8 @@ class LocalDataWriter(DataWriter):
             os.makedirs(save_dir)
 
         # Save each image in the collection
-        for i, image in enumerate(images):
-            image.save(os.path.join(save_dir, f"{i}.png"))
+        for image, name in image_name_pairs:
+            image.save(os.path.join(save_dir, name))
 
         # Save the results as JSON files in the experiment subfolder
         with open(os.path.join(save_dir, "results.json"), "w") as f:

@@ -99,7 +99,7 @@ class TensorboardWriter(DataWriter):
         self,
         eval_set: str,
         run_name: str,
-        images: Iterable[Image.Image],
+        image_name_pairs: Iterable[tuple[Image.Image, str]],
         metrics: dict[str, float],
         args: dict[str, any] = {},
     ):
@@ -132,9 +132,9 @@ class TensorboardWriter(DataWriter):
             ).as_default():
                 # save generated images
                 print("Logging generated images")
-                for index, image in enumerate(images):
+                for image, name in image_name_pairs:
                     tf.summary.image(
-                        f"generated_image_{index}.jpg",
+                        name,
                         [np.asarray(image) / 255],
                         step=0,
                     )

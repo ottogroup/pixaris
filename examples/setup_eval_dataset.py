@@ -135,8 +135,8 @@ for input_img_name in imput_image_names:
         "generation_params": [],
     }
 
-    out = generator.generate_single_image(args)
-    out.save(os.path.join(mask_image_dir, input_img_name))
+    image, name = generator.generate_single_image(args)
+    image.save(os.path.join(mask_image_dir, input_img_name))
 
 
 # %%
