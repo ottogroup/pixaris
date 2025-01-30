@@ -8,18 +8,17 @@ import os
 import yaml
 
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
+EVAL_SET = "z_test_correct"
+WORKFLOW_PATH = os.getcwd() + "/test/assets/test-background-generation.json"
+WORKFLOW_IMAGE_PATH = os.getcwd() + "/test/assets/test-background-generation.png"
 
 loader = GCPDatasetLoader(
     gcp_project_id=config["gcp_project_id"],
     gcp_bucket_name=config["gcp_bucket_name"],
-    eval_set="z_test_correct",
+    eval_set=EVAL_SET,
     eval_dir_local="eval_data",
 )
-comfy_generator = ComfyGenerator(
-    workflow_apiformat_path=os.path.abspath(
-        os.getcwd() + "/test/assets/test-background-generation.json"
-    )
-)
+comfy_generator = ComfyGenerator(workflow_apiformat_path=WORKFLOW_PATH)
 writer = TensorboardWriter(
     project_id=config["gcp_project_id"],
     location=config["gcp_location"],
@@ -27,13 +26,9 @@ writer = TensorboardWriter(
 )
 # Define the arguments
 args = {
-    "workflow_apiformat_path": os.path.abspath(
-        os.getcwd() + "/test/assets/test-background-generation.json"
-    ),
-    "workflow_image_path": os.path.abspath(
-        os.getcwd() + "/test/assets/test-background-generation.png"
-    ),
-    "eval_set": "z_test_correct",
+    "workflow_apiformat_path": WORKFLOW_PATH,
+    "workflow_image_path": WORKFLOW_IMAGE_PATH,
+    "eval_set": EVAL_SET,
     "run_name": "example_run_debug",
     "hyperparameters": [
         {

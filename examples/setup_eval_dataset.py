@@ -116,15 +116,16 @@ os.makedirs(mask_image_dir, exist_ok=True)
 #     eval_set=eval_set_name,
 #     eval_dir_local="eval_data",
 # )
+workflow_apiformat_path = "/Users/henrike.meyer/Downloads/mask-simple-inspyrenet.json"
 generator = ComfyGenerator(
-    workflow_apiformat_path="/Users/henrike.meyer/Downloads/mask-simple-inspyrenet.json",
+    workflow_apiformat_path=workflow_apiformat_path,
 )
 
 for input_img_name in imput_image_names:
     print("input_img_name: ", input_img_name)
     args = {
         "eval_set": eval_set_name,
-        "workflow_apiformat_path": "/Users/henrike.meyer/Downloads/mask-simple-inspyrenet.json",
+        "workflow_apiformat_path": workflow_apiformat_path,
         "image_paths": [
             {
                 "node_name": "Load Input Image",
