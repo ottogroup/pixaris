@@ -14,7 +14,7 @@ class LocalDataWriter(DataWriter):
         image_name_pairs: Iterable[tuple[Image.Image, str]],
         metric_values: dict[str, float],
         args: dict[str, any] = {},
-        experiment_folder: str = "local_experiment_tracking",
+        experiment_folder: str = "local_results",
         global_tracking_file: str = "all_experiment_results.jsonl",
     ):
         """
