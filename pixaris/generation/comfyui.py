@@ -165,7 +165,7 @@ class ComfyGenerator(ImageGenerator):
                     The values should be the paths to the images to be loaded.
                 "image_paths": [{
                     "node_name": "Load Input Image",
-                    "image_path": "eval_data/z_test_correct/Input/model_90310595.jpg",}]
+                    "image_path": "eval_data/z_test_correct/Input/model_01.png",}]
             - "generation_params" (list[dict]): A dictionary of generation_params for the image generation process.
                 It should look like this:
                 [{

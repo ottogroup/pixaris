@@ -38,11 +38,11 @@ args = {
     "image_paths": [
         {
             "node_name": "Load Input Image",
-            "image_path": "eval_data/z_test_correct/Input/model_90310595.jpg",
+            "image_path": "eval_data/z_test_correct/Input/model_01.png",
         },
         {
             "node_name": "Load Mask Image",
-            "image_path": "eval_data/z_test_correct/Mask/model_90310595.jpg",
+            "image_path": "eval_data/z_test_correct/Mask/model_01.png",
         },
     ],
     "generation_params": [],
