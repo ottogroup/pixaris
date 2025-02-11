@@ -15,7 +15,7 @@ def normalize_image(image: Image, max_size=(1024, 1024)) -> Image:
         image = image.convert("RGBA")
 
     # Scale image while preserving aspect ratio
-    image.thumbnail(max_size)
+    image.thumbnail(max_size, resample=Image.LANCZOS)
 
     # Create white background
     white_base = Image.new("RGB", max_size, (255, 255, 255))

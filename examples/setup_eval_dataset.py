@@ -32,7 +32,7 @@ img_paths = os.listdir(source_directory)
 target_directory = "/Users/henrike.meyer/Library/CloudStorage/OneDrive-OttoGroup/General/Frankonia-Images/Mini_poc_images"
 
 for img_name in img_paths:
-    if img_name.endswith([".jpg", ".jpeg", ".png"]):
+    if img_name.endswith((".jpg", ".jpeg", ".png")):
         img = Image.open(os.path.join(source_directory, img_name))
         img.save(
             os.path.join(target_directory, img_name.split(".")[0] + ".jpg"), "JPEG"
@@ -63,7 +63,7 @@ print("target_height: ", target_height, "target_width: ", target_width)
 img_names = [
     img
     for img in os.listdir(model_images_directory)
-    if img.endswith([".jpg", ".jpeg", ".png"])
+    if img.endswith((".jpg", ".jpeg", ".png"))
 ]
 
 for img_name in img_names:
@@ -73,7 +73,7 @@ for img_name in img_names:
     img = Image.open(os.path.join(model_images_directory, img_name))
 
     # resize to max_long_side_length and max_short_side_length, keeping original aspect ratio
-    img.thumbnail((target_width, target_height))
+    img.thumbnail((target_width, target_height), resample=Image.LANCZOS)
 
     # paste in middle of image
     x_offset = int((target_width - img.size[0]) / 2)
