@@ -1,6 +1,7 @@
 from pixaris.data_loaders.base import DatasetLoader
 from pixaris.generation.base import ImageGenerator
 from pixaris.data_writers.base import DataWriter
+from pixaris.metrics.base import BaseMetric
 from pixaris.utils.helpers import merge_dicts
 from pixaris.utils.hyperparameters import (
     expand_hyperparameters,
@@ -14,6 +15,7 @@ def generate_images_based_on_eval_set(
     data_loader: DatasetLoader,
     image_generator: ImageGenerator,
     data_writer: DataWriter,
+    metrics: list[BaseMetric],
     args: dict[str, any],
 ) -> Iterable[Image.Image]:
     """
@@ -25,9 +27,10 @@ def generate_images_based_on_eval_set(
         data_loader (DatasetLoader): An instance of DatasetLoader to load the dataset.
         image_generator (ImageGenerator): An instance of ImageGenerator to generate images.
         data_writer (DataWriter): An instance of DataWriter to store the generated images and results.
+        metrics_calculator (MetricsCalculator): An instance of MetricsCalculator to calculate metrics.
         args (dict[str, any]): A dictionary of arguments to be used for image generation and storing results.
     Returns:
-        Iterable[Image.Image]: A list of generated images.
+        Iterable[tuple[Image.Image, str]]: A list of generated images and names
     """
     # validate inputs
     dataset = data_loader.load_dataset()
@@ -58,11 +61,17 @@ def generate_images_based_on_eval_set(
         print(f"Failed to generate images for {len(failed_args)} of {len(dataset)}.")
         print(f"Failed arguments: {failed_args}")
 
+    metric_values = {}
+    for metric in metrics:
+        metric_values.update(
+            metric.calculate([pair[0] for pair in generated_image_name_pairs])
+        )
+
     data_writer.store_results(
         eval_set=args["eval_set"],
         run_name=args["run_name"],
         image_name_pairs=generated_image_name_pairs,
-        metrics={},  # TODO: change this to calculated metrics
+        metric_values=metric_values,
         args=args,
     )
     return generated_image_name_pairs
@@ -72,6 +81,7 @@ def generate_images_for_hyperparameter_search_based_on_eval_set(
     data_loader: DatasetLoader,
     image_generator: ImageGenerator,
     data_writer: DataWriter,
+    metrics: list[BaseMetric],
     args: dict[str, any],
 ):
     """
@@ -116,5 +126,6 @@ def generate_images_for_hyperparameter_search_based_on_eval_set(
             data_loader=data_loader,
             image_generator=image_generator,
             data_writer=data_writer,
+            metrics=metrics,
             args=run_args,
         )

@@ -12,7 +12,7 @@ class LocalDataWriter(DataWriter):
         eval_set: str,
         run_name: str,
         image_name_pairs: Iterable[tuple[Image.Image, str]],
-        metrics: dict[str, float],
+        metric_values: dict[str, float],
         args: dict[str, any] = {},
         experiment_folder: str = "local_experiment_tracking",
         global_tracking_file: str = "all_experiment_results.jsonl",
@@ -40,7 +40,7 @@ class LocalDataWriter(DataWriter):
 
         # Save the results as JSON files in the experiment subfolder
         with open(os.path.join(save_dir, "results.json"), "w") as f:
-            json.dump(metrics, f)
+            json.dump(metric_values, f)
 
         # Save the results as JSON files in the experiment subfolder
         with open(os.path.join(save_dir, "args.json"), "w") as f:
@@ -48,4 +48,4 @@ class LocalDataWriter(DataWriter):
 
         # Append the results to the global tracking file
         with open(os.path.join(experiment_folder, global_tracking_file), "a") as f:
-            f.write(json.dumps(metrics) + "\n")
+            f.write(json.dumps(metric_values) + "\n")

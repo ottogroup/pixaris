@@ -10,7 +10,7 @@ class DataWriter:
         eval_set: str,
         run_name: str,
         image_name_pairs: Iterable[tuple[Image.Image, str]],
-        metrics: dict[str, float],
+        metric_values: dict[str, float],
         args: dict[str, any],
     ) -> None:
         pass

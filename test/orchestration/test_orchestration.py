@@ -67,7 +67,9 @@ class TestOrchestration(unittest.TestCase):
         mock_workflow.download_image.return_value = PIL.Image.new(
             "RGB", (100, 100), color="red"
         )
-        images = generate_images_based_on_eval_set(mock_loader, generator, writer, args)
+        images = generate_images_based_on_eval_set(
+            mock_loader, generator, writer, [], args
+        )
         self.assertEqual(len(images), 2)
 
     @patch("pixaris.generation.comfyui_utils.workflow.ComfyWorkflow")
@@ -128,7 +130,9 @@ class TestOrchestration(unittest.TestCase):
         mock_workflow.download_image.return_value = PIL.Image.new(
             "RGB", (100, 100), color="red"
         )
-        images = generate_images_based_on_eval_set(mock_loader, generator, writer, args)
+        images = generate_images_based_on_eval_set(
+            mock_loader, generator, writer, [], args
+        )
         mock_print.assert_any_call("continuing with next image.")
         mock_print.assert_any_call("Failed to generate images for 1 of 2.")
         self.assertEqual(len(images), 1)
@@ -186,6 +190,7 @@ class TestOrchestration(unittest.TestCase):
                 mock_loader,
                 generator,
                 writer,
+                [],
                 args,
             )
 

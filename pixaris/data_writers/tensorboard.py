@@ -100,7 +100,7 @@ class TensorboardWriter(DataWriter):
         eval_set: str,
         run_name: str,
         image_name_pairs: Iterable[tuple[Image.Image, str]],
-        metrics: dict[str, float],
+        metric_values: dict[str, float],
         args: dict[str, any] = {},
     ):
         """
@@ -141,7 +141,7 @@ class TensorboardWriter(DataWriter):
 
                 # save metrics
                 print("Logging metrics")
-                for metric, value in metrics.items():
+                for metric, value in metric_values.items():
                     assert isinstance(
                         value, (int, float)
                     ), f"Value for metric {metric} is not a number."

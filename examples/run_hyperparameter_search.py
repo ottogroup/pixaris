@@ -48,6 +48,7 @@ out = generate(
     data_loader=loader,
     image_generator=comfy_generator,
     data_writer=writer,
+    metrics=[],
     args=args,
 )
 
