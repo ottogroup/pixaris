@@ -1,6 +1,5 @@
-# TODO: merge with test_generation after merge TIGA-550 and TIGA-643 (for merge conflict reasons)
-
 import unittest
+
 from pixaris.utils.hyperparameters import (
     expand_hyperparameters,
     generate_hyperparameter_grid,

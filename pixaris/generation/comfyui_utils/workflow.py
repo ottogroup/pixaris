@@ -9,10 +9,6 @@ import os
 from pixaris.utils.retry import retry
 
 
-# TODO: Add modify, validate workflow methods
-# TODO: Add _get_unique_int_for_image to utils
-
-
 class ComfyWorkflow:
     api_host = ""
     prompt_workflow = {}
@@ -177,7 +173,7 @@ class ComfyWorkflow:
             files=files,
             data=data,
             timeout=20,
-        ).json()  # todo: error handling
+        ).json()
 
     def get_history(self, prompt_id: str):
         """Get the history of a prompt."""

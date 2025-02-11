@@ -2,7 +2,7 @@ from pixaris.data_loaders.base import DatasetLoader
 from pixaris.generation.base import ImageGenerator
 from pixaris.data_writers.base import DataWriter
 from pixaris.metrics.base import BaseMetric
-from pixaris.utils.helpers import merge_dicts
+from pixaris.utils.merge_dicts import merge_dicts
 from pixaris.utils.hyperparameters import (
     expand_hyperparameters,
     generate_hyperparameter_grid,

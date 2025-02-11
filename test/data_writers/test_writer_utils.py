@@ -1,5 +1,5 @@
 import unittest
-from pixaris.utils.helpers import merge_dicts
+from pixaris.utils.merge_dicts import merge_dicts
 
 
 class TestUtils(unittest.TestCase):
