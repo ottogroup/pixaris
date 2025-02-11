@@ -32,11 +32,11 @@ class TestOrchestration(unittest.TestCase):
                 "image_paths": [
                     {
                         "node_name": "Load Input Image",
-                        "image_path": "test/test_eval_data/mock/Input/model_90310595.jpg",
+                        "image_path": "test/test_eval_data/mock/Input/model_01.png",
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_data/mock/Mask/model_90310595.jpg",
+                        "image_path": "test/test_eval_data/mock/Mask/model_01.png",
                     },
                 ]
             },
@@ -44,11 +44,11 @@ class TestOrchestration(unittest.TestCase):
                 "image_paths": [
                     {
                         "node_name": "Load Input Image",
-                        "image_path": "test/test_eval_data/mock/Input/model_91803795.jpg",
+                        "image_path": "test/test_eval_data/mock/Input/model_02.png",
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_data/mock/Mask/model_91803795.jpg",
+                        "image_path": "test/test_eval_data/mock/Mask/model_02.png",
                     },
                 ]
             },
@@ -108,11 +108,11 @@ class TestOrchestration(unittest.TestCase):
                 "image_paths": [
                     {
                         "node_name": "Load Input Image",
-                        "image_path": "test/test_eval_data/mock/Input/model_91803795.jpg",
+                        "image_path": "test/test_eval_data/mock/Input/model_02.png",
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_data/mock/Mask/model_91803795.jpg",
+                        "image_path": "test/test_eval_data/mock/Mask/model_02.png",
                     },
                 ]
             },

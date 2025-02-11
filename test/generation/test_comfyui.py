@@ -6,6 +6,10 @@ from unittest.mock import MagicMock
 import PIL
 
 from pixaris.generation.comfyui import ComfyGenerator
+from pixaris.utils.hyperparameters import (
+    expand_hyperparameters,
+    generate_hyperparameter_grid,
+)
 
 
 class TestComfyUI(unittest.TestCase):
@@ -20,7 +24,7 @@ class TestComfyUI(unittest.TestCase):
             ),
         )
         response = generator._get_unique_int_for_image(
-            "test/test_eval_data/mock/Input/model_90310595.jpg"
+            "test/test_eval_data/mock/Input/model_01.png"
         )
         self.assertIsInstance(response, int)
         self.assertGreaterEqual(response, 0)
@@ -36,10 +40,10 @@ class TestComfyUI(unittest.TestCase):
             ),
         )
         response = generator._get_unique_int_for_image(
-            "test/test_eval_data/mock/Input/model_90310595.jpg"
+            "test/test_eval_data/mock/Input/model_01.png"
         )
         response2 = generator._get_unique_int_for_image(
-            "test/test_eval_data/mock/Input/model_90310595.jpg"
+            "test/test_eval_data/mock/Input/model_01.png"
         )
         self.assertEqual(response, response2)
 
@@ -57,11 +61,11 @@ class TestComfyUI(unittest.TestCase):
                 "image_paths": [
                     {
                         "node_name": "Load Input Image",
-                        "image_path": "test/test_eval_data/mock/Input/model_90310595.jpg",
+                        "image_path": "test/test_eval_data/mock/Input/model_01.png",
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_data/mock/Mask/model_90310595.jpg",
+                        "image_path": "test/test_eval_data/mock/Mask/model_01.png",
                     },
                 ]
             },
@@ -69,11 +73,11 @@ class TestComfyUI(unittest.TestCase):
                 "image_paths": [
                     {
                         "node_name": "Load Input Image",
-                        "image_path": "test/test_eval_data/mock/Input/model_91803795.jpg",
+                        "image_path": "test/test_eval_data/mock/Input/model_02.png",
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_data/mock/Mask/model_91803795.jpg",
+                        "image_path": "test/test_eval_data/mock/Mask/model_02.png",
                     },
                 ]
             },
@@ -135,11 +139,11 @@ class TestComfyUI(unittest.TestCase):
                 "image_paths": [
                     {
                         "node_name": "Load Input Image",
-                        "image": "test/test_eval_data/mock/Input/model_90310595.jpg",
+                        "image": "test/test_eval_data/mock/Input/model_01.png",
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_data/mock/Mask/model_90310595.jpg",
+                        "image_path": "test/test_eval_data/mock/Mask/model_01.png",
                     },
                 ]
             },
@@ -170,11 +174,11 @@ class TestComfyUI(unittest.TestCase):
                 "image_paths": [
                     {
                         "node": "Load Input Image",
-                        "image_path": "test/test_eval_data/mock/Input/model_90310595.jpg",
+                        "image_path": "test/test_eval_data/mock/Input/model_01.png",
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_data/mock/Mask/model_90310595.jpg",
+                        "image_path": "test/test_eval_data/mock/Mask/model_01.png",
                     },
                 ]
             },
@@ -200,13 +204,13 @@ class TestComfyUI(unittest.TestCase):
                 os.getcwd() + "/test/assets/test-background-generation.json"
             ),
         )
-        image = PIL.Image.open("test/test_eval_data/mock/Input/model_90310595.jpg")
+        image = PIL.Image.open("test/test_eval_data/mock/Input/model_01.png")
         dataset = [
             {
                 "image_paths": [
                     {
                         "node_name": "Load Input Image",
-                        "image_path": "test/test_eval_data/mock/Input/model_90310595.jpg",
+                        "image_path": "test/test_eval_data/mock/Input/model_01.png",
                     },
                     {"node_name": "Load Mask Image", "image_path": image},
                 ]
@@ -398,13 +402,11 @@ class TestComfyUI(unittest.TestCase):
             ),
         )
         generator.workflow.upload_image = MagicMock()
-        input_image = PIL.Image.open(
-            "test/test_eval_data/mock/Input/model_90310595.jpg"
-        )
+        input_image = PIL.Image.open("test/test_eval_data/mock/Input/model_01.png")
         image_paths = [
             {
                 "node_name": "Load Input Image",
-                "image_path": "test/test_eval_data/mock/Input/model_90310595.jpg",
+                "image_path": "test/test_eval_data/mock/Input/model_01.png",
             }
         ]
         generator._modify_workflow(image_paths=image_paths)
@@ -423,7 +425,7 @@ class TestComfyUI(unittest.TestCase):
         image_paths = [
             {
                 "node_name": "Load Input Image",
-                "image_path": "test/test_eval_data/mock/Input/model_90310595.jpg",
+                "image_path": "test/test_eval_data/mock/Input/model_01.png",
             }
         ]
         generation_params = [
@@ -435,6 +437,121 @@ class TestComfyUI(unittest.TestCase):
         ]
         generator._modify_workflow(image_paths, generation_params)
         self.assertEqual(generator.workflow.prompt_workflow["76"]["inputs"]["steps"], 1)
+
+    def test_expand_hyperparameters(self):
+        """
+        test if expanding works.
+        """
+        self.maxDiff = None
+        hyperparameters = [
+            {
+                "node_name": "test1",
+                "input": "in1",
+                "value": [1, 2],
+            },
+            {
+                "node_name": "test2",
+                "input": "in2",
+                "value": ["one", "two"],
+            },
+        ]
+        expanded_hyperparameters = expand_hyperparameters(hyperparameters)
+        self.assertEqual(
+            expanded_hyperparameters,
+            [
+                {
+                    "node_name": "test1",
+                    "input": "in1",
+                    "value": 1,
+                },
+                {
+                    "node_name": "test1",
+                    "input": "in1",
+                    "value": 2,
+                },
+                {
+                    "node_name": "test2",
+                    "input": "in2",
+                    "value": "one",
+                },
+                {
+                    "node_name": "test2",
+                    "input": "in2",
+                    "value": "two",
+                },
+            ],
+        )
+
+    def test_generate_hyperparameter_grid(self):
+        """
+        test if grid generation works.
+        """
+        hyperparameters = [
+            {
+                "node_name": "test1",
+                "input": "in1",
+                "value": [1, 2],
+            },
+            {
+                "node_name": "test2",
+                "input": "in2",
+                "value": ["one", "two"],
+            },
+        ]
+        hyperparameter_grid = generate_hyperparameter_grid(hyperparameters)
+        self.assertEqual(
+            hyperparameter_grid,
+            [
+                [
+                    {
+                        "node_name": "test1",
+                        "input": "in1",
+                        "value": 1,
+                    },
+                    {
+                        "node_name": "test2",
+                        "input": "in2",
+                        "value": "one",
+                    },
+                ],
+                [
+                    {
+                        "node_name": "test1",
+                        "input": "in1",
+                        "value": 1,
+                    },
+                    {
+                        "node_name": "test2",
+                        "input": "in2",
+                        "value": "two",
+                    },
+                ],
+                [
+                    {
+                        "node_name": "test1",
+                        "input": "in1",
+                        "value": 2,
+                    },
+                    {
+                        "node_name": "test2",
+                        "input": "in2",
+                        "value": "one",
+                    },
+                ],
+                [
+                    {
+                        "node_name": "test1",
+                        "input": "in1",
+                        "value": 2,
+                    },
+                    {
+                        "node_name": "test2",
+                        "input": "in2",
+                        "value": "two",
+                    },
+                ],
+            ],
+        )
 
 
 if __name__ == "__main__":
