@@ -35,7 +35,10 @@ for img_name in img_paths:
     if img_name.endswith((".jpg", ".jpeg", ".png")):
         img = Image.open(os.path.join(source_directory, img_name))
         img.save(
-            os.path.join(target_directory, img_name.split(".")[0] + ".jpg"), "JPEG"
+            os.path.join(target_directory, img_name.split(".")[0] + ".png"),
+            "PNG",
+            dpi=(300, 300),
+            # if you switch to JPEG, use quality=95 as input! Otherwise, expect square artifacts
         )
     # if it is a directory continue
     if os.path.isdir(os.path.join(source_directory, img_name)):
@@ -79,8 +82,11 @@ for img_name in img_names:
     x_offset = int((target_width - img.size[0]) / 2)
     y_offset = int((target_height - img.size[1]) / 2)
     background.paste(img, (x_offset, y_offset))
-
-    background.save(os.path.join(standardised_model_images_directory, img_name), "JPEG")
+    background.save(
+        os.path.join(standardised_model_images_directory, img_name),
+        "PNG",
+        dpi=(300, 300),
+    )  # if you switch to JPEG, use quality=95 as input! Otherwise, expect square artifacts
 
 # %%
 # # copy to eval_data directory so that we can create masks
@@ -136,7 +142,9 @@ for input_img_name in imput_image_names:
     }
 
     image, name = generator.generate_single_image(args)
-    image.save(os.path.join(mask_image_dir, input_img_name))
+    image.save(
+        os.path.join(mask_image_dir, input_img_name), "PNG", dpi=(300, 300)
+    )  # if you switch to JPEG, use quality=95 as input! Otherwise, expect square artifacts
 
 
 # %%

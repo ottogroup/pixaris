@@ -36,7 +36,12 @@ class LocalDataWriter(DataWriter):
 
         # Save each image in the collection
         for image, name in image_name_pairs:
-            image.save(os.path.join(save_dir, name))
+            image.save(
+                os.path.join(save_dir, name.split(".")[0] + ".png"),
+                "PNG",
+                dpi=(300, 300),
+                # if you switch to JPEG, use quality=95 as input! Otherwise, expect square artifacts
+            )
 
         # Save the results as JSON files in the experiment subfolder
         with open(os.path.join(save_dir, "results.json"), "w") as f:
