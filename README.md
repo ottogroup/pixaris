@@ -1,7 +1,20 @@
-# Pixaris
-An evaluation framework for image generation.
+### Pixaris: An Evaluation Framework for Image Generation
+Welcome to Pixaris, designed for data scientists/ ai engineers / creatives experimenting with image generation! Whether you're leveraging APIs or using ComfyUI, Pixaris streamlines your experiment tracking, making it faster and more efficient.
 
-## Installation
+Inspired by the MLOps mindset, we aim to cultivate an ImageOps approach. With Pixaris, you can track, compare and evaluate your experiments.
+
+![Tensorboard](test/assets/tensorboard-example.png)
+
+## Key Features:
+- Experiment Tracking with TensorBoard: Compare your experiments side by side
+- Run Experiments Against Your Eval Set: Test your ComfyUI workflows against evaluation data set.
+- "Hyperparameter" Search: Explore a limitless range of parameters, such as prompt, model, cfg, noise, seed—to discover the optimal settings for your image generation tasks.
+- Implement Metrics for Evaluation: Assess your generated images using your own metrics, calling a multimodal llm.
+- Trigger ComfyUI on a Remote Server: Seamlessly initiate your workflows from anywhere.
+
+
+
+## Installation 
 To install Pixaris, follow these steps:
 
 0. make sure to have python 3.12 and poetry 2.0.1 or higher installed.
@@ -17,9 +30,25 @@ To install Pixaris, follow these steps:
     ```sh
     poetry install
     ```
+4. Optional:  If you prefer working with Notebooks, install [jupytext](https://github.com/mwouts/jupytext) and you can convert our py files to ipynb.
+    ```sh
+    pip install jupytext
+    ```
 
-## Usage
-Use Pixaris to compare and evaluate different experiments in image generation! For example usage, pleases look [here](examples/local_data.py).
+    Most important jupytext  commands:
+    ```sh
+    # convert notebook.ipynb to a .py file
+    jupytext --to py notebook.ipynb  
+
+    # convert notebook.py to an .ipynb file with no outputs               
+    jupytext --to notebook notebook.py              
+
+
+    ```
+
+
+## Getting Started
+Use Pixaris to compare and evaluate different experiments in image generation! For example usage, please look [here](examples/local_data.py).
 
 ### Setting up an eval set
 To run and evaluate an experiment, we need a common base of inputs that we iterate over in order to find out if our way of generating images is good and generalises well. Inputs of any format can be saved as an eval set. This could be images we use as inputs. Putting 10 images means that in one experiment, the workflow is run 10 times with the different images as an input accordingly.
@@ -83,10 +112,10 @@ writer = TensorboardWriter(
     bucket_name=<your gcp_bucket_name here>,
 )
 ```
-You can choose to save your results locally using the `LocalDataWriter` or implement an own class that inherits from the `DataWriter`. Usually, it would save images and possibly metrics from your experiment.
+You can choose to save your results locally using the `LocalDataWriter` or implement your own class that inherits from the `DataWriter`. Usually, it would save images and possibly metrics from your experiment.
 
 #### Metrics
-Maybe we want to generate some metrics to evaluate our results, e.g. for mask generation, calculate the IoU with correct masks.
+Maybe we want to generate some metrics to evaluate our results, e.g. for mask generation, calculate the IoU with the correct masks.
 ```
 from pixaris.metrics.iou import IoUMetric
 correct_masks_path = <path to your correct masks>
@@ -149,6 +178,10 @@ Internally, it will load data, generate images, calculate metrics and save data 
 - **Hyperparameters**: Multiple sets of different Generation Params, used in hyperparameter search.
 - **args**: Includes inputs, e.g., can include workflow apiformat, input images, generation params, save directory, etc.
 
-## Open Source
-We published this project to inspire everyone to contribute their own ideas to this project.
-Feel free to fork and add new data loaders, generators, writers or metrics to pixaris!
+
+## License Information
+Pixaris is open-source software licensed .... TODO
+
+
+## Contribute 
+We published this project to inspire everyone to contribute their own ideas to this project. Feel free to fork and add new data loaders, generators, writers or metrics to pixaris! Learn here how: https://opensource.guide/how-to-contribute/
