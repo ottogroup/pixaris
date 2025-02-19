@@ -1,8 +1,9 @@
 # Pixaris
-Repository for evaluation framework for image generation cases.
+An evaluation framework for image generation.
 
 ## Installation
 To install Pixaris, follow these steps:
+
 0. make sure to have python 3.12 and poetry 2.0.1 or higher installed.
 1. Clone the repository:
     ```sh
@@ -18,14 +19,12 @@ To install Pixaris, follow these steps:
     ```
 
 ## Usage
-Use Pixaris to compare and evaluate different experiments in image generation
-![test/assets/examples.png]
+Use Pixaris to compare and evaluate different experiments in image generation! For example usage, pleases look [here](examples/local_data.py).
 
 ### Setting up an eval set
-To run and evaluate an experiment, we need a common base of inputs. These are saved as an eval set. 
-For our case of image generation with comfy is a directory with the following structure: We need an input and a mask image for every workflow we want to evaluate. The corresponding nodes are called "Load Input Image" and "Load Mask Image". These are loaded from the folders "Input" and "Mask".
-Make sure that in every folder under eval_set_name (e.g. Input and Mask) are files with the same name. If in "Input" there is "image_01.jpg", there must be an "image_01.jpg" in "Mask".
-The eval set should look like this:
+To run and evaluate an experiment, we need a common base of inputs that we iterate over in order to find out if our way of generating images is good and generalises well. Inputs of any format can be saved as an eval set. This could be images we use as inputs. Putting 10 images means that in one experiment, the workflow is run 10 times with the different images as an input accordingly.
+
+Example: We want to generate backgrounds for photos of products with ComfyUI. We need an input and a mask image for the workflows we want to evaluate. In our ComfyUI workflow, the corresponding nodes are called "Load Input Image" and "Load Mask Image" (see [here](test/assets/test-background-generation.png)). In our eval_set, these are loaded from the folders "Input" and "Mask". Make sure that folder names in the eval set and the node titles in the workflow fit. The eval_set directory has the following structure:
 ```
 eval_data
 └───eval_set_name
@@ -36,67 +35,74 @@ eval_data
         ├───image_01.jpg
         └───...
 ```
-When using the ComfyGenerator, the images from the "Input" folder will be loaded into the "Load Input Image" Node. Make sure that names in the eval set and in the workflow fit.
-You can set this up yourself using the code snippet in the examples folder.
+
+When using the ComfyGenerator, the images from the "Input" folder will be loaded into the "Load Input Image" Node. Make sure that in each and every folder under eval_set_name (e.g. Input and Mask) are files with the same name. If in "Input" there is "image_01.jpg", there must be an "image_01.jpg" in "Mask". For one workflow execution, one set of images with the same name is loaded into the workflow. At the end of the experiment, all images have been run through the workflow once.
+
 
 ### Run a single Experiment, once
-For examples, see the [examples](examples/local_data.py)!
-To Use pixaris to evaluate your experiments, you need a data loader, an image generator, a data writer (and possible some metrics). 
-Every one of these should be inheriting from the base classes, either `DatasetLoader`, `ImageGenerator`, `DataWriter` or `Metric`. All these are arguments for the function `generate_images_based_on_eval_set`. 
+To use pixaris to evaluate your experiments, you always need a data loader, an image generator, and a data writer (and possibly some metrics).
+Every one of these should be inheriting from the base classes, either `DatasetLoader`, `ImageGenerator`, `DataWriter` or `Metric`. After the components are all defined, they will be given to the function `generate_images_based_on_eval_set`. This is the main actor that loads the data, executes and experiment and saves the results.
+
+For a simple example how to run an experiment with a local dataset loader and writer, see the [examples](examples/local_data.py)!
 
 #### Dataset Loaders
-Load your dataset using a `DatasetLoader`
+First step: load your dataset using a `DatasetLoader`. If you have your eval_set saved locally, use the `LocalDatasetLoader`
 ```
 from pixaris.data_loaders.local import LocalDatasetLoader
-loader = LocalDatasetLoader(eval_set=*your eval_set name here*, eval_dir_local="eval_data")
+loader = LocalDatasetLoader(eval_set=<your eval_set name here>, eval_dir_local="eval_data")
 ```
+
 If you have your data in a google cloud bucket, you can use the `GCPDatasetLoader`,
 ```
 from pixaris.data_loaders.google import GCPDatasetLoader
 loader = GCPDatasetLoader(
-    gcp_project_id=*your cgp_project_id here*,
-    gcp_bucket_name=*you gcp_bucket_name here*,
-    eval_set=*your eval_dir here*,
+    gcp_project_id=<your cgp_project_id here>,
+    gcp_bucket_name=<you gcp_bucket_name here>,
+    eval_set=<your eval_dir here>,
     eval_dir_local="eval_data", # this is the local path where all your eval_sets are stored
 )
 ```
 
 #### Generator
-We use ComfyUI to generate our images.
-You can implement your own generator inheriting from `ImageGenerator`. Make it call your existing generation pipeline. A Generator should parse a dataset into usable arguments for your generation. Override the function `generate_single_image` to call your generation
+We implemented a neat `ImageGenerator` that uses ComfyUI.
 ```
 from pixaris.generation.comfyui import ComfyGenerator
-comfy_generator = ComfyGenerator(workflow_apiformat_path=*WORKFLOW_PATH*)
+comfy_generator = ComfyGenerator(workflow_apiformat_path=<WORKFLOW_PATH>)
 ```
-the workflow_apiformat_path should lead to a JSON file generated from comfyUI.
-![test/assets/export_apiformat.png]
+the workflow_apiformat_path should lead to a JSON file exported from ComfyUI. You can export your workflow in apiformat as shown [here][test/assets/export_apiformat.png].
+
+You can implement your own `ImageGenerator` for image generation with different tools, an API, or whatever you like. Your class needs to inherit from `ImageGenerator` and should call any image generation pipeline. A generator should parse a dataset into usable arguments for your generation. Override the function `generate_single_image` to call your generation.
 
 #### Writer
-To save the generated images, we define a DataWriter. In our case we want to have a nice visualization of all input and output images and metrics, so we chose the TensorboardWriter
+To save the generated images and possibly metrics, we define a `DataWriter`. In our case we want to have a nice visualization of all input and output images and metrics, so we choose the `TensorboardWriter`.
 ```
 from pixaris.data_writers.tensorboard import TensorboardWriter
 writer = TensorboardWriter(
-    project_id=*your gcp_project_id here*,
-    location=*your gcp_location here*,
-    bucket_name=*your gcp_bucket_name here*,
+    project_id=<your gcp_project_id here>,
+    location=<your gcp_location here>,
+    bucket_name=<your gcp_bucket_name here>,
 )
 ```
-You can choose to save your results locally using the `LocalDataWriter`
+You can choose to save your results locally using the `LocalDataWriter` or implement an own class that inherits from the `DataWriter`. Usually, it would save images and possibly metrics from your experiment.
 
 #### Metrics
-Maybe we want to generate some metrics to evaluate our results, e.g. mask generation
+Maybe we want to generate some metrics to evaluate our results, e.g. for mask generation, calculate the IoU with correct masks.
 ```
 from pixaris.metrics.iou import IoUMetric
-true_masks_path = *path to your true masks*
-true_masks = [Image.open(true_masks_path + name) for name in os.listdir(true_masks_path)]
+correct_masks_path = <path to your correct masks>
+correct_masks = [Image.open(correct_masks_path + name) for name in os.listdir(correct_masks_path)]
 iou_metric = IoUMetric(true_masks)
 ```
 
+As always, it is intended for you to implement your own metrics by inheriting from the `BaseMetric` class.
+
 #### Args
-Sometimes, depending on the specific components and what they provide, we need or want to give some more arguments.
-args can include whatever data is needed by other components, and is not given explicitly through parameters.E.g. the ComfyGenerator can be specified by "generation_params". 
-In args you can set a seed, an Inspo Image that will be the same in every run or which workflow image should be uploaded to Tensorboard for documentation.
-This is highly dependent on the Components you use.
+Depending on the specific components we defined and what they provide, we need to give some more arguments.
+`args` can include whatever data is needed by any of the components, and is not given explicitly through parameters of a component. The content of `args` is highly dependent on the components you use.
+
+For example, additional parameters you want to set in the workflow for the the `ComfyGenerator` can be specified by `generation_params`.
+In `args` you can set a seed, an inspiration image for the workflow or which workflow image should be uploaded for documentation. In contrast to the inputs in the eval_set, these will be the same for each execution over the workflow within your experiment.
+
 ```
 args = {
     "workflow_apiformat_path": WORKFLOW_PATH,
@@ -120,7 +126,7 @@ args = {
 ```
 
 #### Putting it all together
-After defining the aforementioned components, we simply pass them to the orchestration
+After defining all aforementioned components, we simply pass them to the orchestration
 ```
 from pixaris.orchestration.base import generate_images_based_on_eval_set
 out = generate_images_based_on_eval_set(
@@ -137,12 +143,12 @@ Internally, it will load data, generate images, calculate metrics and save data 
 - **workflow execution**: Running a workflow for a single input, e.g., object image + mask image.
 - **eval set**: Set of evaluation inputs, e.g., 10 * (object image + mask image).
 - **run**: One eval set gets run with 1 workflow and 1 set of generation_params.
-- **Hyperparameter Search**: One workflow, one eval set, multiple sets of generation_params, with results in multiple runs.
+- **Hyperparameter Search**: One workflow, one eval set, multiple sets of generation_params, which results in multiple runs.
 - **Experiment**: Synonymous to run, use run for clarity.
 - **Generation Params**: Set of parameters to execute a single run.
 - **Hyperparameters**: Multiple sets of different Generation Params, used in hyperparameter search.
 - **args**: Includes inputs, e.g., can include workflow apiformat, input images, generation params, save directory, etc.
 
 ## Open Source
-We published this project to inspire everyone to contribute their own ideas to this project. 
+We published this project to inspire everyone to contribute their own ideas to this project.
 Feel free to fork and add new data loaders, generators, writers or metrics to pixaris!
