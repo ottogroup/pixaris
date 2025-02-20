@@ -24,7 +24,7 @@ class TestComfyUI(unittest.TestCase):
             ),
         )
         response = generator._get_unique_int_for_image(
-            "test/test_eval_data/mock/Input/model_01.png"
+            "test/test_eval_set/mock/input/model_01.png"
         )
         self.assertIsInstance(response, int)
         self.assertGreaterEqual(response, 0)
@@ -40,10 +40,10 @@ class TestComfyUI(unittest.TestCase):
             ),
         )
         response = generator._get_unique_int_for_image(
-            "test/test_eval_data/mock/Input/model_01.png"
+            "test/test_eval_set/mock/input/model_01.png"
         )
         response2 = generator._get_unique_int_for_image(
-            "test/test_eval_data/mock/Input/model_01.png"
+            "test/test_eval_set/mock/input/model_01.png"
         )
         self.assertEqual(response, response2)
 
@@ -61,11 +61,11 @@ class TestComfyUI(unittest.TestCase):
                 "image_paths": [
                     {
                         "node_name": "Load Input Image",
-                        "image_path": "test/test_eval_data/mock/Input/model_01.png",
+                        "image_path": "test/test_eval_set/mock/input/model_01.png",
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_data/mock/Mask/model_01.png",
+                        "image_path": "test/test_eval_set/mock/mask/model_01.png",
                     },
                 ]
             },
@@ -73,11 +73,11 @@ class TestComfyUI(unittest.TestCase):
                 "image_paths": [
                     {
                         "node_name": "Load Input Image",
-                        "image_path": "test/test_eval_data/mock/Input/model_02.png",
+                        "image_path": "test/test_eval_set/mock/input/model_02.png",
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_data/mock/Mask/model_02.png",
+                        "image_path": "test/test_eval_set/mock/mask/model_02.png",
                     },
                 ]
             },
@@ -102,11 +102,11 @@ class TestComfyUI(unittest.TestCase):
                 "image_paths": [
                     {
                         "node_name": "Load Input Image",
-                        "image_path": "test/test_eval_data/mock/Input/fake.jpg",
+                        "image_path": "test/test_eval_set/mock/input/fake.jpg",
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_data/mock/Mask/fake.jpg",
+                        "image_path": "test/test_eval_set/mock/mask/fake.jpg",
                     },
                 ]
             },
@@ -139,11 +139,11 @@ class TestComfyUI(unittest.TestCase):
                 "image_paths": [
                     {
                         "node_name": "Load Input Image",
-                        "image": "test/test_eval_data/mock/Input/model_01.png",
+                        "image": "test/test_eval_set/mock/input/model_01.png",
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_data/mock/Mask/model_01.png",
+                        "image_path": "test/test_eval_set/mock/mask/model_01.png",
                     },
                 ]
             },
@@ -174,11 +174,11 @@ class TestComfyUI(unittest.TestCase):
                 "image_paths": [
                     {
                         "node": "Load Input Image",
-                        "image_path": "test/test_eval_data/mock/Input/model_01.png",
+                        "image_path": "test/test_eval_set/mock/input/model_01.png",
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_data/mock/Mask/model_01.png",
+                        "image_path": "test/test_eval_set/mock/mask/model_01.png",
                     },
                 ]
             },
@@ -204,13 +204,13 @@ class TestComfyUI(unittest.TestCase):
                 os.getcwd() + "/test/assets/test-background-generation.json"
             ),
         )
-        image = PIL.Image.open("test/test_eval_data/mock/Input/model_01.png")
+        image = PIL.Image.open("test/test_eval_set/mock/input/model_01.png")
         dataset = [
             {
                 "image_paths": [
                     {
                         "node_name": "Load Input Image",
-                        "image_path": "test/test_eval_data/mock/Input/model_01.png",
+                        "image_path": "test/test_eval_set/mock/input/model_01.png",
                     },
                     {"node_name": "Load Mask Image", "image_path": image},
                 ]
@@ -402,11 +402,11 @@ class TestComfyUI(unittest.TestCase):
             ),
         )
         generator.workflow.upload_image = MagicMock()
-        input_image = PIL.Image.open("test/test_eval_data/mock/Input/model_01.png")
+        input_image = PIL.Image.open("test/test_eval_set/mock/input/model_01.png")
         image_paths = [
             {
                 "node_name": "Load Input Image",
-                "image_path": "test/test_eval_data/mock/Input/model_01.png",
+                "image_path": "test/test_eval_set/mock/input/model_01.png",
             }
         ]
         generator._modify_workflow(image_paths=image_paths)
@@ -425,7 +425,7 @@ class TestComfyUI(unittest.TestCase):
         image_paths = [
             {
                 "node_name": "Load Input Image",
-                "image_path": "test/test_eval_data/mock/Input/model_01.png",
+                "image_path": "test/test_eval_set/mock/input/model_01.png",
             }
         ]
         generation_params = [

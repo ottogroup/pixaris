@@ -11,7 +11,7 @@ WORKFLOW_IMAGE_PATH = os.getcwd() + "/test/assets/test-just-load-and-save.png"
 # Define the dataset Loader
 loader = LocalDatasetLoader(
     eval_set=EVAL_SET,
-    eval_dir_local="test/test_eval_data",
+    eval_dir_local="test/test_eval_set",
 )
 
 # Define the Generator

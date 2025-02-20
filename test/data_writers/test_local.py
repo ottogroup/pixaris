@@ -6,7 +6,7 @@ from pixaris.data_loaders.local import LocalDatasetLoader
 class TestLocalDataset(unittest.TestCase):
     def test_get_image_paths(self):
         loader = LocalDatasetLoader(
-            eval_set="mock", eval_dir_local="test/test_eval_data"
+            eval_set="mock", eval_dir_local="test/test_eval_set"
         )
         dataset = loader.load_dataset()
         print(dataset)

@@ -8,7 +8,7 @@ import os
 import yaml
 
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
-EVAL_SET = "z_test_correct"
+EVAL_SET = "test_eval_set"
 WORKFLOW_PATH = os.getcwd() + "/test/assets/test_inspo_apiformat.json"
 WORKFLOW_IMAGE_PATH = os.getcwd() + "/test/assets/test-just-load-and-save.png"
 
@@ -29,7 +29,7 @@ writer = TensorboardWriter(
 )
 
 # Define Metrics and all nessecary images to run these metrics
-object_dir = "test/test_eval_data/mock/Input/"
+object_dir = "test/test_eval_set/mock/input/"
 object_images = [PIL.Image.open(object_dir + image) for image in os.listdir(object_dir)]
 style_images = [PIL.Image.open("test/assets/test_inspo_image.jpg")] * len(object_images)
 llm_metric = LLMMetric(

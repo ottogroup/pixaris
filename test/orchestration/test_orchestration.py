@@ -24,7 +24,7 @@ class TestOrchestration(unittest.TestCase):
             "workflow_image_path": os.path.abspath(
                 os.getcwd() + "/test/assets/test-just-load-and-save.png"
             ),
-            "eval_set": "z_test_correct",
+            "eval_set": "test_eval_set",
             "run_name": "testrun",
         }
         mock_loader.load_dataset.return_value = [
@@ -32,11 +32,11 @@ class TestOrchestration(unittest.TestCase):
                 "image_paths": [
                     {
                         "node_name": "Load Input Image",
-                        "image_path": "test/test_eval_data/mock/Input/model_01.png",
+                        "image_path": "test/test_eval_set/mock/input/model_01.png",
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_data/mock/Mask/model_01.png",
+                        "image_path": "test/test_eval_set/mock/mask/model_01.png",
                     },
                 ]
             },
@@ -44,11 +44,11 @@ class TestOrchestration(unittest.TestCase):
                 "image_paths": [
                     {
                         "node_name": "Load Input Image",
-                        "image_path": "test/test_eval_data/mock/Input/model_02.png",
+                        "image_path": "test/test_eval_set/mock/input/model_02.png",
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_data/mock/Mask/model_02.png",
+                        "image_path": "test/test_eval_set/mock/mask/model_02.png",
                     },
                 ]
             },
@@ -87,7 +87,7 @@ class TestOrchestration(unittest.TestCase):
             "workflow_image_path": os.path.abspath(
                 os.getcwd() + "/test/assets/test-just-load-and-save.png"
             ),
-            "eval_set": "z_test_correct",
+            "eval_set": "test_eval_set",
             "run_name": "testrun",
         }
 
@@ -108,11 +108,11 @@ class TestOrchestration(unittest.TestCase):
                 "image_paths": [
                     {
                         "node_name": "Load Input Image",
-                        "image_path": "test/test_eval_data/mock/Input/model_02.png",
+                        "image_path": "test/test_eval_set/mock/input/model_02.png",
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_data/mock/Mask/model_02.png",
+                        "image_path": "test/test_eval_set/mock/mask/model_02.png",
                     },
                 ]
             },
@@ -151,7 +151,7 @@ class TestOrchestration(unittest.TestCase):
             "workflow_image_path": os.path.abspath(
                 os.getcwd() + "/test/assets/test-just-load-and-save.png"
             ),
-            "eval_set": "z_test_correct",
+            "eval_set": "test_eval_set",
             "run_name": "testrun",
         }
 
