@@ -8,10 +8,6 @@
 #       format_name: percent
 #       format_version: '1.3'
 #       jupytext_version: 1.11.2
-#   kernelspec:
-#     display_name: pixaris-_wOx1PWk-py3.12
-#     language: python
-#     name: python3
 # ---
 
 # %% [markdown]

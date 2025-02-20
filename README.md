@@ -10,14 +10,13 @@ Inspired by the MLOps mindset, we aim to cultivate an ImageOps approach. With Pi
 - Run Experiments Against Your Eval Set: Test your ComfyUI workflows against evaluation data set.
 - "Hyperparameter" Search: Explore a limitless range of parameters, such as prompt, model, cfg, noise, seed—to discover the optimal settings for your image generation tasks.
 - Implement Metrics for Evaluation: Assess your generated images using your own metrics, calling a multimodal llm.
-- Trigger ComfyUI on a Remote Server: Seamlessly initiate your workflows from anywhere.
-
+- Trigger ComfyUI Workflows locally or remotly
 
 
 ## Installation 
 To install Pixaris, follow these steps:
 
-0. make sure to have python 3.12 and poetry 2.0.1 or higher installed.
+0. Make sure to have python 3.12 and poetry 2.0.1 or higher installed.
 1. Clone the repository:
     ```sh
     git clone https://github.com/OG-DW/tiga_pixaris
@@ -35,7 +34,7 @@ To install Pixaris, follow these steps:
     pip install jupytext
     ```
 
-    Most important jupytext  commands:
+    Most common jupytext cli commands:
     ```sh
     # convert notebook.ipynb to a .py file
     jupytext --to py notebook.ipynb  
@@ -46,35 +45,54 @@ To install Pixaris, follow these steps:
 
     ```
 
+# Overview
 
 ## Getting Started
-Use Pixaris to compare and evaluate different experiments in image generation! For example usage, please look [here](examples/local_data.py).
 
-### Setting up an eval set
+Follow these steps to set up and run your experiment:
+
+1. **[Set Up Your Eval Set](#Set-Up-Your-Eval-Set)**: 
+   Begin by defining your `DatasetLoader`. This component contains all the images required for your ComfyUI workflow, including masks, Canny images, and inspirational images.
+
+2. **[Set Up Image Generation](#Set-Up-Image-Generation)**: 
+   Next, define the functionality for generating images using the `Generator`. For example, the `ComfyGenerator` allows you to trigger ComfyUI workflows via API.
+
+3. **[Set Up Experiment Tracking](#Set-Up-Experiment-Tracking)**: 
+   Use the `DataWriter` to specify where your experiment data will be saved.
+
+4. **[Define Arguments for Your Experiment Run](#Define-Arguments-for-Your-Experiment-Run)**: 
+   Here, you will define `args` for your experiment run, such as the path to your comfyui-workflow.json and the `run_name`.
+
+5. **[OPTIONAL: Set Up Evaluation Metrics](#Optional-Set-Up-Evaluation-Metrics)**: 
+   If desired, you can add metrics to your experiment run, such as `llm_metric`, which allows an LLM to evaluate your images.
+
+6. **[Trigger Your Experiment Run](#Trigger-Your-Experiment-Run)**: 
+   Finally, orchestrate your experiment run using one of the generate function e.g., `generate_images_based_on_eval_set`.
+
+### Summary
+
+To utilize Pixaris for evaluating your experiments, you will always need a `DatasetLoader`, `ImageGenerator`, `DataWriter` and `args`. Once all components are defined, they will be passed to generate-function like `generate_images_based_on_eval_set`. This function is responsible for loading the data, executing the experiment, and saving the results.
+
+For example usages, check the [examples](examples). Please note, to setup the google componets, such as  `GCPDatasetLoader`, we use a config. Here is an [example_config.yaml](examples/example_config.yaml), if needed save a local version in the pixaris folder.
+
+## Setting up your eval set
 To run and evaluate an experiment, we need a common base of inputs that we iterate over in order to find out if our way of generating images is good and generalises well. Inputs of any format can be saved as an eval set. This could be images we use as inputs. Putting 10 images means that in one experiment, the workflow is run 10 times with the different images as an input accordingly.
 
-Example: We want to generate backgrounds for photos of products with ComfyUI. We need an input and a mask image for the workflows we want to evaluate. In our ComfyUI workflow, the corresponding nodes are called "Load Input Image" and "Load Mask Image" (see [here](test/assets/test-background-generation.png)). In our eval_set, these are loaded from the folders "Input" and "Mask". Make sure that folder names in the eval set and the node titles in the workflow fit. The eval_set directory has the following structure:
+Example: We want to generate backgrounds for photos of products with ComfyUI. We need an input and a mask image for the workflows we want to evaluate. In our ComfyUI workflow, the corresponding nodes are called "Load Input Image" and "Load Mask Image" (see [here](test/assets/test-background-generation.png)). In our eval_set, these are loaded from the folders "input" and "mask". Make sure that folder names in the eval set and the node titles in the workflow fit. The eval_set directory has the following structure:
 ```
 eval_data
 └───eval_set_name
-    ├───Input
+    ├───input
     │   ├───image_01.jpg
     │   └───...
-    └───Mask
+    └───mask
         ├───image_01.jpg
         └───...
 ```
 
-When using the ComfyGenerator, the images from the "Input" folder will be loaded into the "Load Input Image" Node. Make sure that in each and every folder under eval_set_name (e.g. Input and Mask) are files with the same name. If in "Input" there is "image_01.jpg", there must be an "image_01.jpg" in "Mask". For one workflow execution, one set of images with the same name is loaded into the workflow. At the end of the experiment, all images have been run through the workflow once.
+When using the ComfyGenerator, the images from the "Input" folder will be loaded into the "Load Input Image" Node. Make sure that in each and every folder under eval_set_name (e.g. Input and Mask) are files with the same name. If in "Input" there is "image_01.jpg", there must be an "image_01.jpg" in "mask". For one workflow execution, one set of images with the same name is loaded into the workflow. At the end of the experiment, all images have been run through the workflow once.
 
 
-### Run a single Experiment, once
-To use pixaris to evaluate your experiments, you always need a data loader, an image generator, and a data writer (and possibly some metrics).
-Every one of these should be inheriting from the base classes, either `DatasetLoader`, `ImageGenerator`, `DataWriter` or `Metric`. After the components are all defined, they will be given to the function `generate_images_based_on_eval_set`. This is the main actor that loads the data, executes and experiment and saves the results.
-
-For a simple example how to run an experiment with a local dataset loader and writer, see the [examples](examples/local_data.py)!
-
-#### Dataset Loaders
 First step: load your dataset using a `DatasetLoader`. If you have your eval_set saved locally, use the `LocalDatasetLoader`
 ```
 from pixaris.data_loaders.local import LocalDatasetLoader
@@ -92,7 +110,7 @@ loader = GCPDatasetLoader(
 )
 ```
 
-#### Generator
+### Setting up how you are generating images
 We implemented a neat `ImageGenerator` that uses ComfyUI.
 ```
 from pixaris.generation.comfyui import ComfyGenerator
@@ -102,8 +120,8 @@ the workflow_apiformat_path should lead to a JSON file exported from ComfyUI. Yo
 
 You can implement your own `ImageGenerator` for image generation with different tools, an API, or whatever you like. Your class needs to inherit from `ImageGenerator` and should call any image generation pipeline. A generator should parse a dataset into usable arguments for your generation. Override the function `generate_single_image` to call your generation.
 
-#### Writer
-To save the generated images and possibly metrics, we define a `DataWriter`. In our case we want to have a nice visualization of all input and output images and metrics, so we choose the `TensorboardWriter`.
+### Setting up your experiment tracking
+To save the generated images and possibly metrics, we define a `DataWriter`. In our case we want to have a nice visualization of all input and output images and metrics, so we choose the `TensorboardWriter` using the google managed version.
 ```
 from pixaris.data_writers.tensorboard import TensorboardWriter
 writer = TensorboardWriter(
@@ -114,7 +132,7 @@ writer = TensorboardWriter(
 ```
 You can choose to save your results locally using the `LocalDataWriter` or implement your own class that inherits from the `DataWriter`. Usually, it would save images and possibly metrics from your experiment.
 
-#### Metrics
+### Optional: Setup evaluation metrics
 Maybe we want to generate some metrics to evaluate our results, e.g. for mask generation, calculate the IoU with the correct masks.
 ```
 from pixaris.metrics.iou import IoUMetric
@@ -125,7 +143,7 @@ iou_metric = IoUMetric(true_masks)
 
 As always, it is intended for you to implement your own metrics by inheriting from the `BaseMetric` class.
 
-#### Args
+### Define args for you experiment run
 Depending on the specific components we defined and what they provide, we need to give some more arguments.
 `args` can include whatever data is needed by any of the components, and is not given explicitly through parameters of a component. The content of `args` is highly dependent on the components you use.
 
@@ -154,7 +172,7 @@ args = {
 }
 ```
 
-#### Putting it all together
+### Trigger your experiment run
 After defining all aforementioned components, we simply pass them to the orchestration
 ```
 from pixaris.orchestration.base import generate_images_based_on_eval_set
@@ -180,7 +198,7 @@ Internally, it will load data, generate images, calculate metrics and save data 
 
 
 ## License Information
-Pixaris is open-source software licensed .... TODO
+TODO....Pixaris is open-source software licensed
 
 
 ## Contribute 

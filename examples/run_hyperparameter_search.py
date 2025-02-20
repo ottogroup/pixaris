@@ -8,7 +8,7 @@ import os
 import yaml
 
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
-EVAL_SET = "z_test_correct"
+EVAL_SET = "test_eval_set"
 WORKFLOW_PATH = os.getcwd() + "/test/assets/test-background-generation.json"
 WORKFLOW_IMAGE_PATH = os.getcwd() + "/test/assets/test-background-generation.png"
 

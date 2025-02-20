@@ -128,9 +128,9 @@ class GCPDatasetLoader(DatasetLoader):
                     This dict has a key for each directory in the image_dirs list representing a Node Name,
                     and the corresponding value is an image path.
                     The Node Names are generated using the image_dirs name. The folder name is integrated into the Node Name.
-                    E.g. the image_dirs list is ['Object', 'Mask'] then the corresponding Node Names will be 'Load Object Image' and 'Load Mask Image'.
+                    E.g. the image_dirs list is ['object', 'mask'] then the corresponding Node Names will be 'Load Object Image' and 'Load Mask Image'.
                     Output in this example:
-                    [{'Load Object Image': 'eval_data/eval_set/Object/image01.jpeg'}, {'Load Mask Image': 'eval_data/eval_set/Mask/image01.jpeg'}]
+                    [{'Load Object Image': 'eval_data/eval_set/object/image01.jpeg'}, {'Load Mask Image': 'eval_data/eval_set/mask/image01.jpeg'}]
         """
         image_names = self._retrieve_and_check_dataset_image_names()
 
@@ -140,7 +140,7 @@ class GCPDatasetLoader(DatasetLoader):
             for image_dir in self.image_dirs:
                 image_paths.append(
                     {
-                        "node_name": f"Load {image_dir} Image",
+                        "node_name": f"Load {image_dir.capitalize()} Image",
                         "image_path": os.path.join(
                             self.eval_dir_local, self.eval_set, image_dir, image_name
                         ),

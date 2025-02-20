@@ -55,9 +55,9 @@ class LocalDatasetLoader(DatasetLoader):
                     This dict has a key for each directory in the image_dirs list representing a Node Name,
                     and the corresponding value is an image path.
                     The Node Names are generated using the image_dirs name. The folder name is integrated into the Node Name.
-                    E.g. the image_dirs list is ['Object', 'Mask'] then the corresponding Node Names will be 'Load Object Image' and 'Load Mask Image'.
+                    E.g. the image_dirs list is ['object', 'mask'] then the corresponding Node Names will be 'Load Object Image' and 'Load Mask Image'.
                     Output in this example:
-                    [{'Load Object Image': 'eval_data/eval_set/Object/image01.jpeg'}, {'Load Mask Image': 'eval_data/eval_set/Mask/image01.jpeg'}]
+                    [{'Load object Image': 'eval_data/eval_set/object/image01.jpeg'}, {'Load Mask Image': 'eval_data/eval_set/mask/image01.jpeg'}]
         """
         image_names = self._retrieve_and_check_dataset_image_names()
 

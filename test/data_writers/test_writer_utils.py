@@ -12,7 +12,7 @@ class TestUtils(unittest.TestCase):
             "image_paths": [
                 {
                     "node_name": "Load Object Image",
-                    "image_path": "eval_data/priyasofa2/Object/priya2_01.jpeg",
+                    "image_path": "eval_data/priyasofa2/object/priya2_01.jpeg",
                 },
             ],
         }
@@ -31,7 +31,7 @@ class TestUtils(unittest.TestCase):
             "image_paths": [
                 {
                     "node_name": "Load Object Image",
-                    "image_path": "eval_data/priyasofa2/Object/priya2_01.jpeg",
+                    "image_path": "eval_data/priyasofa2/object/priya2_01.jpeg",
                 },
                 {
                     "node_name": "Load Composition Image",
@@ -48,7 +48,7 @@ class TestUtils(unittest.TestCase):
             "image_paths": [
                 {
                     "node_name": "Load Object Image",
-                    "image_path": "eval_data/priyasofa2/Object/priya2_01.jpeg",
+                    "image_path": "eval_data/priyasofa2/object/priya2_01.jpeg",
                 },
             ],
         }
@@ -68,7 +68,7 @@ class TestUtils(unittest.TestCase):
             "image_paths": [
                 {
                     "node_name": "Load Object Image",
-                    "image_path": "eval_data/priyasofa2/Object/priya2_01.jpeg",
+                    "image_path": "eval_data/priyasofa2/object/priya2_01.jpeg",
                 },
                 {
                     "node_name": "Load Composition Image",
