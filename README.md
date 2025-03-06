@@ -66,14 +66,21 @@ Follow these steps to set up and run your experiment:
 5. **[OPTIONAL: Set Up Evaluation Metrics](#Optional-Set-Up-Evaluation-Metrics)**: 
    If desired, you can add metrics to your experiment run, such as `llm_metric`, which allows an LLM to evaluate your images.
 
-6. **[Trigger Your Experiment Run](#Trigger-Your-Experiment-Run)**: 
+6. **[Orchestrate Your Experiment Run](#Orchestrate-Your-Experiment-Run)**: 
    Finally, orchestrate your experiment run using one of the generate function e.g., `generate_images_based_on_eval_set`.
+
+
+
 
 ### Summary
 
-To utilize Pixaris for evaluating your experiments, you will always need a `DatasetLoader`, `ImageGenerator`, `DataWriter` and `args`. Once all components are defined, they will be passed to generate-function like `generate_images_based_on_eval_set`. This function is responsible for loading the data, executing the experiment, and saving the results.
+To utilize Pixaris for evaluating your experiments, you will always need a `DatasetLoader`, `ImageGenerator`, `DataWriter` and `args`. Once all components are defined, they will be passed to orchestration-function like `generate_images_based_on_eval_set`. This function is responsible for loading the data, executing the experiment, and saving the results.
 
-For example usages, check the [examples](examples). Please note, to setup the google componets, such as  `GCPDatasetLoader`, we use a config. Here is an [example_config.yaml](examples/example_config.yaml), if needed save a local version in the pixaris folder.
+For each component, we offer several options to choose from. For example, the `DatasetLoader` includes the `GCPDatasetLoader` for accessing data in Google Cloud Storage and a separate `LocalDatasetLoader` for accessing local evaluation data. Additionally, you have the flexibility to implement your own component tailored to your specific needs. Attached is an overview of the various components and their implementations.
+
+![Tensorboard](test/assets/overview.png)
+
+For example usages, check the [examples](examples). Please note, to setup the gcp components, such as  `GCPDatasetLoader`, we use a config. Here is an [example_config.yaml](examples/example_config.yaml), if needed save a local version in the pixaris folder.
 
 ## Setting up your eval set
 To run and evaluate an experiment, we need a common base of inputs that we iterate over in order to find out if our way of generating images is good and generalises well. Inputs of any format can be saved as an eval set. This could be images we use as inputs. Putting 10 images means that in one experiment, the workflow is run 10 times with the different images as an input accordingly.
@@ -101,7 +108,7 @@ loader = LocalDatasetLoader(eval_set=<your eval_set name here>, eval_dir_local="
 
 If you have your data in a google cloud bucket, you can use the `GCPDatasetLoader`,
 ```
-from pixaris.data_loaders.google import GCPDatasetLoader
+from pixaris.data_loaders.gcp import GCPDatasetLoader
 loader = GCPDatasetLoader(
     gcp_project_id=<your cgp_project_id here>,
     gcp_bucket_name=<you gcp_bucket_name here>,
@@ -121,10 +128,10 @@ the workflow_apiformat_path should lead to a JSON file exported from ComfyUI. Yo
 You can implement your own `ImageGenerator` for image generation with different tools, an API, or whatever you like. Your class needs to inherit from `ImageGenerator` and should call any image generation pipeline. A generator should parse a dataset into usable arguments for your generation. Override the function `generate_single_image` to call your generation.
 
 ### Setting up your experiment tracking
-To save the generated images and possibly metrics, we define a `DataWriter`. In our case we want to have a nice visualization of all input and output images and metrics, so we choose the `TensorboardWriter` using the google managed version.
+To save the generated images and possibly metrics, we define a `DataWriter`. In our case we want to have a nice visualization of all input and output images and metrics, so we choose the `GCPTensorboardWriter` using the google managed version.
 ```
-from pixaris.data_writers.tensorboard import TensorboardWriter
-writer = TensorboardWriter(
+from pixaris.data_writers.gcp_tensorboard import GCPTensorboardWriter
+writer = GCPTensorboardWriter(
     project_id=<your gcp_project_id here>,
     location=<your gcp_location here>,
     bucket_name=<your gcp_bucket_name here>,
@@ -172,7 +179,7 @@ args = {
 }
 ```
 
-### Trigger your experiment run
+### Orchestrate your experiment run
 After defining all aforementioned components, we simply pass them to the orchestration
 ```
 from pixaris.orchestration.base import generate_images_based_on_eval_set

@@ -3,20 +3,22 @@ from pixaris.data_writers.local import LocalDataWriter
 from pixaris.generation.comfyui import ComfyGenerator
 from pixaris.orchestration.base import generate_images_based_on_eval_set
 import os
+import yaml
 
+config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 EVAL_SET = "mock"
-WORKFLOW_PATH = os.getcwd() + "/test/assets/test_inspo_apiformat.json"
-WORKFLOW_IMAGE_PATH = os.getcwd() + "/test/assets/test-just-load-and-save.png"
+WORKFLOW_PATH = os.getcwd() + "/test/assets/test-background-generation.json"
+WORKFLOW_IMAGE_PATH = os.getcwd() + "/test/assets/test-background-generation.png"
 
 # Define the dataset Loader
-loader = LocalDatasetLoader(
+data_loader = LocalDatasetLoader(
     eval_set=EVAL_SET,
     eval_dir_local="test/test_eval_set",
 )
 
 # Define the Generator
-comfy_generator = ComfyGenerator(workflow_apiformat_path=WORKFLOW_PATH)
-writer = LocalDataWriter()
+generator = ComfyGenerator(workflow_apiformat_path=WORKFLOW_PATH)
+data_writer = LocalDataWriter()
 
 # Define args for additional info
 args = {
@@ -29,14 +31,14 @@ args = {
             "image_path": "test/assets/test_inspo_image.jpg",
         }
     ],
-    "run_name": "example_run_metrics_5",
+    "run_name": "example_run",
 }
 
 # execute
 out = generate_images_based_on_eval_set(
-    data_loader=loader,
-    image_generator=comfy_generator,
-    data_writer=writer,
+    data_loader=data_loader,
+    image_generator=generator,
+    data_writer=data_writer,
     metrics=[],
     args=args,
 )
