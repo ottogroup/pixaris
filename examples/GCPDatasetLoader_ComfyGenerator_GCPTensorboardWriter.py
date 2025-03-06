@@ -1,6 +1,6 @@
 import PIL
-from pixaris.data_loaders.google import GCPDatasetLoader
-from pixaris.data_writers.tensorboard import TensorboardWriter
+from pixaris.data_loaders.gcp import GCPDatasetLoader
+from pixaris.data_writers.gcp_tensorboard import GCPTensorboardWriter
 from pixaris.generation.comfyui import ComfyGenerator
 from pixaris.metrics.llm import LLMMetric
 from pixaris.orchestration.base import generate_images_based_on_eval_set
@@ -13,7 +13,7 @@ WORKFLOW_PATH = os.getcwd() + "/test/assets/test_inspo_apiformat.json"
 WORKFLOW_IMAGE_PATH = os.getcwd() + "/test/assets/test-just-load-and-save.png"
 
 # Define the dataset Loader
-loader = GCPDatasetLoader(
+data_loader = GCPDatasetLoader(
     gcp_project_id=config["gcp_project_id"],
     gcp_bucket_name=config["gcp_bucket_name"],
     eval_set=EVAL_SET,
@@ -21,8 +21,8 @@ loader = GCPDatasetLoader(
 )
 
 # Define the Generator
-comfy_generator = ComfyGenerator(workflow_apiformat_path=WORKFLOW_PATH)
-writer = TensorboardWriter(
+generator = ComfyGenerator(workflow_apiformat_path=WORKFLOW_PATH)
+data_writer = GCPTensorboardWriter(
     project_id=config["gcp_project_id"],
     location=config["gcp_location"],
     bucket_name=config["gcp_bucket_name"],
@@ -48,14 +48,14 @@ args = {
             "image_path": "test/assets/test_inspo_image.jpg",
         }
     ],
-    "run_name": "example_run_metrics_5",
+    "run_name": "example_run",
 }
 
 # execute
 out = generate_images_based_on_eval_set(
-    data_loader=loader,
-    image_generator=comfy_generator,
-    data_writer=writer,
+    data_loader=data_loader,
+    image_generator=generator,
+    data_writer=data_writer,
     metrics=[llm_metric],
     args=args,
 )

@@ -11,7 +11,7 @@ import os
 
 class TestOrchestration(unittest.TestCase):
     @patch("pixaris.generation.comfyui_utils.workflow.ComfyWorkflow")
-    @patch("pixaris.data_loaders.google.GCPDatasetLoader")
+    @patch("pixaris.data_loaders.gcp.GCPDatasetLoader")
     def test_generate_images(self, mock_loader, mock_workflow):
         """
         Test the generate_images function. This one is correct
@@ -73,7 +73,7 @@ class TestOrchestration(unittest.TestCase):
         self.assertEqual(len(images), 2)
 
     @patch("pixaris.generation.comfyui_utils.workflow.ComfyWorkflow")
-    @patch("pixaris.data_loaders.google.GCPDatasetLoader")
+    @patch("pixaris.data_loaders.gcp.GCPDatasetLoader")
     @patch("builtins.print")
     def test_generate_images_one_fault(self, mock_print, mock_loader, mock_workflow):
         """
@@ -138,7 +138,7 @@ class TestOrchestration(unittest.TestCase):
         self.assertEqual(len(images), 1)
 
     @patch("pixaris.generation.comfyui_utils.workflow.ComfyWorkflow")
-    @patch("pixaris.data_loaders.google.GCPDatasetLoader")
+    @patch("pixaris.data_loaders.gcp.GCPDatasetLoader")
     def test_generate_images_all_fault(self, mock_loader, mock_workflow):
         """
         All images are broken. Should throw an error

@@ -1,6 +1,6 @@
 import os
 import yaml
-from pixaris.data_loaders.google import GCPDatasetLoader
+from pixaris.data_loaders.gcp import GCPDatasetLoader
 from pixaris.generation.comfyui import ComfyGenerator
 
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))

@@ -10,7 +10,7 @@ import numpy as np
 import json
 
 
-class TensorboardWriter(DataWriter):
+class GCPTensorboardWriter(DataWriter):
     def __init__(
         self,
         project_id: str,
@@ -18,7 +18,7 @@ class TensorboardWriter(DataWriter):
         bucket_name: str = None,
     ):
         """
-        Initializes the TensorboardWriter.
+        Initializes the GCPTensorboardWriter.
         Args:
             project_id (str): The Google Cloud project_id ID.
             location (str): The Google Cloud location.
