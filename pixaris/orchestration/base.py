@@ -36,6 +36,7 @@ def generate_images_based_on_eval_set(
     dataset = data_loader.load_dataset()
     generation_params = args.get("generation_params", [])
     image_generator.validate_inputs_and_parameters(dataset, generation_params)
+    data_writer._validate_run_name(args["run_name"])
 
     generated_image_name_pairs = []
     failed_args = []

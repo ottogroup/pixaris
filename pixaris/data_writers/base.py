@@ -14,3 +14,9 @@ class DataWriter:
         args: dict[str, any],
     ) -> None:
         pass
+
+    def _validate_run_name(
+        self,
+        run_name: str,
+    ):
+        pass

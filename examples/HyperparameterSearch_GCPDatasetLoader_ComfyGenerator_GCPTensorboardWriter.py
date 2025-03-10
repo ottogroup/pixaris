@@ -11,6 +11,7 @@ config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 EVAL_SET = "test_eval_set"
 WORKFLOW_PATH = os.getcwd() + "/test/assets/test-background-generation.json"
 WORKFLOW_IMAGE_PATH = os.getcwd() + "/test/assets/test-background-generation.png"
+RUN_NAME = "example_run"
 
 # +
 data_loader = GCPDatasetLoader(
@@ -31,7 +32,7 @@ args = {
     "workflow_apiformat_path": WORKFLOW_PATH,
     "workflow_image_path": WORKFLOW_IMAGE_PATH,
     "eval_set": EVAL_SET,
-    "run_name": "example_run",
+    "run_name": RUN_NAME,
     "hyperparameters": [
         {
             "node_name": "KSampler (Efficient) - Generation",
