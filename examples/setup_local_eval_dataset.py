@@ -1,31 +1,18 @@
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     custom_cell_magics: kql
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.11.2
-# ---
-
-# %% [markdown]
 # # Setup a new eval dataset
 # Here, we take a set of images (possibly not all the same size), we standardise it to a target size and then create the masks for it. Lastly, we upload the new data set to gcp.
 
-# %%
+# +
 import os
 from PIL import Image
 from pixaris.generation.comfyui import ComfyGenerator
 import yaml
 
 config = yaml.safe_load(open("../pixaris/config.yaml"))
+# -
 
-# %% [markdown]
 # ### 1. Standardise Input Images
 
-# %%
+# +
 # decide what ratio and minimum size the images should be standardised to.
 ratio_in_images = 1.25  # adjust here
 
@@ -35,7 +22,9 @@ target_width = int(target_height / ratio_in_images)
 print("target_height: ", target_height, "target_width: ", target_width)
 
 
-# %%
+# -
+
+
 def standardise_image(
     img: Image.Image, target_width: int, target_height: int
 ) -> Image.Image:
@@ -52,7 +41,7 @@ def standardise_image(
     return background
 
 
-# %%
+# +
 source_directory = "directory_with_input_images"
 target_directory = "directory_to_save_standardised_images"
 
@@ -79,11 +68,11 @@ for img_name in img_names:
         "PNG",
         dpi=(300, 300),
     )  # if you switch to JPEG, use quality=95 as input! Otherwise, expect square artifacts
+# -
 
-# %% [markdown]
 # ### 2. Generate Masks for Input Images
 
-# %%
+# +
 # # copy to eval_data directory so that we can create masks
 
 eval_data_directory = "../eval_data"
@@ -102,7 +91,7 @@ os.makedirs(mask_image_dir, exist_ok=True)
 # # copy from target_directory to input_image_dir
 # !cp  {target_directory}/* {input_image_dir}
 
-# %%
+# +
 # run mask generation
 
 workflow_apiformat_path = "myworkflows/generate_mask.json"  # adjust here
@@ -131,7 +120,7 @@ for input_img_name in img_names:
     )  # if you switch to JPEG, use quality=95 as input! Otherwise, expect square artifacts
 
 
-# %%
+# +
 # all good? Then upload to bucket
 
 bucket_name = config["gcp_bucket_name"]
