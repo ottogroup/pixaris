@@ -12,6 +12,7 @@ EVAL_SET = "test_eval_set"
 WORKFLOW_PATH = os.getcwd() + "/test/assets/test-background-generation.json"
 WORKFLOW_IMAGE_PATH = os.getcwd() + "/test/assets/test-background-generation.png"
 
+# +
 data_loader = GCPDatasetLoader(
     gcp_project_id=config["gcp_project_id"],
     gcp_bucket_name=config["gcp_bucket_name"],
@@ -19,6 +20,7 @@ data_loader = GCPDatasetLoader(
     eval_dir_local="eval_data",
 )
 generator = ComfyGenerator(workflow_apiformat_path=WORKFLOW_PATH)
+
 data_writer = GCPTensorboardWriter(
     project_id=config["gcp_project_id"],
     location=config["gcp_location"],
@@ -43,6 +45,7 @@ args = {
         },
     ],
 }
+# -
 
 out = generate_images_for_hyperparameter_search_based_on_eval_set(
     data_loader=data_loader,
