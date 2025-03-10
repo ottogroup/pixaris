@@ -2,7 +2,7 @@ import unittest
 from pixaris.utils.merge_dicts import merge_dicts
 
 
-class TestUtils(unittest.TestCase):
+class TestMergeDicts(unittest.TestCase):
     def test_merge_dicts_with_matching_keys(self):
         """
         a has all information, b only adds additional images to exisitng key "image_paths" in a.
