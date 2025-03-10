@@ -11,6 +11,7 @@ config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 EVAL_SET = "test_eval_set"
 WORKFLOW_PATH = os.getcwd() + "/test/assets/test_inspo_apiformat.json"
 WORKFLOW_IMAGE_PATH = os.getcwd() + "/test/assets/test-just-load-and-save.png"
+RUN_NAME = "example_run"
 
 # +
 data_loader = GCPDatasetLoader(
@@ -45,7 +46,7 @@ args = {
             "image_path": "test/assets/test_inspo_image.jpg",
         }
     ],
-    "run_name": "example_run",
+    "run_name": RUN_NAME,
 }
 # -
 

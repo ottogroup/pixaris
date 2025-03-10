@@ -9,6 +9,7 @@ config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 EVAL_SET = "mock"
 WORKFLOW_PATH = os.getcwd() + "/test/assets/test-background-generation.json"
 WORKFLOW_IMAGE_PATH = os.getcwd() + "/test/assets/test-background-generation.png"
+RUN_NAME = "example_run"
 
 # +
 data_loader = LocalDatasetLoader(
@@ -30,7 +31,7 @@ args = {
             "image_path": "test/assets/test_inspo_image.jpg",
         }
     ],
-    "run_name": "example_run",
+    "run_name": RUN_NAME,
 }
 # -
 

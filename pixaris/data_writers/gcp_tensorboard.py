@@ -2,12 +2,15 @@ from pixaris.data_writers.base import DataWriter
 from pixaris.data_writers.utils import upload_workflow_file_to_bucket
 from typing import Iterable
 from PIL import Image
+from google.api_core.exceptions import AlreadyExists
 from google.cloud import aiplatform
 import tensorflow as tf
 import os
 import shutil
+from datetime import datetime
 import numpy as np
 import json
+import re
 
 
 class GCPTensorboardWriter(DataWriter):
@@ -28,6 +31,15 @@ class GCPTensorboardWriter(DataWriter):
         self.project_id = project_id
         self.location = location
         self.bucket_name = bucket_name
+
+    def _validate_run_name(
+        self,
+        run_name: str,
+    ):
+        # assert run_name adheres to tensorboard rules
+        assert re.match(
+            r"[a-z0-9][a-z0-9-]{0,127}", run_name
+        ), "run_name must adhere to regex [a-z0-9][a-z0-9-]{0,127} - so only lowercase letters, numbers and '-' are allowed, max length 128"
 
     def _validate_args(self, args: dict[str, any]):
         # check if all keys are strings
@@ -123,10 +135,27 @@ class GCPTensorboardWriter(DataWriter):
             experiment_tensorboard=True,
         )
 
-        # remove old logs and ignore if not exists
+        # remove old logs
         shutil.rmtree(os.path.abspath(f"temp/logs/{eval_set}"), ignore_errors=True)
 
-        with aiplatform.start_run(run_name.replace("_", "-")):
+        # add date to run_name in format YYMMDD-run_name
+        run_name = f"{datetime.now().strftime('%y%m%d')}-{run_name}"
+
+        # handle run name if it already exists in eval_set
+        try:
+            aiplatform_run = aiplatform.start_run(run_name)
+        except Exception as e:
+            if type(e) is AlreadyExists:
+                print(
+                    f"Run name {run_name} already exists in experiment {eval_set}. Adding random number."
+                )
+                run_name = run_name + str(np.random.randint(99))
+                print(f"New run name: {run_name}. Continuing.")
+                aiplatform_run = aiplatform.start_run(run_name)
+            else:
+                raise e
+
+        with aiplatform_run:
             with tf.summary.create_file_writer(
                 os.path.abspath(f"temp/logs/{eval_set}/{run_name}"),
             ).as_default():
