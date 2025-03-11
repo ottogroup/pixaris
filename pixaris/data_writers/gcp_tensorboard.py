@@ -181,7 +181,7 @@ class GCPTensorboardWriter(DataWriter):
                 self._save_args_entry(args)
 
                 # save workflow image with metadata to bucket
-                if self.bucket_name and args["workflow_image_path"]:
+                if "workflow_image_path" in args and self.bucket_name:
                     print("Saving workflow image to bucket")
                     link_to_workflow_in_bucket = upload_workflow_file_to_bucket(
                         project_id=self.project_id,
