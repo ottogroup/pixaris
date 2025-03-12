@@ -16,6 +16,9 @@ fmt:
 test:
 	poetry run pytest
 
+create-docker-image-podman:
+	podman build -t pixaris_image . -f docker/Dockerfile
+
 docs:
 	sphinx-apidoc -o docs .
 	cd docs && make html
