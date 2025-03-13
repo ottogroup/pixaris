@@ -132,8 +132,7 @@ class ComfyGenerator(ImageGenerator):
 
     def generate_single_image(self, args: dict[str, any]) -> tuple[Image.Image, str]:
         """
-        Generates a single image based on the provided arguments. For this it validates
-        the input args, modifies the workflow, and executes it to generate the image.
+        Generates a single image based on the provided arguments. For this it modifies and executed the workflow to generate the image.
         Args:
             args (dict[str, any]): A dictionary containing the following keys:
             - "workflow_apiformat_path" (str): The path to the workflow file in API format. (ABSOLUTE PATH)!
