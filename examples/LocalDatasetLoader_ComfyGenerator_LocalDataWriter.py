@@ -9,7 +9,7 @@ config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 EVAL_SET = "mock"
 WORKFLOW_PATH = os.getcwd() + "/test/assets/test-background-generation.json"
 WORKFLOW_IMAGE_PATH = os.getcwd() + "/test/assets/test-background-generation.png"
-RUN_NAME = "example_run"
+RUN_NAME = "example-run"
 
 # +
 data_loader = LocalDatasetLoader(
@@ -25,12 +25,6 @@ args = {
     "workflow_apiformat_path": WORKFLOW_PATH,
     "workflow_image_path": WORKFLOW_IMAGE_PATH,
     "eval_set": EVAL_SET,
-    "image_paths": [
-        {
-            "node_name": "Load Inspo Image",
-            "image_path": "test/assets/test_inspo_image.jpg",
-        }
-    ],
     "run_name": RUN_NAME,
 }
 # -
@@ -44,4 +38,4 @@ out = generate_images_based_on_eval_set(
     args=args,
 )
 
-out
+out[0][0].show()

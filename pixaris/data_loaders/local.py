@@ -1,6 +1,7 @@
 import os
 from typing import List
 from pixaris.data_loaders.base import DatasetLoader
+from PIL import Image
 
 
 class LocalDatasetLoader(DatasetLoader):
@@ -44,34 +45,32 @@ class LocalDatasetLoader(DatasetLoader):
 
     def load_dataset(
         self,
-    ) -> List[dict[str, List[dict[str, str]]]]:
+    ) -> List[dict[str, List[dict[str, Image.Image]]]]:
         """
-        returns all images in the evaluation set as an iterable of dictionaries.
+        Returns all images in the evaluation set as an iterable of dictionaries containing PIL Images.
 
         Returns:
-            List[dict[str, List[dict[str, str]]]]: The data loaded from the bucket.
-                the key will always be "image_paths"
-                The value is a dict mapping node names to image file paths.
-                    This dict has a key for each directory in the image_dirs list representing a Node Name,
-                    and the corresponding value is an image path.
-                    The Node Names are generated using the image_dirs name. The folder name is integrated into the Node Name.
-                    E.g. the image_dirs list is ['object', 'mask'] then the corresponding Node Names will be 'Load Object Image' and 'Load Mask Image'.
-                    Output in this example:
-                    [{'Load object Image': 'eval_data/eval_set/object/image01.jpeg'}, {'Load Mask Image': 'eval_data/eval_set/mask/image01.jpeg'}]
+            List[dict[str, List[dict[str, Image.Image]]]]: The data loaded from the local directory.
+                The key will always be "pillow_images"
+                The value is a dict mapping node names to PIL Image objects.
+                    This dict has a key for each directory in the image_dirs list representing a Node Name.
         """
         image_names = self._retrieve_and_check_dataset_image_names()
 
         dataset = []
         for image_name in image_names:
-            image_paths = []
+            pillow_images = []
             for image_dir in self.image_dirs:
-                image_paths.append(
+                image_path = os.path.join(
+                    self.eval_dir_local, self.eval_set, image_dir, image_name
+                )
+                # Load the image using PIL
+                pillow_image = Image.open(image_path)
+                pillow_images.append(
                     {
-                        "node_name": f"Load {image_dir} Image",
-                        "image_path": os.path.join(
-                            self.eval_dir_local, self.eval_set, image_dir, image_name
-                        ),
+                        "node_name": f"Load {image_dir.capitalize()} Image",
+                        "pillow_image": pillow_image,
                     }
                 )
-            dataset.append({"image_paths": image_paths})
+            dataset.append({"pillow_images": pillow_images})
         return dataset

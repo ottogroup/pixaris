@@ -11,7 +11,7 @@ config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 EVAL_SET = "test_eval_set"
 WORKFLOW_PATH = os.getcwd() + "/test/assets/test-background-generation.json"
 WORKFLOW_IMAGE_PATH = os.getcwd() + "/test/assets/test-background-generation.png"
-RUN_NAME = "example_run"
+RUN_NAME = "example-run"
 
 # +
 data_loader = GCPDatasetLoader(
@@ -55,5 +55,3 @@ out = generate_images_for_hyperparameter_search_based_on_eval_set(
     metrics=[],
     args=args,
 )
-
-out

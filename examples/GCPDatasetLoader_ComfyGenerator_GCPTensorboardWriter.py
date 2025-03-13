@@ -1,4 +1,4 @@
-import PIL
+from PIL import Image
 from pixaris.data_loaders.gcp import GCPDatasetLoader
 from pixaris.data_writers.gcp_tensorboard import GCPTensorboardWriter
 from pixaris.generation.comfyui import ComfyGenerator
@@ -11,7 +11,7 @@ config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 EVAL_SET = "test_eval_set"
 WORKFLOW_PATH = os.getcwd() + "/test/assets/test_inspo_apiformat.json"
 WORKFLOW_IMAGE_PATH = os.getcwd() + "/test/assets/test-just-load-and-save.png"
-RUN_NAME = "example_run"
+RUN_NAME = "example-run"
 
 # +
 data_loader = GCPDatasetLoader(
@@ -29,8 +29,8 @@ data_writer = GCPTensorboardWriter(
 )
 
 object_dir = "test/test_eval_set/mock/input/"
-object_images = [PIL.Image.open(object_dir + image) for image in os.listdir(object_dir)]
-style_images = [PIL.Image.open("test/assets/test_inspo_image.jpg")] * len(object_images)
+object_images = [Image.open(object_dir + image) for image in os.listdir(object_dir)]
+style_images = [Image.open("test/assets/test_inspo_image.jpg")] * len(object_images)
 llm_metric = LLMMetric(
     object_images=object_images,
     style_images=style_images,
@@ -40,10 +40,10 @@ args = {
     "workflow_apiformat_path": WORKFLOW_PATH,
     "workflow_image_path": WORKFLOW_IMAGE_PATH,
     "eval_set": EVAL_SET,
-    "image_paths": [
+    "pillow_images": [
         {
             "node_name": "Load Inspo Image",
-            "image_path": "test/assets/test_inspo_image.jpg",
+            "pillow_image": Image.open("test/assets/test_inspo_image.jpg"),
         }
     ],
     "run_name": RUN_NAME,
@@ -59,4 +59,4 @@ out = generate_images_based_on_eval_set(
     args=args,
 )
 
-out
+out[0][0].show()

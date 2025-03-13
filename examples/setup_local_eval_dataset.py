@@ -122,10 +122,10 @@ for input_img_name in img_names:
     args = {
         "eval_set": eval_set_name,
         "workflow_apiformat_path": workflow_apiformat_path,
-        "image_paths": [
+        "pillow_images": [
             {
                 "node_name": "Load Input Image",
-                "image_path": os.path.join(input_image_dir, input_img_name),
+                "pillow_image": os.path.join(input_image_dir, input_img_name),
             },
         ],
         "generation_params": [],

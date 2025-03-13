@@ -6,8 +6,8 @@ import os
 import yaml
 
 EVAL_SET = "mock"
-RUN_NAME = "example_flux"
 PROMPT = "A beautiful woman on a beach"
+RUN_NAME = "example-flux"
 
 # Set your API Key
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))

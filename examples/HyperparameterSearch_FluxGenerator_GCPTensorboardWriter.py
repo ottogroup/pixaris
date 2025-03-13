@@ -11,9 +11,9 @@ config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 os.environ["BFL_API_KEY"] = config["bfl_api_key"]
 
 EVAL_SET = "test_eval_set"
-RUN_NAME = "example-flux"
 PROMPT_1 = "A beautiful woman in the desert"
 PROMPT_2 = "A beautiful woman on a moon"
+RUN_NAME = "example-flux"
 
 # +
 data_loader = GCPDatasetLoader(
@@ -52,5 +52,3 @@ out = generate_images_for_hyperparameter_search_based_on_eval_set(
     metrics=[],
     args=args,
 )
-
-out
