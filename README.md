@@ -151,11 +151,11 @@ args = {
             "input": "seed",
             "value": 42,
         }
-    ],
-    "image_paths": [
+    ]
+    "pillow_images": [
         {
             "node_name": "Load Inspo Image",
-            "image_path": "test/assets/test_inspo_image.jpg",
+            "pillow_image": Image.open("test/assets/test_inspo_image.jpg"),
         }
     ],
     "run_name": "example_run",

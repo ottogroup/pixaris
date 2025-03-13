@@ -2,8 +2,7 @@ import os
 import re
 import unittest
 from unittest.mock import MagicMock
-
-import PIL
+from PIL import Image
 
 from pixaris.generation.comfyui import ComfyGenerator
 from pixaris.utils.hyperparameters import (
@@ -13,19 +12,22 @@ from pixaris.utils.hyperparameters import (
 
 
 class TestComfyUI(unittest.TestCase):
-    def test_get_unique_int_for_image(self):
-        """
-        Test if the function returns an integer between 0 and 1000000.
-        """
-
-        generator = ComfyGenerator(
+    def setUp(self):
+        self.generator = ComfyGenerator(
             workflow_apiformat_path=os.path.abspath(
                 os.getcwd() + "/test/assets/test-background-generation.json"
             ),
         )
-        response = generator._get_unique_int_for_image(
-            "test/test_eval_set/mock/input/model_01.png"
-        )
+
+        self.mock_image1 = Image.open("test/test_eval_set/mock/input/model_01.png")
+        self.mock_image2 = Image.open("test/test_eval_set/mock/input/model_02.png")
+        self.mock_mask1 = Image.open("test/test_eval_set/mock/mask/model_01.png")
+
+    def test_get_unique_int_for_image(self):
+        """
+        Test if the function returns an integer between 0 and 1000000.
+        """
+        response = self.generator._get_unique_int_for_image(self.mock_image1)
         self.assertIsInstance(response, int)
         self.assertGreaterEqual(response, 0)
         self.assertLessEqual(response, 1000000)
@@ -34,116 +36,68 @@ class TestComfyUI(unittest.TestCase):
         """
         Test if the function returns the same integer for the same image.
         """
-        generator = ComfyGenerator(
-            workflow_apiformat_path=os.path.abspath(
-                os.getcwd() + "/test/assets/test-background-generation.json"
-            ),
-        )
-        response = generator._get_unique_int_for_image(
-            "test/test_eval_set/mock/input/model_01.png"
-        )
-        response2 = generator._get_unique_int_for_image(
-            "test/test_eval_set/mock/input/model_01.png"
-        )
+        response = self.generator._get_unique_int_for_image(self.mock_image1)
+        response2 = self.generator._get_unique_int_for_image(self.mock_image1)
         self.assertEqual(response, response2)
+
+    def test_get_unique_int_for_different_images(self):
+        """
+        Test if the function returns the different integers for the same image with different filenames.
+        """
+        response = self.generator._get_unique_int_for_image(self.mock_image1)
+        response2 = self.generator._get_unique_int_for_image(self.mock_image2)
+        self.assertNotEqual(response, response2)
 
     def test_validate_inputs_and_parameters_correct_dataset(self):
         """
         Test if the function works for a correct dataset.
         """
-        generator = ComfyGenerator(
-            workflow_apiformat_path=os.path.abspath(
-                os.getcwd() + "/test/assets/test-background-generation.json"
-            ),
-        )
         dataset = [
             {
-                "image_paths": [
+                "pillow_images": [
                     {
                         "node_name": "Load Input Image",
-                        "image_path": "test/test_eval_set/mock/input/model_01.png",
+                        "pillow_image": self.mock_image1,
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_set/mock/mask/model_01.png",
+                        "pillow_image": self.mock_mask1,
                     },
                 ]
             },
             {
-                "image_paths": [
+                "pillow_images": [
                     {
                         "node_name": "Load Input Image",
-                        "image_path": "test/test_eval_set/mock/input/model_02.png",
+                        "pillow_image": self.mock_image1,
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_set/mock/mask/model_02.png",
+                        "pillow_image": self.mock_mask1,
                     },
                 ]
             },
         ]
         generation_params = []
-        validation = generator.validate_inputs_and_parameters(
+        validation = self.generator.validate_inputs_and_parameters(
             dataset, generation_params
         )
         self.assertIsNone(validation)
 
-    def test_validate_inputs_and_parameters_wrong_dataset_paths(self):
-        """
-        Test if the function raises an error if the paths are wrong.
-        """
-        generator = ComfyGenerator(
-            workflow_apiformat_path=os.path.abspath(
-                os.getcwd() + "/test/assets/test-background-generation.json"
-            ),
-        )
-        dataset = [
-            {
-                "image_paths": [
-                    {
-                        "node_name": "Load Input Image",
-                        "image_path": "test/test_eval_set/mock/input/fake.jpg",
-                    },
-                    {
-                        "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_set/mock/mask/fake.jpg",
-                    },
-                ]
-            },
-        ]
-        generation_params = []
-
-        with self.assertRaisesRegex(
-            ValueError,
-            re.escape(
-                "All image_paths should be valid paths. These paths do not exist: "
-            ),
-        ):
-            generator.validate_inputs_and_parameters(
-                dataset,
-                generation_params,
-            )
-
-    def test_validate_inputs_and_parameters_dataset_wrong_keys1(self):
+    def test_validate_inputs_and_parameters_dataset_wrong_keys(self):
         """
         Test if the function raises an error if the keys are wrong.
-        has key "image" instead of "image_path"
         """
-        generator = ComfyGenerator(
-            workflow_apiformat_path=os.path.abspath(
-                os.getcwd() + "/test/assets/test-background-generation.json"
-            ),
-        )
         dataset = [
             {
-                "image_paths": [
+                "pillow_images": [
                     {
-                        "node_name": "Load Input Image",
-                        "image": "test/test_eval_set/mock/input/model_01.png",
+                        "wrong": "Load Input Image",
+                        "wrong1": self.mock_image1,
                     },
                     {
-                        "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_set/mock/mask/model_01.png",
+                        "wrong": "Load Mask Image",
+                        "wrong1": self.mock_mask1,
                     },
                 ]
             },
@@ -152,33 +106,27 @@ class TestComfyUI(unittest.TestCase):
 
         with self.assertRaisesRegex(
             ValueError,
-            "Each image_paths dictionary should contain the keys 'node_name' and 'image_path'.",
+            "Each pillow_images dictionary should contain the keys 'node_name' and 'pillow_image'.",
         ):
-            generator.validate_inputs_and_parameters(
+            self.generator.validate_inputs_and_parameters(
                 dataset,
                 generation_params,
             )
 
-    def test_validate_inputs_and_parameters_dataset_wrong_keys2(self):
+    def test_validate_inputs_and_parameters_dataset_not_image(self):
         """
-        Test if the function raises an error if the keys are wrong.
-        has key "node" instead of "node_name"
+        Test if the function raises an error if the pillow_image is not a PIL Image.
         """
-        generator = ComfyGenerator(
-            workflow_apiformat_path=os.path.abspath(
-                os.getcwd() + "/test/assets/test-background-generation.json"
-            ),
-        )
         dataset = [
             {
-                "image_paths": [
+                "pillow_images": [
                     {
-                        "node": "Load Input Image",
-                        "image_path": "test/test_eval_set/mock/input/model_01.png",
+                        "node_name": "Load Input Image",
+                        "pillow_image": "not_a_pillow_image",
                     },
                     {
                         "node_name": "Load Mask Image",
-                        "image_path": "test/test_eval_set/mock/mask/model_01.png",
+                        "pillow_image": self.mock_mask1,
                     },
                 ]
             },
@@ -186,56 +134,17 @@ class TestComfyUI(unittest.TestCase):
         generation_params = []
 
         with self.assertRaisesRegex(
-            ValueError,
-            "Each image_paths dictionary should contain the keys 'node_name' and 'image_path'.",
+            ValueError, "All pillow_images should be PIL Image objects."
         ):
-            generator.validate_inputs_and_parameters(
+            self.generator.validate_inputs_and_parameters(
                 dataset,
                 generation_params,
             )
-
-    def test_validate_inputs_and_parameters_dataset_not_path(self):
-        """
-        Test if the function raises an error if the image_path is not a string.
-        gave an image instead of a path
-        """
-        generator = ComfyGenerator(
-            workflow_apiformat_path=os.path.abspath(
-                os.getcwd() + "/test/assets/test-background-generation.json"
-            ),
-        )
-        image = PIL.Image.open("test/test_eval_set/mock/input/model_01.png")
-        dataset = [
-            {
-                "image_paths": [
-                    {
-                        "node_name": "Load Input Image",
-                        "image_path": "test/test_eval_set/mock/input/model_01.png",
-                    },
-                    {"node_name": "Load Mask Image", "image_path": image},
-                ]
-            },
-        ]
-        generation_params = []
-
-        with self.assertRaisesRegex(
-            ValueError, "All image_paths should be strings. Got: "
-        ):
-            generator.validate_inputs_and_parameters(
-                dataset,
-                generation_params,
-            )
-        image.close()  # avoid ResourceWarning of unclosed file
 
     def test_validate_inputs_and_parameters_params_correct(self):
         """
         Test if generation works for correct parameters.
         """
-        generator = ComfyGenerator(
-            workflow_apiformat_path=os.path.abspath(
-                os.getcwd() + "/test/assets/test-background-generation.json"
-            ),
-        )
         dataset = []
         generation_params = [
             {
@@ -245,7 +154,7 @@ class TestComfyUI(unittest.TestCase):
             },
         ]
 
-        validation = generator.validate_inputs_and_parameters(
+        validation = self.generator.validate_inputs_and_parameters(
             dataset, generation_params
         )
         self.assertIsNone(validation)
@@ -255,11 +164,6 @@ class TestComfyUI(unittest.TestCase):
         Test if the function raises an error if the keys are wrong.
         has key "node" instead of "node_name"
         """
-        generator = ComfyGenerator(
-            workflow_apiformat_path=os.path.abspath(
-                os.getcwd() + "/test/assets/test-background-generation.json"
-            ),
-        )
         dataset = []
         generation_params = [
             {
@@ -273,7 +177,7 @@ class TestComfyUI(unittest.TestCase):
             ValueError,
             "Each generation_param dictionary should contain the keys 'node_name', 'input', and 'value'.",
         ):
-            generator.validate_inputs_and_parameters(
+            self.generator.validate_inputs_and_parameters(
                 dataset,
                 generation_params,
             )
@@ -283,11 +187,6 @@ class TestComfyUI(unittest.TestCase):
         Test if the function raises an error if the keys are wrong.
         'input' is missing
         """
-        generator = ComfyGenerator(
-            workflow_apiformat_path=os.path.abspath(
-                os.getcwd() + "/test/assets/test-background-generation.json"
-            ),
-        )
         dataset = []
         generation_params = [
             {
@@ -300,7 +199,7 @@ class TestComfyUI(unittest.TestCase):
             ValueError,
             "Each generation_param dictionary should contain the keys 'node_name', 'input', and 'value'.",
         ):
-            generator.validate_inputs_and_parameters(
+            self.generator.validate_inputs_and_parameters(
                 dataset,
                 generation_params,
             )
@@ -310,11 +209,6 @@ class TestComfyUI(unittest.TestCase):
         Test if the function raises an error if the params are wrong.
         nodename 'KSampler' does not exist in the workflow
         """
-        generator = ComfyGenerator(
-            workflow_apiformat_path=os.path.abspath(
-                os.getcwd() + "/test/assets/test-background-generation.json"
-            ),
-        )
         dataset = []
         generation_params = [
             {
@@ -327,7 +221,7 @@ class TestComfyUI(unittest.TestCase):
         with self.assertRaisesRegex(
             ValueError, "Node KSampler does not exist in the workflow."
         ):
-            generator.validate_inputs_and_parameters(
+            self.generator.validate_inputs_and_parameters(
                 dataset,
                 generation_params,
             )
@@ -337,11 +231,6 @@ class TestComfyUI(unittest.TestCase):
         Test if the function raises an error if the params are wrong.
         input 'schritte' does not exist for the node 'KSampler (Efficient) - Generation'
         """
-        generator = ComfyGenerator(
-            workflow_apiformat_path=os.path.abspath(
-                os.getcwd() + "/test/assets/test-background-generation.json"
-            ),
-        )
         dataset = []
         generation_params = [
             {
@@ -357,7 +246,7 @@ class TestComfyUI(unittest.TestCase):
                 "Node KSampler (Efficient) - Generation does not have input schritte"
             ),
         ):
-            generator.validate_inputs_and_parameters(
+            self.generator.validate_inputs_and_parameters(
                 dataset,
                 generation_params,
             )
@@ -367,11 +256,6 @@ class TestComfyUI(unittest.TestCase):
         Test if the function raises an error if the params are wrong.
         "value" is a string instead of an integer for the input "seed"
         """
-        generator = ComfyGenerator(
-            workflow_apiformat_path=os.path.abspath(
-                os.getcwd() + "/test/assets/test-background-generation.json"
-            ),
-        )
         dataset = []
         generation_params = [
             {
@@ -387,7 +271,7 @@ class TestComfyUI(unittest.TestCase):
                 "Node KSampler (Efficient) - Generation input seed has the wrong type"
             ),
         ):
-            generator.validate_inputs_and_parameters(
+            self.generator.validate_inputs_and_parameters(
                 dataset,
                 generation_params,
             )
@@ -396,36 +280,27 @@ class TestComfyUI(unittest.TestCase):
         """
         check if the function calls upload_image with the input image
         """
-        generator = ComfyGenerator(
-            workflow_apiformat_path=os.path.abspath(
-                os.getcwd() + "/test/assets/test-background-generation.json"
-            ),
-        )
-        generator.workflow.upload_image = MagicMock()
-        input_image = PIL.Image.open("test/test_eval_set/mock/input/model_01.png")
-        image_paths = [
+        self.generator.workflow.upload_image = MagicMock()
+        pillow_images = [
             {
                 "node_name": "Load Input Image",
-                "image_path": "test/test_eval_set/mock/input/model_01.png",
+                "pillow_image": self.mock_image1,
             }
         ]
-        generator._modify_workflow(image_paths=image_paths)
-        generator.workflow.upload_image.assert_called_with(input_image, "input")
+        self.generator._modify_workflow(pillow_images=pillow_images)
+        self.generator.workflow.upload_image.assert_called_with(
+            self.mock_image1, "input"
+        )
 
     def test_modify_workflow_set_generation_params(self):
         """
         check if _modify_workflow sets the generation params correctly
         """
-        generator = ComfyGenerator(
-            workflow_apiformat_path=os.path.abspath(
-                os.getcwd() + "/test/assets/test-background-generation.json"
-            ),
-        )
-        generator.workflow.upload_image = MagicMock()
-        image_paths = [
+        self.generator.workflow.upload_image = MagicMock()
+        pillow_images = [
             {
                 "node_name": "Load Input Image",
-                "image_path": "test/test_eval_set/mock/input/model_01.png",
+                "pillow_image": self.mock_image1,
             }
         ]
         generation_params = [
@@ -435,8 +310,10 @@ class TestComfyUI(unittest.TestCase):
                 "value": 1,
             },
         ]
-        generator._modify_workflow(image_paths, generation_params)
-        self.assertEqual(generator.workflow.prompt_workflow["76"]["inputs"]["steps"], 1)
+        self.generator._modify_workflow(pillow_images, generation_params)
+        self.assertEqual(
+            self.generator.workflow.prompt_workflow["76"]["inputs"]["steps"], 1
+        )
 
     def test_expand_hyperparameters(self):
         """

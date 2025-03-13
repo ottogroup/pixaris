@@ -1,5 +1,6 @@
 import os
 import yaml
+from PIL import Image
 from pixaris.generation.comfyui import ComfyGenerator
 
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
@@ -10,14 +11,14 @@ generator = ComfyGenerator(workflow_apiformat_path=WORKFLOW_PATH)
 
 args = {
     "workflow_apiformat_path": WORKFLOW_PATH,
-    "image_paths": [
+    "pillow_images": [
         {
             "node_name": "Load Input Image",
-            "image_path": "eval_data/test_eval_set/input/model_01.png",
+            "pillow_image": Image.open("eval_data/test_eval_set/input/model_01.png"),
         },
         {
             "node_name": "Load Mask Image",
-            "image_path": "eval_data/test_eval_set/mask/model_01.png",
+            "pillow_image": Image.open("eval_data/test_eval_set/mask/model_01.png"),
         },
     ],
     "generation_params": [],

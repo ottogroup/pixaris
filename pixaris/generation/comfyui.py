@@ -3,7 +3,6 @@ from pixaris.generation.base import ImageGenerator
 from pixaris.generation.comfyui_utils.workflow import ComfyWorkflow
 from PIL import Image
 import hashlib
-import os
 
 
 class ComfyGenerator(ImageGenerator):
@@ -14,7 +13,7 @@ class ComfyGenerator(ImageGenerator):
             Initializes the ComfyGenerator with the specified parameters.
         _get_unique_int_for_image(img: Image.Image) -> int:
             Gets the hash of an image to generate a unique seed for experiments.
-        run_workflow(workflow_apiformat_path: str, image_paths: dict[str, str], generation_params: list[dict] = []) -> Image:
+        run_workflow(workflow_apiformat_path: str, pillow_images: dict[str, Image.Image], generation_params: list[dict] = []) -> Image:
         generate_single_image(args: dict[str, any]) -> Image.Image:
             Generates a single image using the specified arguments.
     """
@@ -34,18 +33,17 @@ class ComfyGenerator(ImageGenerator):
             workflow_file_url=self.workflow_apiformat_path,
         )
 
-    def _get_unique_int_for_image(self, img_path: str) -> int:
+    def _get_unique_int_for_image(self, pillow_image: Image.Image) -> int:
         """
         Gets a unique int for an image calculated from image name and hash. This is needed to have a unique
         seed for the experiments but have the same seed for the same image in different experiments.
         Args:
-            img_path (str): The path to the image.
+            pillow_image (Image.Image): The PIL image.
         Returns:
             int: The unique integer for the image.
         """
-        img = Image.open(img_path)
-        file_name = os.path.basename(img_path)
-        img_bytes = file_name.encode("utf-8") + img.tobytes()
+        file_name = pillow_image.filename.split("/")[-1].split(".")[0]
+        img_bytes = file_name.encode("utf-8") + pillow_image.tobytes()
         img_hash = hashlib.md5(img_bytes).hexdigest()
         unique_number = int(img_hash, 16)
         final_seed = (unique_number % 1000000) + 1  # cannot be too big for comfy
@@ -53,7 +51,7 @@ class ComfyGenerator(ImageGenerator):
 
     def validate_inputs_and_parameters(
         self,
-        dataset: List[dict[str, List[dict[str, str]]]] = [],
+        dataset: List[dict[str, List[dict[str, Image.Image]]]] = [],
         parameters: list[dict[str, str, any]] = [],
     ) -> str:
         """
@@ -74,47 +72,35 @@ class ComfyGenerator(ImageGenerator):
         # assert the params can be applied to the workflow
         self.workflow.check_if_parameters_are_valid(parameters)
 
-        # assert each element of image_paths has the keys "image_path", "node_name", and image paths are strings
+        # assert each element of pillow_images has the keys "pillow_image", "node_name"
         for image_info in dataset:
-            image_set = image_info.get("image_paths", [])
-            # check if "node_name", "image_path" are keys in image_info
+            image_set = image_info.get("pillow_images", [])
+            # check if "node_name", "pillow_image" are keys in image_info
             if not all(
                 key in image_dict
                 for image_dict in image_set
-                for key in ["node_name", "image_path"]
+                for key in ["node_name", "pillow_image"]
             ):
                 raise ValueError(
-                    "Each image_paths dictionary should contain the keys 'node_name' and 'image_path'."
+                    "Each pillow_images dictionary should contain the keys 'node_name' and 'pillow_image'."
                 )
-            # check if all image_paths are strings
+            # check if all pillow_images are PIL Image objects
             if not all(
-                isinstance(image_dict["image_path"], str) for image_dict in image_set
+                isinstance(image_dict["pillow_image"], Image.Image)
+                for image_dict in image_set
             ):
                 wrong_types = [
-                    type(image_dict["image_path"])
+                    type(image_dict["pillow_image"])
                     for image_dict in image_set
-                    if not isinstance(image_dict["image_path"], str)
+                    if not isinstance(image_dict["pillow_image"], Image.Image)
                 ]
                 raise ValueError(
-                    "All image_paths should be strings. Got: ", wrong_types
-                )
-            # check if all image_paths are valid paths
-            if not all(
-                os.path.exists(image_dict["image_path"]) for image_dict in image_set
-            ):
-                raise ValueError(
-                    f"All image_paths should be valid paths. These paths do not exist: {
-                        [
-                            image_dict["image_path"]
-                            for image_dict in image_set
-                            if not os.path.exists(image_dict["image_path"])
-                        ]
-                    }"
+                    "All pillow_images should be PIL Image objects. Got: ", wrong_types
                 )
 
     def _modify_workflow(
         self,
-        image_paths: list[dict[str, str]] = [],
+        pillow_images: list[dict[str, Image.Image]] = [],
         generation_params: list[dict[str, str, any]] = [],
     ):
         self.workflow.adjust_workflow_to_generate_one_image_only()
@@ -123,18 +109,10 @@ class ComfyGenerator(ImageGenerator):
         if generation_params:
             self.workflow.set_generation_params(generation_params)
 
-        # Load and set images from image_paths
-        if (
-            self.workflow.count_node_class_occurances(node_class="LoadImage") == 1
-            and len(image_paths) == 1
-        ):
-            input_image = Image.open(image_paths[0]["image_path"])
-            self.workflow.set_image(node_name="Load Image", image=input_image)
-        else:
-            # load and set all images
-            for image_info in image_paths:
-                input_image = Image.open(image_info["image_path"])
-                self.workflow.set_image(image_info["node_name"], input_image)
+        # Load and set images from pillow_images
+        for image_info in pillow_images:
+            input_image = image_info["pillow_image"]
+            self.workflow.set_image(image_info["node_name"], input_image)
 
         # set seed or warn if it is not being set.
         if self.workflow.check_if_node_exists(
@@ -143,7 +121,7 @@ class ComfyGenerator(ImageGenerator):
             self.workflow.set_value(
                 "KSampler (Efficient) - Generation",
                 "seed",
-                self._get_unique_int_for_image(image_paths[0]["image_path"]),
+                self._get_unique_int_for_image(pillow_images[0]["pillow_image"]),
             )
         else:
             print(
@@ -160,12 +138,13 @@ class ComfyGenerator(ImageGenerator):
             args (dict[str, any]): A dictionary containing the following keys:
             - "workflow_apiformat_path" (str): The path to the workflow file in API format. (ABSOLUTE PATH)!
                     "example.json"
-            - "image_paths" (list[dict]): A dict of [str, str].
+            - "pillow_images" (list[dict]): A dict of [str, Image.Image].
                     The keys should be Node names
-                    The values should be the paths to the images to be loaded.
-                "image_paths": [{
+                    The values should be the PIL Image objects to be loaded.
+                "pillow_images": [{
                     "node_name": "Load Input Image",
-                    "image_path": "eval_data/test_eval_set/input/model_01.png",}]
+                    "pillow_image": Image.new("RGB", (100, 100), color="red"),
+                }]
             - "generation_params" (list[dict]): A dictionary of generation_params for the image generation process.
                 It should look like this:
                 [{
@@ -181,14 +160,14 @@ class ComfyGenerator(ImageGenerator):
             "workflow_apiformat_path" in args
         ), "The key 'workflow_apiformat_path' is missing."
 
-        image_paths = args.get("image_paths", [])
+        pillow_images = args.get("pillow_images", [])
         generation_params = args.get("generation_params", [])
 
         # since the names should all be the same, we can just take the first.
-        image_name = image_paths[0]["image_path"].split("/")[-1]
+        image_name = pillow_images[0]["pillow_image"].filename.split("/")[-1]
 
         self.workflow = self._modify_workflow(
-            image_paths=image_paths,
+            pillow_images=pillow_images,
             generation_params=generation_params,
         )
 

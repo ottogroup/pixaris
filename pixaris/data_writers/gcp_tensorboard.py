@@ -23,7 +23,7 @@ class GCPTensorboardWriter(DataWriter):
         """
         Initializes the GCPTensorboardWriter.
         Args:
-            project_id (str): The Google Cloud project_id ID.
+            project_id (str): The Google Cloud project ID.
             location (str): The Google Cloud location.
             bucket_name (str): The name of the Google Cloud Storage bucket to store the workflow image. If None,
                 the workflow image will not be stored in a bucket. Defaults to None.
@@ -47,25 +47,25 @@ class GCPTensorboardWriter(DataWriter):
             isinstance(key, str) for key in args.keys()
         ), "All keys must be strings."
 
-        # check if "image_paths" is a list of dictionaries cointaining the correct keys
-        if "image_paths" in args:
-            image_paths = args["image_paths"]
-            assert isinstance(image_paths, list), "image_paths must be a list."
+        # check if "pillow_images" is a list of dictionaries containing the correct keys
+        if "pillow_images" in args:
+            pillow_images = args["pillow_images"]
+            assert isinstance(pillow_images, list), "pillow_images must be a list."
             assert all(
-                isinstance(item, dict) for item in image_paths
+                isinstance(item, dict) for item in pillow_images
             ), "Each item in the list must be a dictionary."
             assert all(
-                all(key in item for key in ["node_name", "image_path"])
-                for item in image_paths
-            ), "Each dictionary must contain the keys 'node_name' and 'image_path'."
+                all(key in item for key in ["node_name", "pillow_image"])
+                for item in pillow_images
+            ), "Each dictionary must contain the keys 'node_name' and 'pillow_image'."
 
     def _save_args_entry(self, args: (dict[str, any])):
         """
         Saves all args to TensorBoard.
-            if value is a path to an image, save as image
+            if value is a Pillow image, save as image
             if value is a path to a json file, save file as text
             if value is a number, save as scalar
-            if key is "image_paths", save the images under their node names. Validity checked beforehand
+            if key is "pillow_images", save the images under their node names. Validity checked beforehand
             else save value as json dump
         Args:
             args (dict[str, any]): A dictionary of arguments to be saved to TensorBoard.
@@ -73,16 +73,8 @@ class GCPTensorboardWriter(DataWriter):
         # save all args depending on their type
         for key, value in args.items():
             if isinstance(value, str):
-                # check if value is a path to an image
-                if value.endswith((".png", ".jpg", ".jpeg")) and os.path.exists(value):
-                    tf.summary.image(
-                        key,
-                        [np.asarray(Image.open(value)) / 255],
-                        step=0,
-                    )
-
                 # check if value is a path to a json file
-                elif value.endswith(".json") and os.path.exists(value):
+                if value.endswith(".json") and os.path.exists(value):
                     with open(value, "r") as f:
                         json_data = json.load(f)
                         tf.summary.text(key, json.dumps(json_data), step=0)
@@ -94,12 +86,12 @@ class GCPTensorboardWriter(DataWriter):
             elif isinstance(value, (int, float)):
                 tf.summary.scalar(key, value, step=0)
 
-            # if key is "image_paths", save the images under their node names. Validity checked beforehand.
-            elif key == "image_paths":
-                for image_path_dict in value:
+            # if key is "pillow_images", save the images under their node names.
+            elif key == "pillow_images":
+                for pillow_image_dict in value:
                     tf.summary.image(
-                        image_path_dict["node_name"],
-                        [np.asarray(Image.open(image_path_dict["image_path"])) / 255],
+                        pillow_image_dict["node_name"],
+                        [np.asarray(pillow_image_dict["pillow_image"]) / 255],
                         step=0,
                     )
 

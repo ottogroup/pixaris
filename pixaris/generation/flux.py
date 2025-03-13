@@ -11,7 +11,7 @@ import time
 class FluxFillGenerator(ImageGenerator):
     """
     FluxFillGenerator is responsible for generating images using the Flux API,
-    specifally the fill model, which needs an image and a mask as input.
+    specifically the fill model, which needs an image and a mask as input.
     """
 
     def __init__(self):
@@ -19,14 +19,14 @@ class FluxFillGenerator(ImageGenerator):
 
     def validate_inputs_and_parameters(
         self,
-        dataset: List[dict[str, List[dict[str, str]]]] = [],
+        dataset: List[dict[str, List[dict[str, Image.Image]]]] = [],
         parameters: list[dict[str, str, any]] = [],
     ) -> str:
         """
         Validates the provided dataset and parameters for image generation.
 
         Args:
-            dataset (List[dict[str, List[dict[str, str]]]]): A list of datasets containing image and mask information.
+            dataset (List[dict[str, List[dict[str, Image.Image]]]]): A list of datasets containing image and mask information.
             parameters (list[dict[str, str, any]]): A list of dictionaries containing generation parameters.
 
         Raises:
@@ -46,32 +46,31 @@ class FluxFillGenerator(ImageGenerator):
                 if not isinstance(param, dict):
                     raise ValueError("Each parameter must be a dictionary.")
 
-        pass
-
-    def _encode_image_to_base64(self, image_path: str) -> str:
+    def _encode_image_to_base64(self, pillow_image: Image.Image) -> str:
         """
-        Encodes an image file to a base64 string.
+        Encodes a PIL image to a base64 string.
 
         Args:
-            image_path (str): Path to the image file.
+            pillow_image (Image.Image): The PIL image.
 
         Returns:
             str: Base64 encoded string representation of the image.
         """
-        with open(image_path, "rb") as image_file:
-            image_data = image_file.read()
-            base64_encoded_string = base64.b64encode(image_data).decode("utf-8")
+        buffered = BytesIO()
+        pillow_image.save(buffered, format="JPEG")  # Adjust format as needed
+        image_data = buffered.getvalue()
+        base64_encoded_string = base64.b64encode(image_data).decode("utf-8")
         return base64_encoded_string
 
     def _run_flux(
-        self, image_paths: List[dict], generation_params: List[dict]
+        self, pillow_images: List[dict], generation_params: List[dict]
     ) -> Image.Image:
         """
         Generates images using the Flux API and checks the status until the image is ready.
 
         Args:
-            image_paths (List[dict]): A list of dictionaries containing image paths and mask paths.
-                Example: [{'node_name': 'Load Input Image', 'image_path': 'path/to/image.png'}, {'node_name': 'Load Mask Image', 'image_path': 'path/to/mask.png'}]
+            pillow_images (List[dict]): A list of dictionaries containing pillow images and mask images.
+                Example: [{'node_name': 'Load Input Image', 'pillow_image': <PIL.Image>}, {'node_name': 'Load Mask Image', 'pillow_image': <PIL.Image>}]
             generation_params (list[dict]): A list of dictionaries containing generation params.
 
         Returns:
@@ -81,15 +80,15 @@ class FluxFillGenerator(ImageGenerator):
             requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
         """
 
-        image_path = image_paths[0]["image_path"]
-        mask_path = image_paths[1]["image_path"]
+        input_image = pillow_images[0]["pillow_image"]
+        mask_image = pillow_images[1]["pillow_image"]
 
         api_key = os.environ.get("BFL_API_KEY")
 
         # Set up basis payload
         payload = {
-            "image": self._encode_image_to_base64(image_path),
-            "mask": self._encode_image_to_base64(mask_path),
+            "image": self._encode_image_to_base64(input_image),
+            "mask": self._encode_image_to_base64(mask_image),
             "prompt": "A beautiful landscape with a sunset",
             "steps": 50,
             "prompt_upsampling": False,
@@ -142,7 +141,7 @@ class FluxFillGenerator(ImageGenerator):
 
         Args:
             args (dict[str, any]): A dictionary containing the following keys:
-                - image_paths (list[dict]): A list of dictionaries containing image paths and mask paths.
+                - pillow_images (list[dict]): A list of dictionaries containing pillow images and mask images.
                 - generation_params (list[dict]): A list of dictionaries containing generation params.
 
         Returns:
@@ -150,12 +149,12 @@ class FluxFillGenerator(ImageGenerator):
                 - image (Image.Image): The generated image.
                 - image_name (str): The name of the generated image.
         """
-        image_paths = args.get("image_paths", [])
+        pillow_images = args.get("pillow_images", [])
         generation_params = args.get("generation_params", [])
 
-        image = self._run_flux(image_paths, generation_params)
+        image = self._run_flux(pillow_images, generation_params)
 
         # Since the names should all be the same, we can just take the first.
-        image_name = image_paths[0]["image_path"].split("/")[-1]
+        image_name = pillow_images[0]["pillow_image"].filename.split("/")[-1]
 
         return image, image_name

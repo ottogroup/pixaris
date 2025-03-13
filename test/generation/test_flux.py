@@ -8,15 +8,20 @@ class TestFluxFillGenerator(unittest.TestCase):
     A few tests for the FluxFillGenerator class.
     """
 
+    def setUp(self):
+        self.generator = FluxFillGenerator()
+        self.mock_image1 = Image.open("test/test_eval_set/mock/input/model_01.png")
+        self.mock_mask1 = Image.open("test/test_eval_set/mock/mask/model_01.png")
+
     def test_encode_image_to_base64(self):
         """
         Test if the image is correctly encoded to base64.
         """
-        generator = FluxFillGenerator()
-        image_path = "test/test_eval_set/mock/input/model_01.png"
-        base64_string = generator._encode_image_to_base64(image_path)
+        mock_image = Image.new("RGB", (100, 100), color="red")
+        base64_string = self.generator._encode_image_to_base64(mock_image)
+        mock_image.close()
 
-        with open("test/test_eval_set/model_01_base64encoded.txt", "r") as file:
+        with open("test/test_eval_set/mock_image_base64encoded.txt", "r") as file:
             expected_base64_string = file.read()
 
         self.assertTrue(base64_string == expected_base64_string)
@@ -25,7 +30,6 @@ class TestFluxFillGenerator(unittest.TestCase):
         """
         Test if the function raises an error if dataset is not in the correct format.
         """
-        generator = FluxFillGenerator()
         dataset = ["wrong_format"]
         generation_params = []
 
@@ -33,23 +37,21 @@ class TestFluxFillGenerator(unittest.TestCase):
             ValueError,
             msg="Each entry in the dataset must be a dictionary.",
         ):
-            generator.validate_inputs_and_parameters(dataset, generation_params)
+            self.generator.validate_inputs_and_parameters(dataset, generation_params)
 
     def test_run_flux_success(self):
         """
         Test if the _run_flux method correctly generates an image.
         """
-        generator = FluxFillGenerator()
-
         args = {
-            "image_paths": [
+            "pillow_images": [
                 {
                     "node_name": "Load Input Image",
-                    "image_path": "test/test_eval_set/mock/input/model_01.png",
+                    "pillow_image": self.mock_image1,
                 },
                 {
                     "node_name": "Load Mask Image",
-                    "image_path": "test/test_eval_set/mock/mask/model_01.png",
+                    "pillow_image": self.mock_mask1,
                 },
             ],
             "generation_params": [
@@ -57,7 +59,7 @@ class TestFluxFillGenerator(unittest.TestCase):
             ],
         }
 
-        image_paths = args["image_paths"]
+        pillow_images = args["pillow_images"]
         generation_params = args["generation_params"]
 
         # Mocking requests.post and requests.get to simulate API response
@@ -78,24 +80,23 @@ class TestFluxFillGenerator(unittest.TestCase):
                 b"\x02\xfe\x00\x00\x00\x00IEND\xaeB`\x82"
             )
 
-            generated_image = generator._run_flux(image_paths, generation_params)
+            generated_image = self.generator._run_flux(pillow_images, generation_params)
             self.assertIsInstance(generated_image, Image.Image)
 
     def test_generate_single_image(self):
         """
-        Test if generate_single_image works correctly.
+        Test if generate_single_image works correctly by checking if the output
+        is a PIL Image and the name is matching the expected name.
         """
-        generator = FluxFillGenerator()
-
         args = {
-            "image_paths": [
+            "pillow_images": [
                 {
                     "node_name": "Load Input Image",
-                    "image_path": "test/test_eval_set/mock/input/model_01.png",
+                    "pillow_image": self.mock_image1,
                 },
                 {
                     "node_name": "Load Mask Image",
-                    "image_path": "test/test_eval_set/mock/mask/model_01.png",
+                    "pillow_image": self.mock_mask1,
                 },
             ],
             "generation_params": [
@@ -104,9 +105,9 @@ class TestFluxFillGenerator(unittest.TestCase):
         }
 
         with unittest.mock.patch.object(
-            generator, "_run_flux", return_value=Image.new("RGB", (100, 100))
+            self.generator, "_run_flux", return_value=Image.new("RGB", (100, 100))
         ):
-            image, image_name = generator.generate_single_image(args)
+            image, image_name = self.generator.generate_single_image(args)
             self.assertIsInstance(image, Image.Image)
             self.assertEqual(image_name, "model_01.png")
 
