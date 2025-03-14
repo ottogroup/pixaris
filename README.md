@@ -104,9 +104,9 @@ Information on how what an `eval_set` consists of and how you can create one can
 We implemented a neat `ImageGenerator` that uses ComfyUI.
 ```
 from pixaris.generation.comfyui import ComfyGenerator
-comfy_generator = ComfyGenerator(workflow_apiformat_path=<WORKFLOW_PATH>)
+comfy_generator = ComfyGenerator(workflow_apiformat_json=<WORKFLOW_APIFORMAT_JSON>)
 ```
-The workflow_apiformat_path should lead to a JSON file exported from ComfyUI. You can export your workflow in apiformat as shown [here][test/assets/export_apiformat.png].
+The workflow_apiformat_json should lead to a JSON file exported from ComfyUI. You can export your workflow in apiformat as shown [here][test/assets/export_apiformat.png].
 
 You can implement your own `ImageGenerator` for image generation with different tools, an API, or whatever you like. Your class needs to inherit from `ImageGenerator` and should call any image generation pipeline. A generator should parse a dataset into usable arguments for your generation. Override the function `generate_single_image` to call your generation.
 
@@ -142,8 +142,8 @@ In `args` you can set a seed, an inspiration image for the workflow, or which wo
 
 ```
 args = {
-    "workflow_apiformat_path": WORKFLOW_PATH,
-    "workflow_image_path": WORKFLOW_IMAGE_PATH,
+    "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
+    "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
     "eval_set": EVAL_SET,
     "generation_params": [
         {

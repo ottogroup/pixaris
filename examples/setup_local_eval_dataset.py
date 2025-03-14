@@ -111,17 +111,17 @@ os.makedirs(mask_image_dir, exist_ok=True)
 # +
 # run mask generation
 
-workflow_apiformat_path = "myworkflows/generate_mask.json"  # adjust here
+workflow_apiformat_json = "myworkflows/generate_mask.json"  # adjust here
 
 generator = ComfyGenerator(
-    workflow_apiformat_path=workflow_apiformat_path,
+    workflow_apiformat_json=workflow_apiformat_json,
 )
 
 for input_img_name in img_names:
     print("input_img_name: ", input_img_name)
     args = {
         "eval_set": eval_set_name,
-        "workflow_apiformat_path": workflow_apiformat_path,
+        "workflow_apiformat_json": workflow_apiformat_json,
         "pillow_images": [
             {
                 "node_name": "Load Input Image",

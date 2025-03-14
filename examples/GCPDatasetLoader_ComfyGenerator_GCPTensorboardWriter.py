@@ -6,12 +6,17 @@ from pixaris.metrics.llm import LLMMetric
 from pixaris.orchestration.base import generate_images_based_on_eval_set
 import os
 import yaml
+import json
 
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 EVAL_SET = "test_eval_set"
-WORKFLOW_PATH = os.getcwd() + "/test/assets/test_inspo_apiformat.json"
-WORKFLOW_IMAGE_PATH = os.getcwd() + "/test/assets/test-just-load-and-save.png"
+with open(os.getcwd() + "/test/assets/test_inspo_apiformat.json", "r") as file:
+    WORKFLOW_APIFORMAT_JSON = json.load(file)
+WORKFLOW_PILLOW_IMAGE = Image.open(
+    os.getcwd() + "/test/assets/test-just-load-and-save.png"
+)
 RUN_NAME = "example-run"
+
 
 # +
 data_loader = GCPDatasetLoader(
@@ -21,7 +26,7 @@ data_loader = GCPDatasetLoader(
     eval_dir_local="eval_data",
 )
 
-generator = ComfyGenerator(workflow_apiformat_path=WORKFLOW_PATH)
+generator = ComfyGenerator(workflow_apiformat_json=WORKFLOW_APIFORMAT_JSON)
 data_writer = GCPTensorboardWriter(
     project_id=config["gcp_project_id"],
     location=config["gcp_location"],
@@ -37,8 +42,8 @@ llm_metric = LLMMetric(
 )
 
 args = {
-    "workflow_apiformat_path": WORKFLOW_PATH,
-    "workflow_image_path": WORKFLOW_IMAGE_PATH,
+    "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
+    "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
     "eval_set": EVAL_SET,
     "pillow_images": [
         {

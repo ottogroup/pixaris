@@ -2,15 +2,18 @@ import os
 import yaml
 from PIL import Image
 from pixaris.generation.comfyui import ComfyGenerator
+import json
 
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
-WORKFLOW_PATH = os.getcwd() + "/test/assets/test-background-generation.json"
+WORKFLOW_APIFORMAT_JSON = json.load(
+    os.getcwd() + "/test/assets/test-background-generation.json"
+)
 
 # +
-generator = ComfyGenerator(workflow_apiformat_path=WORKFLOW_PATH)
+generator = ComfyGenerator(workflow_apiformat_json=WORKFLOW_APIFORMAT_JSON)
 
 args = {
-    "workflow_apiformat_path": WORKFLOW_PATH,
+    "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
     "pillow_images": [
         {
             "node_name": "Load Input Image",

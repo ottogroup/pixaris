@@ -9,7 +9,7 @@ class TestMergeDicts(unittest.TestCase):
         a has all information, b only adds additional images to existing key "pillow_images" in a.
         """
         a = {
-            "workflow_apiformat_path": "workflow.json",
+            "workflow_apiformat_json": "workflow.json",
             "pillow_images": [
                 {
                     "node_name": "Load Object Image",
@@ -32,7 +32,7 @@ class TestMergeDicts(unittest.TestCase):
         }
 
         expected_result = {
-            "workflow_apiformat_path": "workflow.json",
+            "workflow_apiformat_json": "workflow.json",
             "pillow_images": [
                 {
                     "node_name": "Load Object Image",
@@ -65,7 +65,7 @@ class TestMergeDicts(unittest.TestCase):
         }
 
         b = {
-            "workflow_apiformat_path": "workflow.json",
+            "workflow_apiformat_json": "workflow.json",
             "pillow_images": [
                 {
                     "node_name": "Load Composition Image",
@@ -77,7 +77,7 @@ class TestMergeDicts(unittest.TestCase):
         }
 
         expected_result = {
-            "workflow_apiformat_path": "workflow.json",
+            "workflow_apiformat_json": "workflow.json",
             "pillow_images": [
                 {
                     "node_name": "Load Object Image",

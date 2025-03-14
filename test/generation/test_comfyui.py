@@ -9,15 +9,17 @@ from pixaris.utils.hyperparameters import (
     expand_hyperparameters,
     generate_hyperparameter_grid,
 )
+import json
 
 
 class TestComfyUI(unittest.TestCase):
     def setUp(self):
-        self.generator = ComfyGenerator(
-            workflow_apiformat_path=os.path.abspath(
-                os.getcwd() + "/test/assets/test-background-generation.json"
-            ),
-        )
+        with open(
+            os.getcwd() + "/test/assets/test-background-generation.json", "r"
+        ) as file:
+            workflow_apiformat_json = json.load(file)
+
+        self.generator = ComfyGenerator(workflow_apiformat_json)
 
         self.mock_image1 = Image.open("test/test_eval_set/mock/input/model_01.png")
         self.mock_image2 = Image.open("test/test_eval_set/mock/input/model_02.png")
@@ -312,7 +314,7 @@ class TestComfyUI(unittest.TestCase):
         ]
         self.generator._modify_workflow(pillow_images, generation_params)
         self.assertEqual(
-            self.generator.workflow.prompt_workflow["76"]["inputs"]["steps"], 1
+            self.generator.workflow.workflow_apiformat_json["76"]["inputs"]["steps"], 1
         )
 
     def test_expand_hyperparameters(self):

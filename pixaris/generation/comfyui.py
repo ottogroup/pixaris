@@ -13,24 +13,24 @@ class ComfyGenerator(ImageGenerator):
             Initializes the ComfyGenerator with the specified parameters.
         _get_unique_int_for_image(img: Image.Image) -> int:
             Gets the hash of an image to generate a unique seed for experiments.
-        run_workflow(workflow_apiformat_path: str, pillow_images: dict[str, Image.Image], generation_params: list[dict] = []) -> Image:
+        run_workflow(workflow_apiformat_json: dict, pillow_images: dict[str, Image.Image], generation_params: list[dict] = []) -> Image:
         generate_single_image(args: dict[str, any]) -> Image.Image:
             Generates a single image using the specified arguments.
     """
 
     def __init__(
         self,
-        workflow_apiformat_path: str,
+        workflow_apiformat_json: dict,
         api_host: str = "localhost:8188",
     ):
         """
         api_host (str): The API host URL. For local experimenting, put "localhost:8188".
         """
         self.api_host = api_host
-        self.workflow_apiformat_path = workflow_apiformat_path
+        self.workflow_apiformat_json = workflow_apiformat_json
         self.workflow = ComfyWorkflow(
             api_host=self.api_host,
-            workflow_file_url=self.workflow_apiformat_path,
+            workflow_apiformat_json=self.workflow_apiformat_json,
         )
 
     def _get_unique_int_for_image(self, pillow_image: Image.Image) -> int:
@@ -57,7 +57,7 @@ class ComfyGenerator(ImageGenerator):
         """
         Validates the workflow file to ensure that it is in the correct format.
         Args:
-            workflow_apiformat_path (str): The path to the workflow file.
+            workflow_apiformat_json (dict): The workflow file in JSON format.
         Returns:
             str: The path to the validated workflow file.
         """
@@ -135,8 +135,7 @@ class ComfyGenerator(ImageGenerator):
         Generates a single image based on the provided arguments. For this it modifies and executed the workflow to generate the image.
         Args:
             args (dict[str, any]): A dictionary containing the following keys:
-            - "workflow_apiformat_path" (str): The path to the workflow file in API format. (ABSOLUTE PATH)!
-                    "example.json"
+            - "workflow_apiformat_json" (dict): The workflow file in JSON apiformat.
             - "pillow_images" (list[dict]): A dict of [str, Image.Image].
                     The keys should be Node names
                     The values should be the PIL Image objects to be loaded.
@@ -156,8 +155,8 @@ class ComfyGenerator(ImageGenerator):
         """
 
         assert (
-            "workflow_apiformat_path" in args
-        ), "The key 'workflow_apiformat_path' is missing."
+            "workflow_apiformat_json" in args
+        ), "The key 'workflow_apiformat_json' is missing."
 
         pillow_images = args.get("pillow_images", [])
         generation_params = args.get("generation_params", [])
