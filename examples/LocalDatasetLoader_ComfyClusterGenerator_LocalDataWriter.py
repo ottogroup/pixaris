@@ -5,7 +5,7 @@ os.environ["DEV_MODE"] = "true"
 from pixaris.data_loaders.local import LocalDatasetLoader
 from pixaris.data_writers.local import LocalDataWriter
 from pixaris.generation.comfyui_cluster import ComfyClusterGenerator
-from pixaris.orchestration.base import generate_images_based_on_eval_set
+from pixaris.orchestration.kubernetes import pixaris_orchestration_kubernetes_locally
 import yaml
 
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
@@ -30,16 +30,16 @@ args = {
     "workflow_image_path": WORKFLOW_IMAGE_PATH,
     "eval_set": EVAL_SET,
     "run_name": RUN_NAME,
+    "max_parallel_jobs": 2,
 }
 # -
 
 # execute
-out = generate_images_based_on_eval_set(
+pixaris_orchestration_kubernetes_locally(
     data_loader=data_loader,
     image_generator=generator,
     data_writer=data_writer,
     metrics=[],
     args=args,
+    auto_scale=True,
 )
-
-out[0][0].show()

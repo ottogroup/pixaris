@@ -29,8 +29,8 @@ class ComfyClusterGenerator(ImageGenerator):
             config.load_kube_config()
         else:
             config.load_incluster_config()
-        self.run_background_task = True
-        self.start_background_task()
+        # self.run_background_task = True
+        # self.start_background_task()
 
     def _fetch_pod_ips(self) -> list[str]:
         """
