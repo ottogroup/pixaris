@@ -2,6 +2,7 @@ from pixaris.data_writers.base import DataWriter
 from pixaris.data_writers.utils import upload_workflow_file_to_bucket
 from typing import Iterable
 from PIL import Image
+from PIL.PngImagePlugin import PngInfo
 from google.api_core.exceptions import AlreadyExists
 from google.cloud import aiplatform
 import tensorflow as tf
@@ -63,7 +64,7 @@ class GCPTensorboardWriter(DataWriter):
         """
         Saves all args to TensorBoard.
             if value is a Pillow image, save as image
-            if value is a path to a json file, save file as text
+            if value is a dictionary, save as text
             if value is a number, save as scalar
             if key is "pillow_images", save the images under their node names. Validity checked beforehand
             else save value as json dump
@@ -72,21 +73,19 @@ class GCPTensorboardWriter(DataWriter):
         """
         # save all args depending on their type
         for key, value in args.items():
-            if isinstance(value, str):
-                # check if value is a path to a json file
-                if value.endswith(".json") and os.path.exists(value):
-                    with open(value, "r") as f:
-                        json_data = json.load(f)
-                        tf.summary.text(key, json.dumps(json_data), step=0)
-                # else log as text
-                else:
-                    tf.summary.text(key, value, step=0)
+            if isinstance(value, Image.Image):
+                tf.summary.image(
+                    key,
+                    [np.asarray(value) / 255],
+                    step=0,
+                )
 
-            # check if value a number
+            elif isinstance(value, dict):
+                tf.summary.text(key, json.dumps(value), step=0)
+
             elif isinstance(value, (int, float)):
                 tf.summary.scalar(key, value, step=0)
 
-            # if key is "pillow_images", save the images under their node names.
             elif key == "pillow_images":
                 for pillow_image_dict in value:
                     tf.summary.image(
@@ -95,9 +94,31 @@ class GCPTensorboardWriter(DataWriter):
                         step=0,
                     )
 
-            # rest is dumped as a json
             else:
                 tf.summary.text(key, json.dumps(value), step=0)
+
+    def _save_workflow_image_to_bucket(
+        self, args: dict[str, any], eval_set: str, run_name: str
+    ):
+        """Saves the workflow image to a bucket, keeping the metadata."""
+
+        workflow_pillow_image = args["workflow_pillow_image"]
+
+        workflow_image_path = os.path.abspath(
+            f"temp/logs/{eval_set}/{run_name}/workflow_image.png"
+        )
+        metadata = PngInfo()
+        for key, value in workflow_pillow_image.info.items():
+            metadata.add_text(key, str(value))
+        workflow_pillow_image.save(workflow_image_path, pnginfo=metadata)
+        link_to_workflow_in_bucket = upload_workflow_file_to_bucket(
+            project_id=self.project_id,
+            bucket_name=self.bucket_name,
+            eval_set=eval_set,
+            run_name=run_name,
+            local_file_path=workflow_image_path,
+        )
+        return link_to_workflow_in_bucket
 
     def store_results(
         self,
@@ -173,14 +194,11 @@ class GCPTensorboardWriter(DataWriter):
                 self._save_args_entry(args)
 
                 # save workflow image with metadata to bucket
-                if "workflow_image_path" in args and self.bucket_name:
+                if "workflow_pillow_image" in args and self.bucket_name:
                     print("Saving workflow image to bucket")
-                    link_to_workflow_in_bucket = upload_workflow_file_to_bucket(
-                        project_id=self.project_id,
-                        bucket_name=self.bucket_name,
-                        eval_set=eval_set,
-                        run_name=run_name,
-                        local_file_path=args["workflow_image_path"],
+                    # Save the workflow image locally before uploading
+                    link_to_workflow_in_bucket = self._save_workflow_image_to_bucket(
+                        args=args, eval_set=eval_set, run_name=run_name
                     )
                     tf.summary.text(
                         "link_to_workflow_image", link_to_workflow_in_bucket, step=0

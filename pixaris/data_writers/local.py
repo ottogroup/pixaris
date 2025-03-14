@@ -39,17 +39,30 @@ class LocalDataWriter(DataWriter):
             image.save(
                 os.path.join(save_dir, name.split(".")[0] + ".png"),
                 "PNG",
-                dpi=(300, 300),
                 # if you switch to JPEG, use quality=95 as input! Otherwise, expect square artifacts
             )
+
+        # Save images in args
+        args_images_dir = os.path.join(save_dir, "args_images")
+        if not os.path.exists(args_images_dir):
+            os.makedirs(args_images_dir)
+
+        args_copy = {}
+        for key, value in args.items():
+            if isinstance(value, Image.Image):
+                image_path = os.path.join(args_images_dir, key + ".png")
+                value.save(image_path, "PNG")
+                args_copy[key] = image_path
+            else:
+                args_copy[key] = value
 
         # Save the results as JSON files in the experiment subfolder
         with open(os.path.join(save_dir, "results.json"), "w") as f:
             json.dump(metric_values, f)
 
-        # Save the results as JSON files in the experiment subfolder
+        # Save the rest of the args as JSON files in the experiment subfolder
         with open(os.path.join(save_dir, "args.json"), "w") as f:
-            json.dump(args, f)
+            json.dump(args_copy, f)
 
         # Append the results to the global tracking file
         with open(os.path.join(experiment_folder, global_tracking_file), "a") as f:

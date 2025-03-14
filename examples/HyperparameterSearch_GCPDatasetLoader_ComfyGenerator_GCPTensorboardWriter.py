@@ -6,11 +6,16 @@ from pixaris.orchestration.base import (
 )
 import os
 import yaml
+import json
+from PIL import Image
 
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 EVAL_SET = "test_eval_set"
-WORKFLOW_PATH = os.getcwd() + "/test/assets/test-background-generation.json"
-WORKFLOW_IMAGE_PATH = os.getcwd() + "/test/assets/test-background-generation.png"
+with open(os.getcwd() + "/test/assets/test_inspo_apiformat.json", "r") as file:
+    WORKFLOW_APIFORMAT_JSON = json.load(file)
+WORKFLOW_PILLOW_IMAGE = Image.open(
+    os.getcwd() + "/test/assets/test-background-generation.png"
+)
 RUN_NAME = "example-run"
 
 # +
@@ -20,7 +25,7 @@ data_loader = GCPDatasetLoader(
     eval_set=EVAL_SET,
     eval_dir_local="eval_data",
 )
-generator = ComfyGenerator(workflow_apiformat_path=WORKFLOW_PATH)
+generator = ComfyGenerator(workflow_apiformat_json=WORKFLOW_APIFORMAT_JSON)
 
 data_writer = GCPTensorboardWriter(
     project_id=config["gcp_project_id"],
@@ -29,8 +34,8 @@ data_writer = GCPTensorboardWriter(
 )
 # Define the arguments
 args = {
-    "workflow_apiformat_path": WORKFLOW_PATH,
-    "workflow_image_path": WORKFLOW_IMAGE_PATH,
+    "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
+    "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
     "eval_set": EVAL_SET,
     "run_name": RUN_NAME,
     "hyperparameters": [

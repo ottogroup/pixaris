@@ -5,57 +5,63 @@ import urllib.request
 import urllib.parse
 import requests
 import time
-import os
 from pixaris.utils.retry import retry
 
 
 class ComfyWorkflow:
     api_host = ""
-    prompt_workflow = {}
+    workflow_apiformat_json = {}
     last_history = {}
 
-    def __init__(self, api_host: str, workflow_file_url: str):
+    def __init__(self, api_host: str, workflow_apiformat_json: dict):
         self.api_host = api_host
-        # make path absolute
-        if not os.path.isabs(workflow_file_url):
-            workflow_file_url = os.path.join(
-                os.path.dirname(__file__), "../", workflow_file_url
-            )
+        cleaned_workflow_apiformat_json = self._remove_preview_images(
+            workflow_apiformat_json
+        )
+        self.workflow_apiformat_json = cleaned_workflow_apiformat_json
 
-        with open(workflow_file_url) as f:
-            self.prompt_workflow = json.load(f)
-        self._remove_preview_images()
-
-    def _remove_preview_images(self):
-        for id in list(self.prompt_workflow):
-            if self.prompt_workflow[id]["class_type"] == "PreviewImage":
-                del self.prompt_workflow[id]
+    def _remove_preview_images(self, workflow_apiformat_json: dict) -> dict:
+        """
+        Remove all nodes of class type "PreviewImage" from the workflow.
+        Args:
+            workflow_apiformat_json (dict): The workflow file in JSON format.
+        Returns:
+            dict: The workflow file with all nodes of class type "PreviewImage" removed.
+        """
+        ids_to_remove = [
+            id
+            for id in workflow_apiformat_json
+            if workflow_apiformat_json[id]["class_type"] == "PreviewImage"
+        ]
+        for id in ids_to_remove:
+            del workflow_apiformat_json[id]
+        return workflow_apiformat_json
 
     def node_id_for_name(self, node_name: str) -> str:
         """Get the id of a node by its name."""
-        for id in self.prompt_workflow:
-            if self.prompt_workflow[id]["_meta"]["title"] == node_name:
+        for id in self.workflow_apiformat_json:
+            if self.workflow_apiformat_json[id]["_meta"]["title"] == node_name:
                 return id
 
     def check_if_node_exists(self, node_name: str) -> bool:
         """Check if a node exists in the workflow."""
-        for id in self.prompt_workflow:
-            if self.prompt_workflow[id]["_meta"]["title"] == node_name:
+        for id in self.workflow_apiformat_json:
+            if self.workflow_apiformat_json[id]["_meta"]["title"] == node_name:
                 return True
         return False
 
     def count_node_class_occurances(self, node_class: str) -> int:
         """Count the number of occurances of a node class in the workflow."""
         count = 0
-        for id in self.prompt_workflow:
-            if self.prompt_workflow[id]["class_type"] == node_class:
+        for id in self.workflow_apiformat_json:
+            if self.workflow_apiformat_json[id]["class_type"] == node_class:
                 count += 1
         return count
 
     def check_if_parameter_exists(self, node_name: str, parameter: str) -> bool:
         """Check if a parameter exists for a node."""
         node_id = self.node_id_for_name(node_name)
-        return parameter in self.prompt_workflow[node_id]["inputs"].keys()
+        return parameter in self.workflow_apiformat_json[node_id]["inputs"].keys()
 
     def check_if_parameter_has_correct_type(
         self, node_name: str, parameter: str, expected_type: type
@@ -63,7 +69,7 @@ class ComfyWorkflow:
         """Check if a parameter has the correct type for a node."""
         node_id = self.node_id_for_name(node_name)
         return isinstance(
-            self.prompt_workflow[node_id]["inputs"][parameter], expected_type
+            self.workflow_apiformat_json[node_id]["inputs"][parameter], expected_type
         )
 
     def set_value(self, node_name: str, parameter: str, value: any):
@@ -72,10 +78,10 @@ class ComfyWorkflow:
         if node_id is None:
             raise ValueError(f"Node {node_name} does not exist in the workflow.")
 
-        if parameter not in self.prompt_workflow[node_id]["inputs"]:
+        if parameter not in self.workflow_apiformat_json[node_id]["inputs"]:
             raise ValueError(f"Node {node_name} does not have input {parameter}")
 
-        self.prompt_workflow[node_id]["inputs"][parameter] = value
+        self.workflow_apiformat_json[node_id]["inputs"][parameter] = value
 
     def check_if_parameters_are_valid(self, generation_params: list[dict]):
         """
@@ -146,7 +152,7 @@ class ComfyWorkflow:
     def get_value(self, node_name: str, parameter: str):
         """Get the value of a parameter for a node."""
         node_id = self.node_id_for_name(node_name)
-        return self.prompt_workflow[node_id]["inputs"][parameter]
+        return self.workflow_apiformat_json[node_id]["inputs"][parameter]
 
     def set_image(self, node_name: str, image: Image.Image):
         """Set the image input for a node."""
@@ -155,7 +161,7 @@ class ComfyWorkflow:
             raise ValueError(f"Node '{node_name}' does not exist in the workflow.")
 
         metadata = self.upload_image(image, "input")
-        self.prompt_workflow[node_id]["inputs"]["image"] = (
+        self.workflow_apiformat_json[node_id]["inputs"]["image"] = (
             metadata["subfolder"] + "/" + metadata["name"]
         )
 
@@ -219,7 +225,7 @@ class ComfyWorkflow:
 
     def execute(self):
         """Execute the workflow and wait for it to be done."""
-        prompt_id = self.queue_prompt(self.prompt_workflow)["prompt_id"]
+        prompt_id = self.queue_prompt(self.workflow_apiformat_json)["prompt_id"]
 
         history = self.wait_for_done(prompt_id)
         self.check_for_error(history)
@@ -248,7 +254,7 @@ class ComfyWorkflow:
     def delete_complete_node(self, node_name: str):
         """Delete a node from the workflow."""
         node_id = self.node_id_for_name(node_name)
-        self.prompt_workflow.pop(node_id)
+        self.workflow_apiformat_json.pop(node_id)
 
     def adjust_workflow_to_generate_one_image_only(self):
         """Remove all nodes that generate multiple images and their connection to the sampler node via script input."""
@@ -269,7 +275,9 @@ class ComfyWorkflow:
                 sampler_node_id = self.node_id_for_name(
                     "KSampler (Efficient) - Generation"
                 )
-                if "script" in self.prompt_workflow[sampler_node_id]["inputs"]:
-                    self.prompt_workflow[sampler_node_id]["inputs"].pop("script")
+                if "script" in self.workflow_apiformat_json[sampler_node_id]["inputs"]:
+                    self.workflow_apiformat_json[sampler_node_id]["inputs"].pop(
+                        "script"
+                    )
         except Exception as e:
             print(f"Error adjusting workflow to one image only.: {e} . CONTINUING ...")

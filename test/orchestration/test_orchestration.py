@@ -16,12 +16,18 @@ class TestOrchestration(unittest.TestCase):
         Test the generate_images function. This one is correct
         """
         writer = LocalDataWriter()
+
+        with open(
+            os.getcwd() + "/test/assets/test-just-load-and-save_apiformat.json", "r"
+        ) as file:
+            workflow_apiformat_json = json.load(file)
+
         args = {
-            "workflow_apiformat_path": os.path.abspath(
-                os.getcwd() + "/test/assets/test-just-load-and-save_apiformat.json"
-            ),
-            "workflow_image_path": os.path.abspath(
-                os.getcwd() + "/test/assets/test-just-load-and-save.png"
+            "workflow_apiformat_json": workflow_apiformat_json,
+            "workflow_pillow_image": Image.open(
+                os.path.abspath(
+                    os.getcwd() + "/test/assets/test-just-load-and-save.png"
+                )
             ),
             "eval_set": "test_eval_set",
             "run_name": "testrun",
@@ -63,11 +69,7 @@ class TestOrchestration(unittest.TestCase):
         ]
 
         # Call Generator with mock workflow
-        generator = ComfyGenerator(
-            workflow_apiformat_path=os.path.abspath(
-                os.getcwd() + "/test/assets/test-just-load-and-save_apiformat.json"
-            )
-        )
+        generator = ComfyGenerator(workflow_apiformat_json=workflow_apiformat_json)
         generator.workflow = mock_workflow
         mock_workflow.queue_prompt.return_value = json.loads(
             b'{"prompt_id": "test-prompt-id", "number": 2, "node_errors": {}}'
@@ -89,10 +91,10 @@ class TestOrchestration(unittest.TestCase):
     #     """
     #     writer = LocalDataWriter()
     #     args = {
-    #         "workflow_apiformat_path": os.path.abspath(
+    #         "workflow_apiformat_json": os.path.abspath(
     #             os.getcwd() + "/test/assets/test-just-load-and-save_apiformat.json"
     #         ),
-    #         "workflow_image_path": os.path.abspath(
+    #         "workflow_pillow_image": os.path.abspath(
     #             os.getcwd() + "/test/assets/test-just-load-and-save.png"
     #         ),
     #         "eval_set": "test_eval_set",
@@ -129,7 +131,7 @@ class TestOrchestration(unittest.TestCase):
     #     ]
 
     #     generator = ComfyGenerator(
-    #         workflow_apiformat_path=os.path.abspath(
+    #         workflow_apiformat_json=os.path.abspath(
     #             os.getcwd() + "/test/assets/test-just-load-and-save_apiformat.json"
     #         )
     #     )
@@ -155,10 +157,10 @@ class TestOrchestration(unittest.TestCase):
     #     """
     #     writer = LocalDataWriter()
     #     args = {
-    #         "workflow_apiformat_path": os.path.abspath(
+    #         "workflow_apiformat_json": os.path.abspath(
     #             os.getcwd() + "/test/assets/test-just-load-and-save_apiformat.json"
     #         ),
-    #         "workflow_image_path": os.path.abspath(
+    #         "workflow_pillow_image": os.path.abspath(
     #             os.getcwd() + "/test/assets/test-just-load-and-save.png"
     #         ),
     #         "eval_set": "test_eval_set",
@@ -183,7 +185,7 @@ class TestOrchestration(unittest.TestCase):
     #     ]
 
     #     generator = ComfyGenerator(
-    #         workflow_apiformat_path=os.path.abspath(
+    #         workflow_apiformat_json=os.path.abspath(
     #             os.getcwd() + "/test/assets/test-just-load-and-save_apiformat.json"
     #         )
     #     )

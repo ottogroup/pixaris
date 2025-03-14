@@ -21,9 +21,9 @@ class ComfyClusterGenerator(ImageGenerator):
 
     def __init__(
         self,
-        workflow_apiformat_path: str,
+        workflow_apiformat_json: str,
     ):
-        self.workflow_apiformat_path = workflow_apiformat_path
+        self.workflow_apiformat_json = workflow_apiformat_json
         self.hosts = {}
         if DEV_MODE:
             config.load_kube_config()
@@ -152,7 +152,7 @@ class ComfyClusterGenerator(ImageGenerator):
             dataset (List[dict[str, List[dict[str, Image.Image]]]): A list of dictionaries containing the images to be loaded.
             parameters (list[dict[str, str, any]]): A list of dictionaries containing the parameters to be used for the image generation process.
         """
-        dummy_generator = ComfyGenerator(self.workflow_apiformat_path)
+        dummy_generator = ComfyGenerator(self.workflow_apiformat_json)
         dummy_generator.validate_inputs_and_parameters(dataset, parameters)
 
     def generate_single_image(self, args: dict[str, any]) -> tuple[Image.Image, str]:
@@ -161,7 +161,7 @@ class ComfyClusterGenerator(ImageGenerator):
         and lets it modify and execute the workflow to generate the image.
         Args:
             args (dict[str, any]): A dictionary containing the following keys:
-            - "workflow_apiformat_path" (str): The path to the workflow file in API format. (ABSOLUTE PATH)!
+            - "workflow_apiformat_json" (str): The path to the workflow file in API format. (ABSOLUTE PATH)!
                     "example.json"
             - "pillow_images" (list[dict]): A dict of [str, Image.Image].
                     The keys should be Node names
@@ -185,7 +185,7 @@ class ComfyClusterGenerator(ImageGenerator):
 
             # initialize comfy generator for this host
             comfy_generator = ComfyGenerator(
-                workflow_apiformat_path=self.workflow_apiformat_path,
+                workflow_apiformat_json=self.workflow_apiformat_json,
                 api_host=host,
             )
             try:

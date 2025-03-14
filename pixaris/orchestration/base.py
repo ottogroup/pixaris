@@ -115,7 +115,7 @@ def generate_images_for_hyperparameter_search_based_on_eval_set(
         image_generator (ImageGenerator): The image generator to generate images.
         data_writer (DataWriter): The data writer to save generated images.
         args (dict[str, any]): A dictionary of arguments, including:
-            - "workflow_apiformat_path" (str): The path to the workflow file in API format.
+            - "workflow_apiformat_json" (str): The path to the workflow file in API format.
             - "hyperparameters" list(dict): A dictionary of hyperparameters to search.
                 each entry should contain the following keys:
                 - "node_name" (str): The name of the node to adjust.
