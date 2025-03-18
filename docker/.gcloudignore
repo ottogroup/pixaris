@@ -1,0 +1,8 @@
+.github
+pixaris/config.yaml
+.git
+examples
+eval_data
+local_results
+temp
+temp.*

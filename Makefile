@@ -16,5 +16,5 @@ fmt:
 test:
 	poetry run pytest
 
-create-docker-image-podman:
-	podman build -t pixaris_image . -f docker/Dockerfile
+build-docker-image:
+	gcloud builds submit --region=europe-west4 --config docker/cloudbuild.yaml --ignore-file docker/.gcloudignore
