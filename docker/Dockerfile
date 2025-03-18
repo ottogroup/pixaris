@@ -18,11 +18,11 @@ RUN apt-get update --fix-missing && apt-get install -y git build-essential gcc b
     pip install "poetry==2.1.1" && \
     python -m venv /venv
 
-COPY ../poetry.lock python/poetry.lock
-COPY ../pyproject.toml python/pyproject.toml
-COPY ../README.md python/README.md
+COPY poetry.lock python/poetry.lock
+COPY pyproject.toml python/pyproject.toml
+COPY README.md python/README.md
 
-COPY ../pixaris python/pixaris
+COPY pixaris python/pixaris
 RUN cd python && poetry build && /venv/bin/pip install dist/*.whl
 
 FROM base as final

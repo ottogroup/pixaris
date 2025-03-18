@@ -4,6 +4,7 @@ from pixaris.generation.comfyui import ComfyGenerator
 from PIL import Image
 import os
 
+
 from kubernetes import client, config
 from threading import Lock, Thread
 import requests
@@ -25,12 +26,7 @@ class ComfyClusterGenerator(ImageGenerator):
     ):
         self.workflow_apiformat_json = workflow_apiformat_json
         self.hosts = {}
-        if DEV_MODE:
-            config.load_kube_config()
-        else:
-            config.load_incluster_config()
-        # self.run_background_task = True
-        # self.start_background_task()
+        self.run_background_task = False
 
     def _fetch_pod_ips(self) -> list[str]:
         """
@@ -180,6 +176,17 @@ class ComfyClusterGenerator(ImageGenerator):
         Returns:
             Image.Image: The generated image.
         """
+        # on first execution, load config and start background task while ensuring only one worker will do it.
+        global mutex
+        with mutex:
+            if not self.run_background_task:
+                if DEV_MODE:
+                    config.load_kube_config()
+                else:
+                    config.load_incluster_config()
+                self.run_background_task = True
+                self.start_background_task()
+
         for retry in range(3):
             host = self._get_host()
 

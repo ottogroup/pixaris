@@ -12,9 +12,7 @@ config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 EVAL_SET = "test_eval_set"
 with open(os.getcwd() + "/test/assets/test_inspo_apiformat.json", "r") as file:
     WORKFLOW_APIFORMAT_JSON = json.load(file)
-WORKFLOW_PILLOW_IMAGE = Image.open(
-    os.getcwd() + "/test/assets/test-just-load-and-save.png"
-)
+WORKFLOW_PILLOW_IMAGE = Image.open(os.getcwd() + "/test/assets/test_inspo.png")
 RUN_NAME = "example-run"
 
 

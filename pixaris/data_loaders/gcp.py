@@ -31,31 +31,33 @@ class GCPDatasetLoader(DatasetLoader):
         eval_dir_local: str = "eval_data",
         force_download: bool = True,
     ):
-        storage_client = storage.Client(project=gcp_project_id)
+        self.gcp_project_id = gcp_project_id
         self.bucket_name = gcp_bucket_name
-        self.bucket = storage_client.get_bucket(self.bucket_name)
-
         self.eval_set = eval_set
         self.eval_dir_local = eval_dir_local
+        os.makedirs(self.eval_dir_local, exist_ok=True)
         self.force_download = force_download
-        self._download_eval_set()
-
-        self.image_dirs = [
-            name
-            for name in os.listdir(os.path.join(self.eval_dir_local, self.eval_set))
-            if os.path.isdir(os.path.join(self.eval_dir_local, self.eval_set, name))
-        ]
+        self.bucket = None
+        self.image_dirs = None
 
     def _download_eval_set(self):
         """
         Downloads evaluation images for a given evaluation set.
         """
+        storage_client = storage.Client(project=self.gcp_project_id)
+        self.bucket = storage_client.get_bucket(self.bucket_name)
         if self.force_download:
             self._verify_bucket_folder_exists()
 
         # only download if the local directory does not exist or is empty
         if self._decide_if_download_needed():
             self._download_bucket_dir()
+
+        self.image_dirs = [
+            name
+            for name in os.listdir(os.path.join(self.eval_dir_local, self.eval_set))
+            if os.path.isdir(os.path.join(self.eval_dir_local, self.eval_set, name))
+        ]
 
     def _verify_bucket_folder_exists(self):
         """
@@ -126,6 +128,7 @@ class GCPDatasetLoader(DatasetLoader):
                 The value is a dict mapping node names to PIL Image objects.
                     This dict has a key for each directory in the image_dirs list representing a Node Name.
         """
+        self._download_eval_set()
         image_names = self._retrieve_and_check_dataset_image_names()
 
         dataset = []
