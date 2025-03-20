@@ -16,7 +16,7 @@ Inspired by the MLOps mindset, we aim to cultivate an ImageOps approach. With Pi
 - **Comprehensive Metrics**: Implement custom metrics, including multimodal LLM evaluations, to gain deeper insights into the quality of your generated images.
 - **Scalable Experiment Tracking**: Designed for image generation at scale, Pixaris allows you to manage and visualize large sets of experiments with ease, leveraging the power of TensorBoard and Google Cloud Platform (GCP).
 - **Flexible Hyperparameter Search**: Explore a limitless range of parameters, such as prompt, model, cfg, noise, seed, ... to discover the optimal settings for your image generation tasks.
-- **Local and Remote Workflow Execution**: Trigger ComfyUI workflows locally or remotely, with options to store results locally if you are not using TensorBoard.
+- **Local and Remote Workflow Execution**: Trigger ComfyUI workflows locally, remotely with a connection via iap tunnel, or deploy them onto a cluster.
 
 **Target Audience**
 
@@ -87,7 +87,7 @@ For example usages, check the [examples](examples). Please note, to set up the G
 ### Loading your data set
 First step: load your dataset using a `DatasetLoader`. If you have your data in a Google Cloud bucket, you can use the `GCPDatasetLoader`.
 
-```
+```python
 from pixaris.data_loaders.gcp import GCPDatasetLoader
 loader = GCPDatasetLoader(
     gcp_project_id=<your gcp_project_id here>,
@@ -98,21 +98,21 @@ loader = GCPDatasetLoader(
 ```
 Alternatively, you can  use the `LocalDatasetLoader` if you have your `eval_set` saved locally, or implement your own `DatasetLoader` with whatever requirements and tools you have. A `DatasetLoader` should return a dataset that can be parsed by an `ImageGenerator`.
 
-Information on how what an `eval_set` consists of and how you can create one can be found here TODO.
+Information on how what an `eval_set` consists of and how you can create one can be found [here](examples/helpful_scripts/setup_local_eval_dataset.py).
 
 ### Setting up how you are generating images
 We implemented a neat `ImageGenerator` that uses ComfyUI.
-```
+```python
 from pixaris.generation.comfyui import ComfyGenerator
 comfy_generator = ComfyGenerator(workflow_apiformat_json=<WORKFLOW_APIFORMAT_JSON>)
 ```
 The workflow_apiformat_json should lead to a JSON file exported from ComfyUI. You can export your workflow in apiformat as shown [here][test/assets/export_apiformat.png].
 
-You can implement your own `ImageGenerator` for image generation with different tools, an API, or whatever you like. Your class needs to inherit from `ImageGenerator` and should call any image generation pipeline. A generator should parse a dataset into usable arguments for your generation. Override the function `generate_single_image` to call your generation.
+Pixaris also includes an implementation of `FluxFillGenerator`, that calls a Flux API for generation. You can implement your own `ImageGenerator` for image generation with different tools, an API, or whatever you like. Your class needs to inherit from `ImageGenerator` and should call any image generation pipeline. A generator parses a dataset into usable arguments for your generation. Override the function `generate_single_image` to call your generation.
 
 ### Setting up your experiment tracking
 To save the generated images and possibly metrics, we define a `DataWriter`. In our case, we want to have a nice visualization of all input and output images and metrics, so we choose the `GCPTensorboardWriter` using the Google-managed version. This decision was made because a lot of functionality is already implemented, e.g. we like that you can zoom in and out of images.
-```
+```python
 from pixaris.data_writers.gcp_tensorboard import GCPTensorboardWriter
 writer = GCPTensorboardWriter(
     project_id=<your gcp_project_id here>,
@@ -124,7 +124,7 @@ Alternatively, you can choose to save your results locally using the `LocalDataW
 
 ### Optional: Setup evaluation metrics
 Maybe we want to generate some metrics to evaluate our results, e.g., for mask generation, calculate the IoU with the correct masks.
-```
+```python
 from pixaris.metrics.iou import IoUMetric
 correct_masks_path = <path to your correct masks>
 correct_masks = [Image.open(correct_masks_path + name) for name in os.listdir(correct_masks_path)]
@@ -140,7 +140,7 @@ Depending on the specific components we defined and what they provide, we need t
 For example, additional parameters you want to set in the workflow for the `ComfyGenerator` can be specified by `generation_params`.
 In `args` you can set a seed, an inspiration image for the workflow, or which workflow image should be uploaded for documentation. In contrast to the inputs in the `eval_set`, these will be the same for each execution over the workflow within your experiment.
 
-```
+```python
 args = {
     "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
     "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
@@ -164,7 +164,7 @@ args = {
 
 ### Orchestrate your experiment run
 After defining all aforementioned components, we simply pass them to the orchestration
-```
+```python
 from pixaris.orchestration.base import generate_images_based_on_eval_set
 out = generate_images_based_on_eval_set(
     data_loader=loader,
@@ -175,6 +175,22 @@ out = generate_images_based_on_eval_set(
 )
 ```
 Internally, it will load data, generate images, calculate metrics, and save data using the previously defined objects. In a nutshell: do all the magic :)
+
+## Orchestration: Generating Images at Scale
+
+Are you planning to run a huge hyperparameter search to finally figure out which parameter combination is the sweet spot and don't want to wait forever until it has finished? We implemented two neat solutions to orchestrate image generation at scale.
+
+### Parallelised Calls to Generator
+By handing over the `max_parallel_jobs` in `args` to the orchestration, you can parallelise the calls to any generator. E.g. see [here](examples/ParallelisedOrchestration_LocalDatasetLoader_FluxGenerator_LocalDataWriter.py) how to parallelise calls to the flux api.
+
+### Run Generation on kubernetes Cluster
+
+We implemented an orchestration that is based on ComfyUI and Google Kubernetes Engine (GKE). This uploads the inputs to the cluster and then triggers generation within the cluster. See [here](examples/GCPDatasetLoader_ComfyClusterGenerator_GCPBucketWriter.py) for example usage.
+
+If you want to use Pixaris without setting it up manually, you can pull the prebuilt Pixaris Docker image from this repository:
+```sh
+docker pull ghcr.io/og-dw/tiga_pixaris:latest
+```
 
 ## Naming Conventions
 For clarity, we would like to state what terminology we use in Pixaris:

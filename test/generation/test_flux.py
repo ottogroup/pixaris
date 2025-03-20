@@ -63,9 +63,10 @@ class TestFluxFillGenerator(unittest.TestCase):
         generation_params = args["generation_params"]
 
         # Mocking requests.post and requests.get to simulate API response
-        with unittest.mock.patch("requests.post") as mock_post, unittest.mock.patch(
-            "requests.get"
-        ) as mock_get:
+        with (
+            unittest.mock.patch("requests.post") as mock_post,
+            unittest.mock.patch("requests.get") as mock_get,
+        ):
             mock_post.return_value.json.return_value = {"id": "request_id"}
             mock_get.return_value.json.return_value = {
                 "status": "Ready",
