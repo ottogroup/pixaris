@@ -31,7 +31,7 @@ tensorboard_experiments = aiplatform.TensorboardExperiment.list(
     tensorboard_name=tensorboard_instance.resource_name
 )
 for idx, experiment in enumerate(tensorboard_experiments):
-    print(f"Experiment {experiment.display_name.split("/")[-1]} has index {idx}")
+    print(f"Experiment {experiment.display_name.split('/')[-1]} has index {idx}")
 
 # +
 # HERE SELECT THE EXPERIMENT YOU WANT TO USE
@@ -39,7 +39,7 @@ my_experiment_index = 2
 
 tensorboard_experiment = tensorboard_experiments[my_experiment_index]
 print(
-    f"In the next step you will delete all runs within experiment ------- {tensorboard_experiment.display_name.split("/")[-1]} --------"
+    f"In the next step you will delete all runs within experiment ------- {tensorboard_experiment.display_name.split('/')[-1]} --------"
 )
 print("ARE YOU SURE YOU WANT TO DELETE ALL RUNS WITHIN THIS EXPERIMENT?")
 # -

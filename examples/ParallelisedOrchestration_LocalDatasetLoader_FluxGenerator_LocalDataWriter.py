@@ -33,7 +33,7 @@ args = {
     ],
     "eval_set": EVAL_SET,
     "run_name": RUN_NAME,
-    "max_parallel_jobs": 2,
+    "max_parallel_jobs": 2,  # how many parallel jobs to run
 }
 # -
 

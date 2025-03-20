@@ -41,7 +41,7 @@ def generate_images_based_on_eval_set(
         data_writer (DataWriter): An instance of DataWriter to store the generated images and results.
         metrics (list[BaseMetric]): A list of metrics to calculate.
         args (dict[str, any]): A dictionary of arguments to be used for image generation and storing results.
-        max_parallel_jobs (int): The maximum number of parallel jobs to run.
+        max_parallel_jobs (int): The maximum number of parallel jobs to run. Not providing this arg means no parallelisation.
     Returns:
         Iterable[tuple[Image.Image, str]]: A list of generated images and names
     """
@@ -139,7 +139,7 @@ def generate_images_for_hyperparameter_search_based_on_eval_set(
     for run_number, hyperparameter in enumerate(hyperparameter_grid):
         print(f"Starting run {run_number + 1} of {len(hyperparameter_grid)}")
         run_args = merge_dicts(args, {"generation_params": hyperparameter})
-        run_args["run_name"] = f"hs-{args["run_name"]}-{run_number}"
+        run_args["run_name"] = f"hs-{args['run_name']}-{run_number}"
 
         generate_images_based_on_eval_set(
             data_loader=data_loader,
