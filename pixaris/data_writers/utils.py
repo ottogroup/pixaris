@@ -2,7 +2,7 @@ from google.cloud import storage
 
 
 def upload_workflow_file_to_bucket(
-    project_id: str,
+    gcp_project_id: str,
     bucket_name: str,
     dataset: str,
     experiment_run_name: str,
@@ -12,7 +12,7 @@ def upload_workflow_file_to_bucket(
     Upload a file to a Google Cloud Storage bucket.
 
     Args:
-        project_id (str): The Google Cloud project ID.
+        gcp_project_id (str): The Google Cloud project ID.
         bucket_name (str): The name of the bucket.
         dataset (str): The name of the evaluation set.
         experiment_run_name (str): The name of the experiment.
@@ -28,5 +28,5 @@ def upload_workflow_file_to_bucket(
     blob = bucket.blob(destination_path)
     blob.upload_from_filename(local_file_path)
 
-    clickable_link = f"https://console.cloud.google.com/storage/browser/_details/{bucket_name}/workflows/{dataset}/{file_name}?project={project_id}"
+    clickable_link = f"https://console.cloud.google.com/storage/browser/_details/{bucket_name}/workflows/{dataset}/{file_name}?project={gcp_project_id}"
     return clickable_link

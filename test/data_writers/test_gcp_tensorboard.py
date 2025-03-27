@@ -5,7 +5,7 @@ from pixaris.data_writers.gcp_tensorboard import GCPTensorboardWriter
 class TestGCPTensorboardWriter(unittest.TestCase):
     def setUp(self):
         self.writer = GCPTensorboardWriter(
-            project_id="test_project", location="test_location"
+            gcp_project_id="test_project", location="test_location"
         )
 
     def test_validate_experiment_run_name_valid(self):

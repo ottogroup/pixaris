@@ -4,12 +4,12 @@ import yaml
 
 config = yaml.safe_load(open("pixaris/config.yaml"))
 
-PROJECT_ID = config["gcp_project_id"]
+GCP_PROJECT_ID = config["gcp_project_id"]
 LOCATION = config["gcp_location"]
-aiplatform.init(project=PROJECT_ID, location=LOCATION)
+aiplatform.init(project=GCP_PROJECT_ID, location=LOCATION)
 # Get tensorboard instances
 all_tensorboard_instances = aiplatform.Tensorboard.list(
-    project=PROJECT_ID, location=LOCATION
+    project=GCP_PROJECT_ID, location=LOCATION
 )
 
 # +
@@ -21,7 +21,7 @@ instance = all_tensorboard_instances[my_instance_index]
 instance_resource_name = instance.resource_name.split("/")[-1]
 print("Instance Resource Name: ", instance_resource_name)
 tensorboard_instance = aiplatform.Tensorboard(
-    project=PROJECT_ID, location=LOCATION, tensorboard_name=instance_resource_name
+    project=GCP_PROJECT_ID, location=LOCATION, tensorboard_name=instance_resource_name
 )
 print(tensorboard_instance)
 # -

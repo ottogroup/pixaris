@@ -36,7 +36,7 @@ data_loader = GCPDatasetLoader(
 generator = ComfyClusterGenerator(workflow_apiformat_json=WORKFLOW_APIFORMAT_JSON)
 
 data_writer = GCPBucketWriter(
-    project_id=config["gcp_project_id"],
+    gcp_project_id=config["gcp_project_id"],
     location=config["gcp_location"],
     bucket_name=BUCKET_NAME,
     bucket_results_path=BUCKET_RESULTS_PATH,
