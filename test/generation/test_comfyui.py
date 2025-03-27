@@ -21,9 +21,9 @@ class TestComfyUI(unittest.TestCase):
 
         self.generator = ComfyGenerator(workflow_apiformat_json)
 
-        self.mock_image1 = Image.open("test/test_dataset/mock/input/model_01.png")
-        self.mock_image2 = Image.open("test/test_dataset/mock/input/model_02.png")
-        self.mock_mask1 = Image.open("test/test_dataset/mock/mask/model_01.png")
+        self.mock_image1 = Image.open("test/test_project/mock/input/model_01.png")
+        self.mock_image2 = Image.open("test/test_project/mock/input/model_02.png")
+        self.mock_mask1 = Image.open("test/test_project/mock/mask/model_01.png")
 
     def test_get_unique_int_for_image(self):
         """

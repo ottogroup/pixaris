@@ -87,6 +87,7 @@ def generate_images_based_on_dataset(
         )
 
     data_writer.store_results(
+        project=args["project"],
         dataset=args["dataset"],
         experiment_run_name=args["experiment_run_name"],
         image_name_pairs=generated_image_name_pairs,

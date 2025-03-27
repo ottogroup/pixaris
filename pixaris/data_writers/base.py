@@ -7,6 +7,7 @@ class DataWriter:
     @abstractmethod
     def store_results(
         self,
+        project: str,
         dataset: str,
         experiment_run_name: str,
         image_name_pairs: Iterable[tuple[Image.Image, str]],
@@ -20,6 +21,3 @@ class DataWriter:
         experiment_run_name: str,
     ):
         pass
-
-
-[]

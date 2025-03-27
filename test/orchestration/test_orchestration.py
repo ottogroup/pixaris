@@ -29,6 +29,7 @@ class TestOrchestration(unittest.TestCase):
                     os.getcwd() + "/test/assets/test-just-load-and-save.png"
                 )
             ),
+            "project": "test_project",
             "dataset": "test_dataset",
             "experiment_run_name": "testrun",
         }
@@ -39,13 +40,13 @@ class TestOrchestration(unittest.TestCase):
                     {
                         "node_name": "Load Input Image",
                         "pillow_image": Image.open(
-                            "test/test_dataset/mock/input/model_01.png"
+                            "test/test_project/mock/input/model_01.png"
                         ),
                     },
                     {
                         "node_name": "Load Mask Image",
                         "pillow_image": Image.open(
-                            "test/test_dataset/mock/mask/model_01.png"
+                            "test/test_project/mock/mask/model_01.png"
                         ),
                     },
                 ]
@@ -55,13 +56,13 @@ class TestOrchestration(unittest.TestCase):
                     {
                         "node_name": "Load Input Image",
                         "pillow_image": Image.open(
-                            "test/test_dataset/mock/input/model_01.png"
+                            "test/test_project/mock/input/model_01.png"
                         ),
                     },
                     {
                         "node_name": "Load Mask Image",
                         "pillow_image": Image.open(
-                            "test/test_dataset/mock/mask/model_01.png"
+                            "test/test_project/mock/mask/model_01.png"
                         ),
                     },
                 ]
@@ -97,6 +98,7 @@ class TestOrchestration(unittest.TestCase):
     #         "workflow_pillow_image": os.path.abspath(
     #             os.getcwd() + "/test/assets/test-just-load-and-save.png"
     #         ),
+    #         "project": "test_project",
     #         "dataset": "test_dataset",
     #         "experiment_run_name": "testrun",
     #     }
@@ -120,11 +122,11 @@ class TestOrchestration(unittest.TestCase):
     #             "pillow_images": [
     #                 {
     #                     "node_name": "Load Input Image",
-    #                     "pillow_image": Image.open("test/test_dataset/mock/input/model_01.png"),
+    #                     "pillow_image": Image.open("test/test_project/mock/input/model_01.png"),
     #                 },
     #                 {
     #                     "node_name": "Load Mask Image",
-    #                     "pillow_image": Image.open("test/test_dataset/mock/mask/model_01.png"),
+    #                     "pillow_image": Image.open("test/test_project/mock/mask/model_01.png"),
     #                 },
     #             ]
     #         },
@@ -163,6 +165,7 @@ class TestOrchestration(unittest.TestCase):
     #         "workflow_pillow_image": os.path.abspath(
     #             os.getcwd() + "/test/assets/test-just-load-and-save.png"
     #         ),
+    #         "project": "test_project",
     #         "dataset": "test_dataset",
     #         "experiment_run_name": "testrun",
     #     }

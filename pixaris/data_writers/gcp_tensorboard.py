@@ -127,6 +127,7 @@ class GCPTensorboardWriter(DataWriter):
         image_name_pairs: Iterable[tuple[Image.Image, str]],
         metric_values: dict[str, float],
         args: dict[str, any] = {},
+        project: str = "",
     ):
         """
         Stores the results of an evaluation run to TensorBoard.
@@ -136,6 +137,7 @@ class GCPTensorboardWriter(DataWriter):
             images (Iterable[Image.Image]): A collection of images to log.
             metrics (dict[str, float]): A dictionary of metric names and their corresponding values.
             args (dict[str, any], optional): args given to the ImageGenerator that generated the images.
+            project (str, optional): The name of the project. Defaults to "". Will be ignored by the GCP Tensorboard writer.
         Raises:
             AssertionError: If any value in the metrics dictionary is not a number.
         """
