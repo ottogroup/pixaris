@@ -115,7 +115,7 @@ To save the generated images and possibly metrics, we define a `DataWriter`. In 
 ```python
 from pixaris.data_writers.gcp_tensorboard import GCPTensorboardWriter
 writer = GCPTensorboardWriter(
-    project_id=<your gcp_project_id here>,
+    gcp_project_id=<your gcp_project_id here>,
     location=<your gcp_location here>,
     bucket_name=<your gcp_bucket_name here>,
 )

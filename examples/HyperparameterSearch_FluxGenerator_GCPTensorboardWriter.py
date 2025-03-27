@@ -26,7 +26,7 @@ data_loader = GCPDatasetLoader(
 generator = FluxFillGenerator()
 
 data_writer = GCPTensorboardWriter(
-    project_id=config["gcp_project_id"],
+    gcp_project_id=config["gcp_project_id"],
     location=config["gcp_location"],
     bucket_name=config["gcp_bucket_name"],
 )

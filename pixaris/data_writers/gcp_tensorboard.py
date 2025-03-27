@@ -17,7 +17,7 @@ import re
 class GCPTensorboardWriter(DataWriter):
     def __init__(
         self,
-        project_id: str,
+        gcp_project_id: str,
         location: str,
         bucket_name: str = None,
     ):
@@ -31,7 +31,7 @@ class GCPTensorboardWriter(DataWriter):
         :param bucket_name: The name of the Google Cloud Storage bucket to store the workflow image. If None, the workflow image will not be stored in a bucket. Defaults to None.
         :type bucket_name: str, optional
         """
-        self.project_id = project_id
+        self.gcp_project_id = gcp_project_id
         self.location = location
         self.bucket_name = bucket_name
 
@@ -115,7 +115,7 @@ class GCPTensorboardWriter(DataWriter):
             metadata.add_text(key, str(value))
         workflow_pillow_image.save(workflow_image_path, pnginfo=metadata)
         link_to_workflow_in_bucket = upload_workflow_file_to_bucket(
-            project_id=self.project_id,
+            gcp_project_id=self.gcp_project_id,
             bucket_name=self.bucket_name,
             dataset=dataset,
             experiment_run_name=experiment_run_name,
@@ -150,7 +150,7 @@ class GCPTensorboardWriter(DataWriter):
 
         aiplatform.init(
             experiment=dataset.replace("_", "-"),
-            project=self.project_id,
+            project=self.gcp_project_id,
             location=self.location,
             experiment_tensorboard=True,
         )

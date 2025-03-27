@@ -10,7 +10,7 @@ from pixaris.data_writers.gcp_tensorboard import GCPTensorboardWriter
 class GCPBucketWriter(DataWriter):
     def __init__(
         self,
-        project_id: str,
+        gcp_project_id: str,
         location: str,
         bucket_name: str,
         bucket_results_path: str,
@@ -18,12 +18,12 @@ class GCPBucketWriter(DataWriter):
         """
         Initializes the GCPBucketWriter.
         Args:
-            project_id (str): The Google Cloud project ID.
+            gcp_project_id (str): The Google Cloud project ID.
             location (str): The Google Cloud location.
             bucket_name (str): The name of the Google Cloud Storage bucket to store the workflow image. If None,
                 the workflow image will not be stored in a bucket. Defaults to None.
         """
-        self.project_id = project_id
+        self.gcp_project_id = gcp_project_id
         self.location = location
         self.bucket_name = bucket_name
         self.bucket_results_path = bucket_results_path
@@ -103,7 +103,7 @@ class GCPBucketWriter(DataWriter):
 
     def _write_to_gcp_tensorboard(self, results):
         tensorboard_writer = GCPTensorboardWriter(
-            project_id=self.project_id,
+            gcp_project_id=self.gcp_project_id,
             location=self.location,
             bucket_name=self.bucket_name,
         )
