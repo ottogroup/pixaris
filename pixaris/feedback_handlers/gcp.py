@@ -31,7 +31,7 @@ class BigqueryFeedbackHandler(FeedbackHandler):
             feedback: dict with feedback information. Dict is expected to have the following keys:
                 - project: name of the project
                 - feedback_iteration: name of the iteration
-                - eval_set: name of the evaluation set (optional)
+                - dataset: name of the evaluation set (optional)
                 - image_name: name of the image
                 - experiment_name: name of the experiment (optional)
                 - feedback_indicator: string with feedback value (either "Like", "Dislike", or "Neither")
@@ -54,7 +54,7 @@ class BigqueryFeedbackHandler(FeedbackHandler):
         row_to_insert = {
             "project": feedback["project"],
             "feedback_iteration": feedback["feedback_iteration"],
-            "eval_set": feedback.get("eval_set", ""),
+            "dataset": feedback.get("dataset", ""),
             "image_name": feedback["image_name"],
             "experiment_name": feedback.get("experiment_name", ""),
             "date": datetime.now().isoformat(),

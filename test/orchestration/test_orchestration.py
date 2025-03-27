@@ -3,7 +3,7 @@ from unittest.mock import patch
 from PIL import Image
 from pixaris.data_writers.local import LocalDataWriter
 from pixaris.generation.comfyui import ComfyGenerator
-from pixaris.orchestration.base import generate_images_based_on_eval_set
+from pixaris.orchestration.base import generate_images_based_on_dataset
 import unittest
 import os
 
@@ -29,8 +29,8 @@ class TestOrchestration(unittest.TestCase):
                     os.getcwd() + "/test/assets/test-just-load-and-save.png"
                 )
             ),
-            "eval_set": "test_eval_set",
-            "run_name": "testrun",
+            "dataset": "test_dataset",
+            "experiment_run_name": "testrun",
         }
 
         mock_loader.load_dataset.return_value = [
@@ -39,13 +39,13 @@ class TestOrchestration(unittest.TestCase):
                     {
                         "node_name": "Load Input Image",
                         "pillow_image": Image.open(
-                            "test/test_eval_set/mock/input/model_01.png"
+                            "test/test_dataset/mock/input/model_01.png"
                         ),
                     },
                     {
                         "node_name": "Load Mask Image",
                         "pillow_image": Image.open(
-                            "test/test_eval_set/mock/mask/model_01.png"
+                            "test/test_dataset/mock/mask/model_01.png"
                         ),
                     },
                 ]
@@ -55,13 +55,13 @@ class TestOrchestration(unittest.TestCase):
                     {
                         "node_name": "Load Input Image",
                         "pillow_image": Image.open(
-                            "test/test_eval_set/mock/input/model_01.png"
+                            "test/test_dataset/mock/input/model_01.png"
                         ),
                     },
                     {
                         "node_name": "Load Mask Image",
                         "pillow_image": Image.open(
-                            "test/test_eval_set/mock/mask/model_01.png"
+                            "test/test_dataset/mock/mask/model_01.png"
                         ),
                     },
                 ]
@@ -77,7 +77,7 @@ class TestOrchestration(unittest.TestCase):
         mock_workflow.download_image.return_value = Image.new(
             "RGB", (100, 100), color="red"
         )
-        images = generate_images_based_on_eval_set(
+        images = generate_images_based_on_dataset(
             mock_loader, generator, writer, [], args
         )
         self.assertEqual(len(images), 2)
@@ -97,8 +97,8 @@ class TestOrchestration(unittest.TestCase):
     #         "workflow_pillow_image": os.path.abspath(
     #             os.getcwd() + "/test/assets/test-just-load-and-save.png"
     #         ),
-    #         "eval_set": "test_eval_set",
-    #         "run_name": "testrun",
+    #         "dataset": "test_dataset",
+    #         "experiment_run_name": "testrun",
     #     }
 
     #     mock_fake_image = Image.open("test/assets/fake_image.jpg")
@@ -120,11 +120,11 @@ class TestOrchestration(unittest.TestCase):
     #             "pillow_images": [
     #                 {
     #                     "node_name": "Load Input Image",
-    #                     "pillow_image": Image.open("test/test_eval_set/mock/input/model_01.png"),
+    #                     "pillow_image": Image.open("test/test_dataset/mock/input/model_01.png"),
     #                 },
     #                 {
     #                     "node_name": "Load Mask Image",
-    #                     "pillow_image": Image.open("test/test_eval_set/mock/mask/model_01.png"),
+    #                     "pillow_image": Image.open("test/test_dataset/mock/mask/model_01.png"),
     #                 },
     #             ]
     #         },
@@ -142,7 +142,7 @@ class TestOrchestration(unittest.TestCase):
     #     mock_workflow.download_image.return_value = Image.new(
     #         "RGB", (100, 100), color="red"
     #     )
-    #     images = generate_images_based_on_eval_set(
+    #     images = generate_images_based_on_dataset(
     #         mock_loader, generator, writer, [], args
     #     )
     #     mock_print.assert_any_call("continuing with next image.")
@@ -163,8 +163,8 @@ class TestOrchestration(unittest.TestCase):
     #         "workflow_pillow_image": os.path.abspath(
     #             os.getcwd() + "/test/assets/test-just-load-and-save.png"
     #         ),
-    #         "eval_set": "test_eval_set",
-    #         "run_name": "testrun",
+    #         "dataset": "test_dataset",
+    #         "experiment_run_name": "testrun",
     #     }
 
     #     mock_fake_image = Image.open("test/assets/fake_image.jpg")
@@ -200,7 +200,7 @@ class TestOrchestration(unittest.TestCase):
     #         ValueError,
     #         "Failed to generate images for all 1 images. \nLast error message: cannot identify image file",
     #     ):
-    #         generate_images_based_on_eval_set(
+    #         generate_images_based_on_dataset(
     #             mock_loader,
     #             generator,
     #             writer,

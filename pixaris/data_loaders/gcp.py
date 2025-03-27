@@ -14,11 +14,11 @@ class GCPDatasetLoader(DatasetLoader):
     Attributes:
         gcp_project_id (str): The Google Cloud Platform project ID.
         gcp_bucket_name (str): The name of the Google Cloud Storage bucket.
-        eval_set (str): The name of the evaluation set to download images for.
+        dataset (str): The name of the evaluation set to download images for.
         eval_dir_local (str): The local directory where evaluation images will be saved. Defaults to "eval_data".
         force_download (bool): Whether to force download the images even if they already exist locally. Defaults to False.
     Methods:
-        download_eval_set() -> None: Downloads evaluation images for a given evaluation set.
+        download_dataset() -> None: Downloads evaluation images for a given evaluation set.
         load_dataset() -> Iterable[dict[str, any]]:
             Returns all images in the evaluation set as an iterator of dictionaries.
     """
@@ -27,20 +27,20 @@ class GCPDatasetLoader(DatasetLoader):
         self,
         gcp_project_id: str,
         gcp_bucket_name: str,
-        eval_set: str,
+        dataset: str,
         eval_dir_local: str = "eval_data",
         force_download: bool = True,
     ):
         self.gcp_project_id = gcp_project_id
         self.bucket_name = gcp_bucket_name
-        self.eval_set = eval_set
+        self.dataset = dataset
         self.eval_dir_local = eval_dir_local
         os.makedirs(self.eval_dir_local, exist_ok=True)
         self.force_download = force_download
         self.bucket = None
         self.image_dirs = None
 
-    def _download_eval_set(self):
+    def _download_dataset(self):
         """
         Downloads evaluation images for a given evaluation set.
         """
@@ -55,8 +55,8 @@ class GCPDatasetLoader(DatasetLoader):
 
         self.image_dirs = [
             name
-            for name in os.listdir(os.path.join(self.eval_dir_local, self.eval_set))
-            if os.path.isdir(os.path.join(self.eval_dir_local, self.eval_set, name))
+            for name in os.listdir(os.path.join(self.eval_dir_local, self.dataset))
+            if os.path.isdir(os.path.join(self.eval_dir_local, self.dataset, name))
         ]
 
     def _verify_bucket_folder_exists(self):
@@ -67,7 +67,7 @@ class GCPDatasetLoader(DatasetLoader):
             ValueError: If no files are found in the specified directory in the bucket.
         """
         # List the blobs in the bucket. If no blobs are found, raise an error.
-        blobs = list(self.bucket.list_blobs(prefix=f"{self.eval_set}/"))
+        blobs = list(self.bucket.list_blobs(prefix=f"{self.dataset}/"))
         if not blobs:
             raise ValueError(
                 "No images found in bucket or bucket does not exist. Please double-check gs://{self.bucket_name}/{dir_name}/."
@@ -79,11 +79,11 @@ class GCPDatasetLoader(DatasetLoader):
         """
         # delete the local directory if force_download is True
         if self.force_download:
-            if os.path.exists(os.path.join(self.eval_dir_local, self.eval_set)):
-                shutil.rmtree(os.path.join(self.eval_dir_local, self.eval_set))
+            if os.path.exists(os.path.join(self.eval_dir_local, self.dataset)):
+                shutil.rmtree(os.path.join(self.eval_dir_local, self.dataset))
 
         # Create the local directory if it does not exist
-        local_dir = os.path.join(self.eval_dir_local, self.eval_set)
+        local_dir = os.path.join(self.eval_dir_local, self.dataset)
         if os.path.exists(local_dir) and len(os.listdir(local_dir)) > 0:
             return False
         else:
@@ -95,7 +95,7 @@ class GCPDatasetLoader(DatasetLoader):
         Downloads all files from a specified directory in a Google Cloud Storage bucket to a local directory.
         """
         # Download the blobs to the local directory
-        blobs = self.bucket.list_blobs(prefix=f"{self.eval_set}/")
+        blobs = self.bucket.list_blobs(prefix=f"{self.dataset}/")
         blob_names = [
             blob.name for blob in blobs if not blob.name.endswith("/")
         ]  # exclude directories
@@ -128,7 +128,7 @@ class GCPDatasetLoader(DatasetLoader):
                 The value is a dict mapping node names to PIL Image objects.
                     This dict has a key for each directory in the image_dirs list representing a Node Name.
         """
-        self._download_eval_set()
+        self._download_dataset()
         image_names = self._retrieve_and_check_dataset_image_names()
 
         dataset = []
@@ -136,7 +136,7 @@ class GCPDatasetLoader(DatasetLoader):
             pillow_images = []
             for image_dir in self.image_dirs:
                 image_path = os.path.join(
-                    self.eval_dir_local, self.eval_set, image_dir, image_name
+                    self.eval_dir_local, self.dataset, image_dir, image_name
                 )
                 # Load the image using PIL
                 pillow_image = Image.open(image_path)
@@ -160,11 +160,11 @@ class GCPDatasetLoader(DatasetLoader):
             ValueError: If the names of the images in each image directory are not the same.
         """
         basis_names = os.listdir(
-            os.path.join(self.eval_dir_local, self.eval_set, self.image_dirs[0])
+            os.path.join(self.eval_dir_local, self.dataset, self.image_dirs[0])
         )
         for image_dir in self.image_dirs:
             image_names = os.listdir(
-                os.path.join(self.eval_dir_local, self.eval_set, image_dir)
+                os.path.join(self.eval_dir_local, self.dataset, image_dir)
             )
             if basis_names != image_names:
                 raise ValueError(

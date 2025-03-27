@@ -48,7 +48,7 @@ class GCPBucketWriter(DataWriter):
 
     def _save_results(
         self,
-        run_name: str,
+        experiment_run_name: str,
         results: pickle,
     ):
         """Saves pickled results to a bucket."""
@@ -56,7 +56,7 @@ class GCPBucketWriter(DataWriter):
         storage_client = storage.Client()
         bucket = storage_client.bucket(self.bucket_name)
 
-        destination_path = f"{self.bucket_results_path}/{run_name}.pkl"
+        destination_path = f"{self.bucket_results_path}/{experiment_run_name}.pkl"
         blob = bucket.blob(destination_path)
         blob.upload_from_string(results)
         print(
@@ -66,8 +66,8 @@ class GCPBucketWriter(DataWriter):
 
     def store_results(
         self,
-        eval_set: str,
-        run_name: str,
+        dataset: str,
+        experiment_run_name: str,
         image_name_pairs: Iterable[tuple[Image.Image, str]],
         metric_values: dict[str, float],
         args: dict[str, any] = {},
@@ -75,8 +75,8 @@ class GCPBucketWriter(DataWriter):
         """
         Stores the pickled results of an evaluation run to Bucket.
         Args:
-            eval_set (str): The name of the evaluation set.
-            run_name (str): The name of the run.
+            dataset (str): The name of the evaluation set.
+            experiment_run_name (str): The name of the run.
             images (Iterable[Image.Image]): A collection of images to log.
             metrics (dict[str, float]): A dictionary of metric names and their corresponding values.
             args (dict[str, any], optional): args given to the ImageGenerator that generated the images.
@@ -84,17 +84,17 @@ class GCPBucketWriter(DataWriter):
             AssertionError: If any value in the metrics dictionary is not a number.
         """
         self._validate_args(args)
-        run_name = run_name + str(np.random.randint(99))
+        experiment_run_name = experiment_run_name + str(np.random.randint(99))
         results = {
-            "eval_set": eval_set,
-            "run_name": run_name,
+            "dataset": dataset,
+            "experiment_run_name": experiment_run_name,
             "image_name_pairs": image_name_pairs,
             "metric_values": metric_values,
             "args": args,
         }
         pickled_reults = pickle.dumps(results)
 
-        self._save_results(run_name, pickled_reults)
+        self._save_results(experiment_run_name, pickled_reults)
 
     def _write_to_gcp_tensorboard(self, results):
         tensorboard_writer = GCPTensorboardWriter(
@@ -104,8 +104,8 @@ class GCPBucketWriter(DataWriter):
         )
 
         tensorboard_writer.store_results(
-            eval_set=results["eval_set"],
-            run_name=results["run_name"],
+            dataset=results["dataset"],
+            experiment_run_name=results["experiment_run_name"],
             image_name_pairs=results["image_name_pairs"],
             metric_values=results["metric_values"],
             args=results["args"],

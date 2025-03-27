@@ -10,7 +10,7 @@ class IOUMetricTest(unittest.TestCase):
         """
         iou should be 1 if images and masks are the same
         """
-        image_path = "test/test_eval_set/mock/mask/"
+        image_path = "test/test_dataset/mock/mask/"
         images = [Image.open(image_path + name) for name in os.listdir(image_path)]
 
         metric = IoUMetric(images)
@@ -23,7 +23,7 @@ class IOUMetricTest(unittest.TestCase):
         """
         iou should be between 0 and 1 if images and masks are different
         """
-        image = "test/test_eval_set/mock/mask/model_01.png"
+        image = "test/test_dataset/mock/mask/model_01.png"
         images = [Image.open(image)]
         mask_images = [Image.new("1", image.size, 255) for image in images]
 
