@@ -71,5 +71,7 @@ jobs:
           cache: poetry      
       - name: Install dependencies
         run: poetry install
-      - name: Generate Documentation
-        run: make docs
+      - name: Run Sphinx
+        run: sphinx-apidoc -o docs .
+      - name: Build docs
+        run: cd docs && make html
