@@ -31,6 +31,7 @@ data_writer = LocalDataWriter()
 args = {
     "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
     "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
+    "project": PROJECT,
     "dataset": DATASET,
     "experiment_run_name": EXPERIMENT_RUN_NAME,
 }

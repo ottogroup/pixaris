@@ -47,6 +47,7 @@ data_writer = GCPBucketWriter(
 args = {
     "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
     "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
+    "project": PROJECT,
     "dataset": DATASET,
     "experiment_run_name": EXPERIMENT_RUN_NAME,
     "max_parallel_jobs": 2,

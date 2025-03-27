@@ -44,6 +44,7 @@ llm_metric = LLMMetric(
 args = {
     "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
     "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
+    "project": PROJECT,
     "dataset": DATASET,
     "pillow_images": [
         {

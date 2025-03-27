@@ -33,6 +33,7 @@ args = {
             "value": PROMPT,
         },
     ],
+    "project": PROJECT,
     "dataset": DATASET,
     "experiment_run_name": EXPERIMENT_RUN_NAME,
     "max_parallel_jobs": 2,  # how many parallel jobs to run
