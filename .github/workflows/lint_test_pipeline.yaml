@@ -69,8 +69,9 @@ jobs:
         with:
           python-version: 3.12
           cache: poetry      
-      - name: Install dependencies
+      - name: Install sphinx
         run: pip install sphinx
+      - name: Install theme
         run: pip install sphinx-rdt-theme
       - name: Run Sphinx
         run: sphinx-apidoc -o docs .
