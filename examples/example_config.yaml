@@ -1,4 +1,6 @@
 gcp_project_id: "your-project-id"
 gcp_bucket_name: "your-bucket-name"
 gcp_location: "your-location"
-bfl_api_key: "your-bfl-api-key"
+bfl_api_key: "your-bfl-api-key" # for using flux
+gcp_feedback_bucket: "your-pixaris-feedback-bucket"
+gcp_bq_feedback_table: "your-pixaris-bq-feedback-table"

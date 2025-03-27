@@ -48,6 +48,7 @@ args = {
     "dataset": DATASET,
     "experiment_run_name": EXPERIMENT_RUN_NAME,
     "max_parallel_jobs": 2,
+    "gcp_project_id": config["gcp_project_id"],
 }
 # -
 
