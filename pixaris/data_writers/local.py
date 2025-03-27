@@ -32,7 +32,10 @@ class LocalDataWriter(DataWriter):
         """
         timestamp = time.strftime("%Y%m%d-%H%M%S")
         save_dir = os.path.join(
-            local_results_folder, project, dataset, experiment_run_name + "_" + timestamp
+            local_results_folder,
+            project,
+            dataset,
+            experiment_run_name + "_" + timestamp,
         )
 
         if not os.path.exists(save_dir):

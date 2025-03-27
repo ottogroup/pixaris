@@ -58,8 +58,12 @@ class GCPDatasetLoader(DatasetLoader):
 
         self.image_dirs = [
             name
-            for name in os.listdir(os.path.join(self.eval_dir_local, self.project, self.dataset))
-            if os.path.isdir(os.path.join(self.eval_dir_local, self.project, self.dataset, name))
+            for name in os.listdir(
+                os.path.join(self.eval_dir_local, self.project, self.dataset)
+            )
+            if os.path.isdir(
+                os.path.join(self.eval_dir_local, self.project, self.dataset, name)
+            )
         ]
 
     def _verify_bucket_folder_exists(self):
@@ -82,8 +86,12 @@ class GCPDatasetLoader(DatasetLoader):
         """
         # delete the local directory if force_download is True
         if self.force_download:
-            if os.path.exists(os.path.join(self.eval_dir_local, self.project, self.dataset)):
-                shutil.rmtree(os.path.join(self.eval_dir_local, self.project, self.dataset))
+            if os.path.exists(
+                os.path.join(self.eval_dir_local, self.project, self.dataset)
+            ):
+                shutil.rmtree(
+                    os.path.join(self.eval_dir_local, self.project, self.dataset)
+                )
 
         # Create the local directory if it does not exist
         local_dir = os.path.join(self.eval_dir_local, self.project, self.dataset)
@@ -139,7 +147,11 @@ class GCPDatasetLoader(DatasetLoader):
             pillow_images = []
             for image_dir in self.image_dirs:
                 image_path = os.path.join(
-                    self.eval_dir_local, self.project, self.dataset, image_dir, image_name
+                    self.eval_dir_local,
+                    self.project,
+                    self.dataset,
+                    image_dir,
+                    image_name,
                 )
                 # Load the image using PIL
                 pillow_image = Image.open(image_path)
@@ -163,7 +175,9 @@ class GCPDatasetLoader(DatasetLoader):
             ValueError: If the names of the images in each image directory are not the same.
         """
         basis_names = os.listdir(
-            os.path.join(self.eval_dir_local, self.project, self.dataset, self.image_dirs[0])
+            os.path.join(
+                self.eval_dir_local, self.project, self.dataset, self.image_dirs[0]
+            )
         )
         for image_dir in self.image_dirs:
             image_names = os.listdir(
