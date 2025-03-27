@@ -1,5 +1,5 @@
 .ONESHELL:
-.PHONY: install lint fmt test
+.PHONY: install lint fmt test docs
 
 install:
 	poetry install
@@ -15,3 +15,7 @@ fmt:
 
 test:
 	poetry run pytest
+
+docs:
+	sphinx-apidoc -o docs .
+	cd docs && make html
