@@ -9,6 +9,7 @@ import yaml
 import json
 
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
+PROJECT = "test_project"
 DATASET = "test_dataset"
 with open(os.getcwd() + "/test/assets/test_inspo_apiformat.json", "r") as file:
     WORKFLOW_APIFORMAT_JSON = json.load(file)
@@ -20,6 +21,7 @@ EXPERIMENT_RUN_NAME = "example-run"
 data_loader = GCPDatasetLoader(
     gcp_project_id=config["gcp_project_id"],
     gcp_bucket_name=config["gcp_bucket_name"],
+    project=PROJECT,
     dataset=DATASET,
     eval_dir_local="eval_data",
 )
@@ -31,7 +33,7 @@ data_writer = GCPTensorboardWriter(
     bucket_name=config["gcp_bucket_name"],
 )
 
-object_dir = "test/test_dataset/mock/input/"
+object_dir = "test/test_project/mock/input/"
 object_images = [Image.open(object_dir + image) for image in os.listdir(object_dir)]
 style_images = [Image.open("test/assets/test_inspo_image.jpg")] * len(object_images)
 llm_metric = LLMMetric(
@@ -42,6 +44,7 @@ llm_metric = LLMMetric(
 args = {
     "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
     "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
+    "project": PROJECT,
     "dataset": DATASET,
     "pillow_images": [
         {

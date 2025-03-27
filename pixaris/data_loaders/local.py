@@ -5,17 +5,32 @@ from PIL import Image
 
 
 class LocalDatasetLoader(DatasetLoader):
+    """
+    LocalDatasetLoader is a class for loading datasets from a local directory. Upon initialisation,
+    the dataset is loaded from the local directory.
+    Attributes:
+        project (str): The name of the project containing the evaluation set.
+        dataset (str): The name of the evaluation set to load images for.
+        eval_dir_local (str): The local directory where evaluation images are saved. Defaults to "eval_data".
+    """
+
     def __init__(
         self,
+        project: str,
         dataset: str,
         eval_dir_local: str = "eval_data",
     ):
         self.dataset = dataset
+        self.project = project
         self.eval_dir_local = eval_dir_local
         self.image_dirs = [
             name
-            for name in os.listdir(os.path.join(self.eval_dir_local, self.dataset))
-            if os.path.isdir(os.path.join(self.eval_dir_local, self.dataset, name))
+            for name in os.listdir(
+                os.path.join(self.eval_dir_local, self.project, self.dataset)
+            )
+            if os.path.isdir(
+                os.path.join(self.eval_dir_local, self.project, self.dataset, name)
+            )
         ]
 
     def _retrieve_and_check_dataset_image_names(self):
@@ -29,11 +44,13 @@ class LocalDatasetLoader(DatasetLoader):
             ValueError: If the names of the images in each image directory are not the same.
         """
         basis_names = os.listdir(
-            os.path.join(self.eval_dir_local, self.dataset, self.image_dirs[0])
+            os.path.join(
+                self.eval_dir_local, self.project, self.dataset, self.image_dirs[0]
+            )
         )
         for image_dir in self.image_dirs:
             image_names = os.listdir(
-                os.path.join(self.eval_dir_local, self.dataset, image_dir)
+                os.path.join(self.eval_dir_local, self.project, self.dataset, image_dir)
             )
             if basis_names != image_names:
                 raise ValueError(
@@ -62,7 +79,11 @@ class LocalDatasetLoader(DatasetLoader):
             pillow_images = []
             for image_dir in self.image_dirs:
                 image_path = os.path.join(
-                    self.eval_dir_local, self.dataset, image_dir, image_name
+                    self.eval_dir_local,
+                    self.project,
+                    self.dataset,
+                    image_dir,
+                    image_name,
                 )
                 # Load the image using PIL
                 pillow_image = Image.open(image_path)
