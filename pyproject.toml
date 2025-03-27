@@ -16,9 +16,11 @@ tensorflow = "^2.12.0"
 scikit-learn = "^1.6.1"
 click = "^8.1.8"
 decorator = "5.1.1"
+gradio = "^5.22.0"
+db-dtypes = "^1.4.2"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.7.4"
+ruff = "^0.9.3"
 poetry-plugin-export = "^1.8.0"
 pytest = "^8.2.2"
 ipykernel = "^6.29.5"

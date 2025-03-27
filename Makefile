@@ -18,3 +18,6 @@ test:
 
 build-docker-image:
 	gcloud builds submit --region=europe-west4 --config docker/cloudbuild.yaml --ignore-file docker/.gcloudignore
+
+deploy-gradio-app-local:
+	poetry run gradio pixaris/frontend/main.py
