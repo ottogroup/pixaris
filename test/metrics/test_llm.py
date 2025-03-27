@@ -7,7 +7,7 @@ from pixaris.metrics.llm import LLMMetric
 
 class LLMMetricTest(unittest.TestCase):
     def test_llm_correct(self):
-        object_dir = "test/test_eval_set/mock/input/"
+        object_dir = "test/test_dataset/mock/input/"
         object_images = [
             Image.open(object_dir + image) for image in os.listdir(object_dir)
         ]

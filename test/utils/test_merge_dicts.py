@@ -14,7 +14,7 @@ class TestMergeDicts(unittest.TestCase):
                 {
                     "node_name": "Load Object Image",
                     "pillow_image": Image.open(
-                        "test/test_eval_set/mock/input/model_01.png"
+                        "test/test_dataset/mock/input/model_01.png"
                     ),
                 },
             ],
@@ -25,7 +25,7 @@ class TestMergeDicts(unittest.TestCase):
                 {
                     "node_name": "Load Composition Image",
                     "pillow_image": Image.open(
-                        "test/test_eval_set/mock/input/model_01.png"
+                        "test/test_dataset/mock/input/model_01.png"
                     ),
                 },
             ]
@@ -37,13 +37,13 @@ class TestMergeDicts(unittest.TestCase):
                 {
                     "node_name": "Load Object Image",
                     "pillow_image": Image.open(
-                        "test/test_eval_set/mock/input/model_01.png"
+                        "test/test_dataset/mock/input/model_01.png"
                     ),
                 },
                 {
                     "node_name": "Load Composition Image",
                     "pillow_image": Image.open(
-                        "test/test_eval_set/mock/input/model_01.png"
+                        "test/test_dataset/mock/input/model_01.png"
                     ),
                 },
             ],
@@ -58,7 +58,7 @@ class TestMergeDicts(unittest.TestCase):
                 {
                     "node_name": "Load Object Image",
                     "pillow_image": Image.open(
-                        "test/test_eval_set/mock/input/model_01.png"
+                        "test/test_dataset/mock/input/model_01.png"
                     ),
                 },
             ],
@@ -70,7 +70,7 @@ class TestMergeDicts(unittest.TestCase):
                 {
                     "node_name": "Load Composition Image",
                     "pillow_image": Image.open(
-                        "test/test_eval_set/mock/input/model_01.png"
+                        "test/test_dataset/mock/input/model_01.png"
                     ),
                 },
             ],
@@ -82,13 +82,13 @@ class TestMergeDicts(unittest.TestCase):
                 {
                     "node_name": "Load Object Image",
                     "pillow_image": Image.open(
-                        "test/test_eval_set/mock/input/model_01.png"
+                        "test/test_dataset/mock/input/model_01.png"
                     ),
                 },
                 {
                     "node_name": "Load Composition Image",
                     "pillow_image": Image.open(
-                        "test/test_eval_set/mock/input/model_01.png"
+                        "test/test_dataset/mock/input/model_01.png"
                     ),
                 },
             ],

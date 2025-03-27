@@ -69,14 +69,14 @@ Follow these steps to set up and run your experiment:
    If desired, you can add metrics to your experiment run, such as `llm_metric`, which allows an LLM to evaluate your images.
 
 5. **[Define Arguments for Your Experiment Run](#define-args-for-your-experiment-run)**:
-   Here, you will define `args` for your experiment run, such as the path to your comfyui-workflow.json and the `run_name`.
+   Here, you will define `args` for your experiment run, such as the path to your comfyui-workflow.json and the `experiment_run_name`.
 
 6. **[Orchestrate Your Experiment Run](#orchestrate-your-experiment-run)**:
-   Finally, orchestrate your experiment run using one of the generate functions, e.g., `generate_images_based_on_eval_set`.
+   Finally, orchestrate your experiment run using one of the generate functions, e.g., `generate_images_based_on_dataset`.
 
 ### Summary
 
-To utilize Pixaris for evaluating your experiments, you will always need a `DatasetLoader`, `ImageGenerator`, `DataWriter`, and `args`. Once all components are defined, they will be passed to an orchestration function like `generate_images_based_on_eval_set`. This function is responsible for loading the data, executing the experiment, and saving the results.
+To utilize Pixaris for evaluating your experiments, you will always need a `DatasetLoader`, `ImageGenerator`, `DataWriter`, and `args`. Once all components are defined, they will be passed to an orchestration function like `generate_images_based_on_dataset`. This function is responsible for loading the data, executing the experiment, and saving the results.
 
 For each component, we offer several options to choose from. For example, the `DatasetLoader` includes the `GCPDatasetLoader` for accessing data in Google Cloud Storage and a separate `LocalDatasetLoader` for accessing local evaluation data. Additionally, you have the flexibility to implement your own component tailored to your specific needs. Attached is an overview of the various components and their implementations.
 
@@ -92,13 +92,13 @@ from pixaris.data_loaders.gcp import GCPDatasetLoader
 loader = GCPDatasetLoader(
     gcp_project_id=<your gcp_project_id here>,
     gcp_bucket_name=<your gcp_bucket_name here>,
-    eval_set=<your eval_dir here>,
-    eval_dir_local="eval_data", # this is the local path where all your eval_sets are stored
+    dataset=<your eval_dir here>,
+    eval_dir_local="eval_data", # this is the local path where all your datasets are stored
 )
 ```
-Alternatively, you can  use the `LocalDatasetLoader` if you have your `eval_set` saved locally, or implement your own `DatasetLoader` with whatever requirements and tools you have. A `DatasetLoader` should return a dataset that can be parsed by an `ImageGenerator`.
+Alternatively, you can  use the `LocalDatasetLoader` if you have your `dataset` saved locally, or implement your own `DatasetLoader` with whatever requirements and tools you have. A `DatasetLoader` should return a dataset that can be parsed by an `ImageGenerator`.
 
-Information on how what an `eval_set` consists of and how you can create one can be found [here](examples/helpful_scripts/setup_local_eval_dataset.py).
+Information on how what an `dataset` consists of and how you can create one can be found [here](examples/helpful_scripts/setup_local_eval_dataset.py).
 
 ### Setting up how you are generating images
 We implemented a neat `ImageGenerator` that uses ComfyUI.
@@ -138,13 +138,13 @@ Depending on the specific components we defined and what they provide, we need t
 `args` can include whatever data is needed by any of the components and is not given explicitly through parameters of a component. The content of `args` is highly dependent on the components you use.
 
 For example, additional parameters you want to set in the workflow for the `ComfyGenerator` can be specified by `generation_params`.
-In `args` you can set a seed, an inspiration image for the workflow, or which workflow image should be uploaded for documentation. In contrast to the inputs in the `eval_set`, these will be the same for each execution over the workflow within your experiment.
+In `args` you can set a seed, an inspiration image for the workflow, or which workflow image should be uploaded for documentation. In contrast to the inputs in the `dataset`, these will be the same for each execution over the workflow within your experiment.
 
 ```python
 args = {
     "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
     "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
-    "eval_set": EVAL_SET,
+    "dataset": DATASET,
     "generation_params": [
         {
             "node_name": "KSampler (Efficient)",
@@ -158,15 +158,15 @@ args = {
             "pillow_image": Image.open("test/assets/test_inspo_image.jpg"),
         }
     ],
-    "run_name": "example_run",
+    "experiment_run_name": "example_run",
 }
 ```
 
 ### Orchestrate your experiment run
 After defining all aforementioned components, we simply pass them to the orchestration
 ```python
-from pixaris.orchestration.base import generate_images_based_on_eval_set
-out = generate_images_based_on_eval_set(
+from pixaris.orchestration.base import generate_images_based_on_dataset
+out = generate_images_based_on_dataset(
     data_loader=loader,
     image_generator=comfy_generator,
     data_writer=writer,

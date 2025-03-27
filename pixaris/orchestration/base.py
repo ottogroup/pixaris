@@ -23,7 +23,7 @@ def generate_image(data, image_generator, args, failed_args):
         return None
 
 
-def generate_images_based_on_eval_set(
+def generate_images_based_on_dataset(
     data_loader: DatasetLoader,
     image_generator: ImageGenerator,
     data_writer: DataWriter,
@@ -50,7 +50,7 @@ def generate_images_based_on_eval_set(
     dataset = data_loader.load_dataset()
     generation_params = args.get("generation_params", [])
     image_generator.validate_inputs_and_parameters(dataset, generation_params)
-    data_writer._validate_run_name(args["run_name"])
+    data_writer._validate_experiment_run_name(args["experiment_run_name"])
     max_parallel_jobs = args.get("max_parallel_jobs", 1)
 
     generated_image_name_pairs = []
@@ -87,8 +87,8 @@ def generate_images_based_on_eval_set(
         )
 
     data_writer.store_results(
-        eval_set=args["eval_set"],
-        run_name=args["run_name"],
+        dataset=args["dataset"],
+        experiment_run_name=args["experiment_run_name"],
         image_name_pairs=generated_image_name_pairs,
         metric_values=metric_values,
         args=args,
@@ -96,7 +96,7 @@ def generate_images_based_on_eval_set(
     return generated_image_name_pairs
 
 
-def generate_images_for_hyperparameter_search_based_on_eval_set(
+def generate_images_for_hyperparameter_search_based_on_dataset(
     data_loader: DatasetLoader,
     image_generator: ImageGenerator,
     data_writer: DataWriter,
@@ -121,7 +121,7 @@ def generate_images_for_hyperparameter_search_based_on_eval_set(
                 - "node_name" (str): The name of the node to adjust.
                 - "input" (str): The input to adjust.
                 - "value" (list): A list of values to search. Each value should be a valid input for the node.
-            - "run_name" (str): The base name for each run.
+            - "experiment_run_name" (str): The base name for each run.
     Raises:
         ValueError: If no hyperparameters are provided.
     """
@@ -139,9 +139,11 @@ def generate_images_for_hyperparameter_search_based_on_eval_set(
     for run_number, hyperparameter in enumerate(hyperparameter_grid):
         print(f"Starting run {run_number + 1} of {len(hyperparameter_grid)}")
         run_args = merge_dicts(args, {"generation_params": hyperparameter})
-        run_args["run_name"] = f"hs-{args['run_name']}-{run_number}"
+        run_args["experiment_run_name"] = (
+            f"hs-{args['experiment_run_name']}-{run_number}"
+        )
 
-        generate_images_based_on_eval_set(
+        generate_images_based_on_dataset(
             data_loader=data_loader,
             image_generator=image_generator,
             data_writer=data_writer,

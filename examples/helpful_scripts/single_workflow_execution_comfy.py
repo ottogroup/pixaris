@@ -17,11 +17,11 @@ args = {
     "pillow_images": [
         {
             "node_name": "Load Input Image",
-            "pillow_image": Image.open("eval_data/test_eval_set/input/model_01.png"),
+            "pillow_image": Image.open("eval_data/test_dataset/input/model_01.png"),
         },
         {
             "node_name": "Load Mask Image",
-            "pillow_image": Image.open("eval_data/test_eval_set/mask/model_01.png"),
+            "pillow_image": Image.open("eval_data/test_dataset/mask/model_01.png"),
         },
     ],
     "generation_params": [],

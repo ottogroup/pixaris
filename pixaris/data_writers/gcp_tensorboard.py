@@ -33,13 +33,13 @@ class GCPTensorboardWriter(DataWriter):
         self.location = location
         self.bucket_name = bucket_name
 
-    def _validate_run_name(
+    def _validate_experiment_run_name(
         self,
-        run_name: str,
+        experiment_run_name: str,
     ):
-        # assert run_name adheres to tensorboard rules
-        assert re.match(r"[a-z0-9][a-z0-9-]{0,127}", run_name), (
-            "run_name must adhere to regex [a-z0-9][a-z0-9-]{0,127} - so only lowercase letters, numbers and '-' are allowed, max length 128"
+        # assert experiment_run_name adheres to tensorboard rules
+        assert re.match(r"[a-z0-9][a-z0-9-]{0,127}", experiment_run_name), (
+            "experiment_run_name must adhere to regex [a-z0-9][a-z0-9-]{0,127} - so only lowercase letters, numbers and '-' are allowed, max length 128"
         )
 
     def _validate_args(self, args: dict[str, any]):
@@ -98,14 +98,14 @@ class GCPTensorboardWriter(DataWriter):
                 tf.summary.text(key, json.dumps(value), step=0)
 
     def _save_workflow_image_to_bucket(
-        self, args: dict[str, any], eval_set: str, run_name: str
+        self, args: dict[str, any], dataset: str, experiment_run_name: str
     ):
         """Saves the workflow image to a bucket, keeping the metadata."""
 
         workflow_pillow_image = args["workflow_pillow_image"]
 
         workflow_image_path = os.path.abspath(
-            f"temp/logs/{eval_set}/{run_name}/workflow_image.png"
+            f"temp/logs/{dataset}/{experiment_run_name}/workflow_image.png"
         )
         metadata = PngInfo()
         for key, value in workflow_pillow_image.info.items():
@@ -114,16 +114,16 @@ class GCPTensorboardWriter(DataWriter):
         link_to_workflow_in_bucket = upload_workflow_file_to_bucket(
             project_id=self.project_id,
             bucket_name=self.bucket_name,
-            eval_set=eval_set,
-            run_name=run_name,
+            dataset=dataset,
+            experiment_run_name=experiment_run_name,
             local_file_path=workflow_image_path,
         )
         return link_to_workflow_in_bucket
 
     def store_results(
         self,
-        eval_set: str,
-        run_name: str,
+        dataset: str,
+        experiment_run_name: str,
         image_name_pairs: Iterable[tuple[Image.Image, str]],
         metric_values: dict[str, float],
         args: dict[str, any] = {},
@@ -131,8 +131,8 @@ class GCPTensorboardWriter(DataWriter):
         """
         Stores the results of an evaluation run to TensorBoard.
         Args:
-            eval_set (str): The name of the evaluation set.
-            run_name (str): The name of the run.
+            dataset (str): The name of the evaluation set.
+            experiment_run_name (str): The name of the run.
             images (Iterable[Image.Image]): A collection of images to log.
             metrics (dict[str, float]): A dictionary of metric names and their corresponding values.
             args (dict[str, any], optional): args given to the ImageGenerator that generated the images.
@@ -142,35 +142,37 @@ class GCPTensorboardWriter(DataWriter):
         self._validate_args(args)
 
         aiplatform.init(
-            experiment=eval_set.replace("_", "-"),
+            experiment=dataset.replace("_", "-"),
             project=self.project_id,
             location=self.location,
             experiment_tensorboard=True,
         )
 
         # remove old logs
-        shutil.rmtree(os.path.abspath(f"temp/logs/{eval_set}"), ignore_errors=True)
+        shutil.rmtree(os.path.abspath(f"temp/logs/{dataset}"), ignore_errors=True)
 
-        # add date to run_name in format YYMMDD-run_name
-        run_name = f"{datetime.now().strftime('%y%m%d')}-{run_name}"
+        # add date to experiment_run_name in format YYMMDD-experiment_run_name
+        experiment_run_name = (
+            f"{datetime.now().strftime('%y%m%d')}-{experiment_run_name}"
+        )
 
-        # handle run name if it already exists in eval_set
+        # handle run name if it already exists in dataset
         try:
-            aiplatform_run = aiplatform.start_run(run_name)
+            aiplatform_run = aiplatform.start_run(experiment_run_name)
         except Exception as e:
             if type(e) is AlreadyExists:
                 print(
-                    f"Run name {run_name} already exists in experiment {eval_set}. Adding random number."
+                    f"Run name {experiment_run_name} already exists in experiment {dataset}. Adding random number."
                 )
-                run_name = run_name + str(np.random.randint(99))
-                print(f"New run name: {run_name}. Continuing.")
-                aiplatform_run = aiplatform.start_run(run_name)
+                experiment_run_name = experiment_run_name + str(np.random.randint(99))
+                print(f"New run name: {experiment_run_name}. Continuing.")
+                aiplatform_run = aiplatform.start_run(experiment_run_name)
             else:
                 raise e
 
         with aiplatform_run:
             with tf.summary.create_file_writer(
-                os.path.abspath(f"temp/logs/{eval_set}/{run_name}"),
+                os.path.abspath(f"temp/logs/{dataset}/{experiment_run_name}"),
             ).as_default():
                 # save generated images
                 print("Logging generated images")
@@ -198,14 +200,16 @@ class GCPTensorboardWriter(DataWriter):
                     print("Saving workflow image to bucket")
                     # Save the workflow image locally before uploading
                     link_to_workflow_in_bucket = self._save_workflow_image_to_bucket(
-                        args=args, eval_set=eval_set, run_name=run_name
+                        args=args,
+                        dataset=dataset,
+                        experiment_run_name=experiment_run_name,
                     )
                     tf.summary.text(
                         "link_to_workflow_image", link_to_workflow_in_bucket, step=0
                     )
 
             aiplatform.upload_tb_log(
-                tensorboard_experiment_name=eval_set.replace("_", "-"),
-                experiment_display_name=run_name,
-                logdir=os.path.abspath(f"temp/logs/{eval_set}"),
+                tensorboard_experiment_name=dataset.replace("_", "-"),
+                experiment_display_name=experiment_run_name,
+                logdir=os.path.abspath(f"temp/logs/{dataset}"),
             )

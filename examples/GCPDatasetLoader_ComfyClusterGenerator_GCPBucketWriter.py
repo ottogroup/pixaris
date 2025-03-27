@@ -12,15 +12,15 @@ from PIL import Image
 from datetime import datetime
 
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
-EVAL_SET = "test_eval_set"
+DATASET = "test_dataset"
 with open(os.getcwd() + "/test/assets/test-background-generation.json", "r") as file:
     WORKFLOW_APIFORMAT_JSON = json.load(file)
 WORKFLOW_PILLOW_IMAGE = Image.open(
     os.getcwd() + "/test/assets/test-background-generation.png"
 )
-RUN_NAME = "example-run"
+EXPERIMENT_RUN_NAME = "example-run"
 current_time = datetime.now().strftime("%y%m%d_%H%M")
-BUCKET_RESULTS_PATH = f"pickled_results/{EVAL_SET}/{current_time}_{RUN_NAME}"
+BUCKET_RESULTS_PATH = f"pickled_results/{DATASET}/{current_time}_{EXPERIMENT_RUN_NAME}"
 print(BUCKET_RESULTS_PATH)
 BUCKET_NAME = config["gcp_bucket_name"]
 
@@ -29,7 +29,7 @@ BUCKET_NAME = config["gcp_bucket_name"]
 data_loader = GCPDatasetLoader(
     gcp_project_id=config["gcp_project_id"],
     gcp_bucket_name=config["gcp_bucket_name"],
-    eval_set=EVAL_SET,
+    dataset=DATASET,
     eval_dir_local="eval_data",
 )
 
@@ -45,8 +45,8 @@ data_writer = GCPBucketWriter(
 args = {
     "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
     "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
-    "eval_set": EVAL_SET,
-    "run_name": RUN_NAME,
+    "dataset": DATASET,
+    "experiment_run_name": EXPERIMENT_RUN_NAME,
     "max_parallel_jobs": 2,
 }
 # -

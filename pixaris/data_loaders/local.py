@@ -7,15 +7,15 @@ from PIL import Image
 class LocalDatasetLoader(DatasetLoader):
     def __init__(
         self,
-        eval_set: str,
+        dataset: str,
         eval_dir_local: str = "eval_data",
     ):
-        self.eval_set = eval_set
+        self.dataset = dataset
         self.eval_dir_local = eval_dir_local
         self.image_dirs = [
             name
-            for name in os.listdir(os.path.join(self.eval_dir_local, self.eval_set))
-            if os.path.isdir(os.path.join(self.eval_dir_local, self.eval_set, name))
+            for name in os.listdir(os.path.join(self.eval_dir_local, self.dataset))
+            if os.path.isdir(os.path.join(self.eval_dir_local, self.dataset, name))
         ]
 
     def _retrieve_and_check_dataset_image_names(self):
@@ -29,11 +29,11 @@ class LocalDatasetLoader(DatasetLoader):
             ValueError: If the names of the images in each image directory are not the same.
         """
         basis_names = os.listdir(
-            os.path.join(self.eval_dir_local, self.eval_set, self.image_dirs[0])
+            os.path.join(self.eval_dir_local, self.dataset, self.image_dirs[0])
         )
         for image_dir in self.image_dirs:
             image_names = os.listdir(
-                os.path.join(self.eval_dir_local, self.eval_set, image_dir)
+                os.path.join(self.eval_dir_local, self.dataset, image_dir)
             )
             if basis_names != image_names:
                 raise ValueError(
@@ -62,7 +62,7 @@ class LocalDatasetLoader(DatasetLoader):
             pillow_images = []
             for image_dir in self.image_dirs:
                 image_path = os.path.join(
-                    self.eval_dir_local, self.eval_set, image_dir, image_name
+                    self.eval_dir_local, self.dataset, image_dir, image_name
                 )
                 # Load the image using PIL
                 pillow_image = Image.open(image_path)
