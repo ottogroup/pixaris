@@ -26,6 +26,7 @@ data_loader = GCPDatasetLoader(
     project=PROJECT,
     dataset=DATASET,
     eval_dir_local="eval_data",
+    force_download=False,
 )
 generator = ComfyGenerator(workflow_apiformat_json=WORKFLOW_APIFORMAT_JSON)
 

@@ -23,6 +23,7 @@ data_loader = GCPDatasetLoader(
     project=PROJECT,
     dataset=DATASET,
     eval_dir_local="eval_data",
+    force_download=False,
 )
 
 generator = FluxFillGenerator()

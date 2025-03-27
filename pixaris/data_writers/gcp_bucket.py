@@ -94,9 +94,9 @@ class GCPBucketWriter(DataWriter):
             "metric_values": metric_values,
             "args": args,
         }
-        pickled_reults = pickle.dumps(results)
+        pickled_results = pickle.dumps(results)
 
-        self._save_results(experiment_run_name, pickled_reults)
+        self._save_results(experiment_run_name, pickled_results)
 
     def _write_to_gcp_tensorboard(self, results):
         tensorboard_writer = GCPTensorboardWriter(
