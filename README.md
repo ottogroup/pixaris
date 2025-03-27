@@ -145,6 +145,7 @@ In `args` you can set a seed, an inspiration image for the workflow, or which wo
 args = {
     "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
     "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
+    "project": PROJECT,
     "dataset": DATASET,
     "generation_params": [
         {

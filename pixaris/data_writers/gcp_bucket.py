@@ -66,6 +66,7 @@ class GCPBucketWriter(DataWriter):
 
     def store_results(
         self,
+        project: str,
         dataset: str,
         experiment_run_name: str,
         image_name_pairs: Iterable[tuple[Image.Image, str]],
@@ -80,6 +81,7 @@ class GCPBucketWriter(DataWriter):
             images (Iterable[Image.Image]): A collection of images to log.
             metrics (dict[str, float]): A dictionary of metric names and their corresponding values.
             args (dict[str, any], optional): args given to the ImageGenerator that generated the images.
+            project (str, optional): The name of the project. Defaults to "". Will be ignored here.
         Raises:
             AssertionError: If any value in the metrics dictionary is not a number.
         """

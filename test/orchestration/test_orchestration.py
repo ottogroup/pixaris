@@ -29,6 +29,7 @@ class TestOrchestration(unittest.TestCase):
                     os.getcwd() + "/test/assets/test-just-load-and-save.png"
                 )
             ),
+            "project": "test_project",
             "dataset": "test_dataset",
             "experiment_run_name": "testrun",
         }
@@ -97,6 +98,7 @@ class TestOrchestration(unittest.TestCase):
     #         "workflow_pillow_image": os.path.abspath(
     #             os.getcwd() + "/test/assets/test-just-load-and-save.png"
     #         ),
+    #         "project": "test_project",
     #         "dataset": "test_dataset",
     #         "experiment_run_name": "testrun",
     #     }
@@ -163,6 +165,7 @@ class TestOrchestration(unittest.TestCase):
     #         "workflow_pillow_image": os.path.abspath(
     #             os.getcwd() + "/test/assets/test-just-load-and-save.png"
     #         ),
+    #         "project": "test_project",
     #         "dataset": "test_dataset",
     #         "experiment_run_name": "testrun",
     #     }

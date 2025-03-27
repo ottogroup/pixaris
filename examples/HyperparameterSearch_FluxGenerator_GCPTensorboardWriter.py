@@ -41,6 +41,7 @@ args = {
             "value": [PROMPT_1, PROMPT_2],
         },
     ],
+    "project": PROJECT,
     "dataset": DATASET,
     "experiment_run_name": EXPERIMENT_RUN_NAME,
 }
