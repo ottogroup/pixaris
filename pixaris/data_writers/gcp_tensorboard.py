@@ -38,23 +38,23 @@ class GCPTensorboardWriter(DataWriter):
         experiment_run_name: str,
     ):
         # assert experiment_run_name adheres to tensorboard rules
-        assert re.match(r"[a-z0-9][a-z0-9-]{0,127}", experiment_run_name), (
-            "experiment_run_name must adhere to regex [a-z0-9][a-z0-9-]{0,127} - so only lowercase letters, numbers and '-' are allowed, max length 128"
-        )
+        assert re.match(
+            r"[a-z0-9][a-z0-9-]{0,127}", experiment_run_name
+        ), "experiment_run_name must adhere to regex [a-z0-9][a-z0-9-]{0,127} - so only lowercase letters, numbers and '-' are allowed, max length 128"
 
     def _validate_args(self, args: dict[str, any]):
         # check if all keys are strings
-        assert all(isinstance(key, str) for key in args.keys()), (
-            "All keys must be strings."
-        )
+        assert all(
+            isinstance(key, str) for key in args.keys()
+        ), "All keys must be strings."
 
         # check if "pillow_images" is a list of dictionaries containing the correct keys
         if "pillow_images" in args:
             pillow_images = args["pillow_images"]
             assert isinstance(pillow_images, list), "pillow_images must be a list."
-            assert all(isinstance(item, dict) for item in pillow_images), (
-                "Each item in the list must be a dictionary."
-            )
+            assert all(
+                isinstance(item, dict) for item in pillow_images
+            ), "Each item in the list must be a dictionary."
             assert all(
                 all(key in item for key in ["node_name", "pillow_image"])
                 for item in pillow_images
@@ -186,9 +186,9 @@ class GCPTensorboardWriter(DataWriter):
                 # save metrics
                 print("Logging metrics")
                 for metric, value in metric_values.items():
-                    assert isinstance(value, (int, float)), (
-                        f"Value for metric {metric} is not a number."
-                    )
+                    assert isinstance(
+                        value, (int, float)
+                    ), f"Value for metric {metric} is not a number."
                     tf.summary.scalar(metric, value, step=0)
 
                 # save all args depending on their type

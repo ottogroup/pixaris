@@ -46,9 +46,7 @@ class BigqueryFeedbackHandler(FeedbackHandler):
                 "image_name",
                 "feedback_indicator",
             ]
-        ), (
-            "Missing required feedback keys. Must have 'project', 'feedback_iteration', 'image_name', 'feedback_indicator'"
-        )
+        ), "Missing required feedback keys. Must have 'project', 'feedback_iteration', 'image_name', 'feedback_indicator'"
 
         # setup row to insert to table
         row_to_insert = {

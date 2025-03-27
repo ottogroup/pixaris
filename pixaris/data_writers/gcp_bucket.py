@@ -30,17 +30,17 @@ class GCPBucketWriter(DataWriter):
 
     def _validate_args(self, args: dict[str, any]):
         # check if all keys are strings
-        assert all(isinstance(key, str) for key in args.keys()), (
-            "All keys must be strings."
-        )
+        assert all(
+            isinstance(key, str) for key in args.keys()
+        ), "All keys must be strings."
 
         # check if "pillow_images" is a list of dictionaries containing the correct keys
         if "pillow_images" in args:
             pillow_images = args["pillow_images"]
             assert isinstance(pillow_images, list), "pillow_images must be a list."
-            assert all(isinstance(item, dict) for item in pillow_images), (
-                "Each item in the list must be a dictionary."
-            )
+            assert all(
+                isinstance(item, dict) for item in pillow_images
+            ), "Each item in the list must be a dictionary."
             assert all(
                 all(key in item for key in ["node_name", "pillow_image"])
                 for item in pillow_images
