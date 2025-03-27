@@ -19,7 +19,7 @@ class LocalDataWriter(DataWriter):
     ):
         """
         Save a collection of images locally under a specified experiment name.
-        
+
         :param dataset: The name of the evaluation set.
         :type dataset: str
         :param experiment_run_name: The name of the experiment. This will be used to create a subfolder where images will be saved.

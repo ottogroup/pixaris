@@ -74,7 +74,7 @@ class GCPBucketWriter(DataWriter):
     ):
         """
         Stores the pickled results of an evaluation run to Bucket.
-        
+
         :param dataset: The name of the evaluation set.
         :type dataset: str
         :param experiment_run_name: The name of the run.
@@ -85,7 +85,7 @@ class GCPBucketWriter(DataWriter):
         :type metrics: dict[str, float]
         :param args: args given to the ImageGenerator that generated the images.
         :type args: dict[str, any]
-        
+
         :raises: AssertionError: If any value in the metrics dictionary is not a number.
         """
         self._validate_args(args)
@@ -136,7 +136,7 @@ class GCPBucketWriter(DataWriter):
             before calling this method. Also, the `_write_to_gcp_tensorboard` method must be
             implemented to handle the deserialized results appropriately.
         """
-        
+
         storage_client = storage.Client()
         bucket = storage_client.bucket(self.bucket_name)
         for blob in bucket.list_blobs(prefix=self.bucket_results_path):

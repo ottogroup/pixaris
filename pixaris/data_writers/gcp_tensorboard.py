@@ -70,7 +70,7 @@ class GCPTensorboardWriter(DataWriter):
             if value is a number, save as scalar
             if key is "pillow_images", save the images under their node names. Validity checked beforehand
             else save value as json dump
-        
+
         :param args: A dictionary of arguments to be saved to TensorBoard.
         :type args: dict[str, any]
         """
@@ -133,7 +133,7 @@ class GCPTensorboardWriter(DataWriter):
     ):
         """
         Stores the results of an evaluation run to TensorBoard.
-        
+
         :param dataset: The name of the evaluation set.
         :type dataset: str
         :param experiment_run_name: The name of the run.
