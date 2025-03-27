@@ -16,6 +16,10 @@ fmt:
 test:
 	poetry run pytest
 
+docs:
+	sphinx-apidoc -o docs .
+	cd docs && make html
+
 build-docker-image:
 	gcloud builds submit --region=europe-west4 --config docker/cloudbuild.yaml --ignore-file docker/.gcloudignore
 
