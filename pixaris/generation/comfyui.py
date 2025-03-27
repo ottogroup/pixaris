@@ -154,9 +154,9 @@ class ComfyGenerator(ImageGenerator):
             Image.Image: The generated image.
         """
 
-        assert (
-            "workflow_apiformat_json" in args
-        ), "The key 'workflow_apiformat_json' is missing."
+        assert "workflow_apiformat_json" in args, (
+            "The key 'workflow_apiformat_json' is missing."
+        )
 
         pillow_images = args.get("pillow_images", [])
         generation_params = args.get("generation_params", [])

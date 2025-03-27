@@ -9,6 +9,7 @@ Subpackages
 
    pixaris.data_loaders
    pixaris.data_writers
+   pixaris.feedback_handlers
    pixaris.generation
    pixaris.utils
 
@@ -20,13 +21,13 @@ pixaris.main module
 
 .. automodule:: pixaris.main
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: pixaris
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

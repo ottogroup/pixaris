@@ -9,8 +9,8 @@ from PIL import Image
 
 class GCPDatasetLoader(DatasetLoader):
     """
-    GCPDatasetLoader is a class for loading datasets from a Google Cloud Storage bucket. Upon initialisation,
-    the dataset is downloaded to a local directory.
+    GCPDatasetLoader is a class for loading datasets from a Google Cloud Storage bucket. Upon initialisation, the dataset is downloaded to a local directory.
+    
     Attributes:
         gcp_project_id (str): The Google Cloud Platform project ID.
         gcp_bucket_name (str): The name of the Google Cloud Storage bucket.
@@ -18,7 +18,6 @@ class GCPDatasetLoader(DatasetLoader):
         eval_dir_local (str): The local directory where evaluation images will be saved. Defaults to "eval_data".
         force_download (bool): Whether to force download the images even if they already exist locally. Defaults to False.
     Methods:
-        download_dataset() -> None: Downloads evaluation images for a given evaluation set.
         load_dataset() -> Iterable[dict[str, any]]:
             Returns all images in the evaluation set as an iterator of dictionaries.
     """
