@@ -92,6 +92,7 @@ from pixaris.data_loaders.gcp import GCPDatasetLoader
 loader = GCPDatasetLoader(
     gcp_project_id=<your gcp_project_id here>,
     gcp_bucket_name=<your gcp_bucket_name here>,
+    project=<your project_name here>
     dataset=<your eval_dir here>,
     eval_dir_local="eval_data", # this is the local path where all your datasets are stored
 )

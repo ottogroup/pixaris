@@ -8,6 +8,7 @@ import json
 from PIL import Image
 
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
+PROJECT = "test_project"
 DATASET = "mock"
 with open(os.getcwd() + "/test/assets/test_inspo_apiformat.json", "r") as file:
     WORKFLOW_APIFORMAT_JSON = json.load(file)
@@ -18,8 +19,9 @@ EXPERIMENT_RUN_NAME = "example-run"
 
 # +
 data_loader = LocalDatasetLoader(
+    project=PROJECT,
     dataset=DATASET,
-    eval_dir_local="test/test_dataset",
+    eval_dir_local="test",
 )
 
 generator = ComfyGenerator(workflow_apiformat_json=WORKFLOW_APIFORMAT_JSON)

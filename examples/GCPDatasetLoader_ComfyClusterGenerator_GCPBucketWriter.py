@@ -12,6 +12,7 @@ from PIL import Image
 from datetime import datetime
 
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
+PROJECT = "test_project"
 DATASET = "test_dataset"
 with open(os.getcwd() + "/test/assets/test-background-generation.json", "r") as file:
     WORKFLOW_APIFORMAT_JSON = json.load(file)
@@ -29,6 +30,7 @@ BUCKET_NAME = config["gcp_bucket_name"]
 data_loader = GCPDatasetLoader(
     gcp_project_id=config["gcp_project_id"],
     gcp_bucket_name=config["gcp_bucket_name"],
+    project=PROJECT,
     dataset=DATASET,
     eval_dir_local="eval_data",
 )

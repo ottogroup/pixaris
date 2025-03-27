@@ -9,6 +9,7 @@ from pixaris.data_writers.base import DataWriter
 class LocalDataWriter(DataWriter):
     def store_results(
         self,
+        project: str,
         dataset: str,
         experiment_run_name: str,
         image_name_pairs: Iterable[tuple[Image.Image, str]],
@@ -20,6 +21,7 @@ class LocalDataWriter(DataWriter):
         """
         Save a collection of images locally under a specified experiment name.
         Args:
+            project (str): The name of the project.
             dataset (str): The name of the evaluation set.
             experiment_run_name (str): The name of the experiment. This will be used to create a subfolder where images will be saved.
             images (Iterable[Image.Image]): An iterable collection of PIL Image objects to be saved.
@@ -30,7 +32,7 @@ class LocalDataWriter(DataWriter):
         """
         timestamp = time.strftime("%Y%m%d-%H%M%S")
         save_dir = os.path.join(
-            local_results_folder, dataset, experiment_run_name + "_" + timestamp
+            local_results_folder, project, dataset, experiment_run_name + "_" + timestamp
         )
 
         if not os.path.exists(save_dir):

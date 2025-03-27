@@ -5,6 +5,7 @@ from pixaris.orchestration.base import generate_images_based_on_dataset
 import os
 import yaml
 
+PROJECT = "test_project"
 DATASET = "mock"
 PROMPT = "A beautiful woman on a beach"
 EXPERIMENT_RUN_NAME = "example-flux"
@@ -15,8 +16,9 @@ os.environ["BFL_API_KEY"] = config["bfl_api_key"]
 
 # +
 data_loader = LocalDatasetLoader(
+    project=PROJECT,
     dataset=DATASET,
-    eval_dir_local="test/test_dataset",
+    eval_dir_local="test",
 )
 
 generator = FluxFillGenerator()
