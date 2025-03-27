@@ -23,11 +23,13 @@ class GCPTensorboardWriter(DataWriter):
     ):
         """
         Initializes the GCPTensorboardWriter.
-        Args:
-            project_id (str): The Google Cloud project ID.
-            location (str): The Google Cloud location.
-            bucket_name (str): The name of the Google Cloud Storage bucket to store the workflow image. If None,
-                the workflow image will not be stored in a bucket. Defaults to None.
+
+        :param project_id: The Google Cloud project ID.
+        :type project_id: str
+        :param location: The Google Cloud location.
+        :type location: str
+        :param bucket_name: The name of the Google Cloud Storage bucket to store the workflow image. If None, the workflow image will not be stored in a bucket. Defaults to None.
+        :type bucket_name: str, optional
         """
         self.project_id = project_id
         self.location = location
@@ -68,8 +70,9 @@ class GCPTensorboardWriter(DataWriter):
             if value is a number, save as scalar
             if key is "pillow_images", save the images under their node names. Validity checked beforehand
             else save value as json dump
-        Args:
-            args (dict[str, any]): A dictionary of arguments to be saved to TensorBoard.
+        
+        :param args: A dictionary of arguments to be saved to TensorBoard.
+        :type args: dict[str, any]
         """
         # save all args depending on their type
         for key, value in args.items():
@@ -130,14 +133,18 @@ class GCPTensorboardWriter(DataWriter):
     ):
         """
         Stores the results of an evaluation run to TensorBoard.
-        Args:
-            dataset (str): The name of the evaluation set.
-            experiment_run_name (str): The name of the run.
-            images (Iterable[Image.Image]): A collection of images to log.
-            metrics (dict[str, float]): A dictionary of metric names and their corresponding values.
-            args (dict[str, any], optional): args given to the ImageGenerator that generated the images.
-        Raises:
-            AssertionError: If any value in the metrics dictionary is not a number.
+        
+        :param dataset: The name of the evaluation set.
+        :type dataset: str
+        :param experiment_run_name: The name of the run.
+        :type experiment_run_name: str
+        :param image_name_pairs: A collection of image and name pairs to log.
+        :type image_name_pairs: Iterable[tuple[Image.Image, str]]
+        :param metric_values: A dictionary of metric names and their corresponding values.
+        :type metric_values: dict[str, float]
+        :param args: Arguments given to the ImageGenerator that generated the images. Defaults to an empty dictionary.
+        :type args: dict[str, any], optional
+        :raises AssertionError: If any value in the metrics dictionary is not a number.
         """
         self._validate_args(args)
 

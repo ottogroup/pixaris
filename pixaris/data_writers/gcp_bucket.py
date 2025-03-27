@@ -74,14 +74,19 @@ class GCPBucketWriter(DataWriter):
     ):
         """
         Stores the pickled results of an evaluation run to Bucket.
-        Args:
-            dataset (str): The name of the evaluation set.
-            experiment_run_name (str): The name of the run.
-            images (Iterable[Image.Image]): A collection of images to log.
-            metrics (dict[str, float]): A dictionary of metric names and their corresponding values.
-            args (dict[str, any], optional): args given to the ImageGenerator that generated the images.
-        Raises:
-            AssertionError: If any value in the metrics dictionary is not a number.
+        
+        :param dataset: The name of the evaluation set.
+        :type dataset: str
+        :param experiment_run_name: The name of the run.
+        :type experiment_run_name: str
+        :param images: A collection of images to log.
+        :type images: Iterable[Image.Image]
+        :param metrics: A dictionary of metric names and their corresponding values.
+        :type metrics: dict[str, float]
+        :param args: args given to the ImageGenerator that generated the images.
+        :type args: dict[str, any]
+        
+        :raises: AssertionError: If any value in the metrics dictionary is not a number.
         """
         self._validate_args(args)
         experiment_run_name = experiment_run_name + str(np.random.randint(99))
@@ -112,6 +117,26 @@ class GCPBucketWriter(DataWriter):
         )
 
     def upload_experiment_from_bucket_to_tensorboard(self):
+        """
+        Uploads experiment results from a Google Cloud Storage bucket to TensorBoard.
+        This method retrieves pickled experiment results stored in a specified GCP bucket,
+        deserializes them, writes the results to TensorBoard, and then deletes the blobs
+        from the bucket to clean up.
+        Steps:
+        1. Connects to the GCP bucket using the provided bucket name.
+        2. Iterates through blobs in the bucket with a specified prefix.
+        3. Downloads and unpickles the experiment results from each blob.
+        4. Writes the results to TensorBoard using an internal method.
+        5. Deletes the processed blobs from the bucket.
+        Raises:
+            google.cloud.exceptions.GoogleCloudError: If there is an issue accessing the bucket or blobs.
+            pickle.UnpicklingError: If there is an error unpickling the downloaded data.
+        Note:
+            Ensure that the `self.bucket_name` and `self.bucket_results_path` are correctly set
+            before calling this method. Also, the `_write_to_gcp_tensorboard` method must be
+            implemented to handle the deserialized results appropriately.
+        """
+        
         storage_client = storage.Client()
         bucket = storage_client.bucket(self.bucket_name)
         for blob in bucket.list_blobs(prefix=self.bucket_results_path):
