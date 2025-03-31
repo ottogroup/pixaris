@@ -1,15 +1,15 @@
 import gradio as gr
 import os
 from pixaris.frontend.tab_feedback import render_feedback_tab
-from pixaris.frontend.tab_experiment_tracking import render_experiments_tab
+from pixaris.frontend.tab_experiment_tracking import render_experiment_tracking_tab
 
 from pixaris.feedback_handlers.gcp import BigqueryFeedbackHandler
-
+from pixaris.experiments_tracker.local import LocalExperimentTracker
 
 import yaml
 
 
-def launch_ui(feedback_handler):
+def launch_ui(feedback_handler, experiment_tracker):
     with gr.Blocks(
         title="Pixaris",
         theme=gr.themes.Default(
@@ -17,8 +17,12 @@ def launch_ui(feedback_handler):
         ),
     ) as demo:
         results_directory = "local_results/"
-        with gr.Tab("Experiments"):
-            render_experiments_tab(results_directory=results_directory)
+
+        with gr.Tab("Experiment Tracking"):
+            render_experiment_tracking_tab(
+                experiment_tracker=experiment_tracker,
+                results_directory=results_directory,
+            )
 
         with gr.Tab("Feedback"):
             render_feedback_tab(
@@ -37,4 +41,6 @@ if __name__ == "__main__":
         gcp_bq_feedback_table=config["gcp_bq_feedback_table"],
         gcp_feedback_bucket=config["gcp_feedback_bucket"],
     )
-    launch_ui(feedback_handler)
+    experiment_tracker = LocalExperimentTracker()  # TODO use BigqueryExperimentTracker
+
+    launch_ui(feedback_handler, experiment_tracker)
