@@ -27,12 +27,14 @@ class GCPDatasetLoader(DatasetLoader):
         self,
         gcp_project_id: str,
         gcp_bucket_name: str,
+        project: str,
         dataset: str,
         eval_dir_local: str = "eval_data",
         force_download: bool = True,
     ):
         self.gcp_project_id = gcp_project_id
         self.bucket_name = gcp_bucket_name
+        self.project = project
         self.dataset = dataset
         self.eval_dir_local = eval_dir_local
         os.makedirs(self.eval_dir_local, exist_ok=True)
@@ -55,8 +57,12 @@ class GCPDatasetLoader(DatasetLoader):
 
         self.image_dirs = [
             name
-            for name in os.listdir(os.path.join(self.eval_dir_local, self.dataset))
-            if os.path.isdir(os.path.join(self.eval_dir_local, self.dataset, name))
+            for name in os.listdir(
+                os.path.join(self.eval_dir_local, self.project, self.dataset)
+            )
+            if os.path.isdir(
+                os.path.join(self.eval_dir_local, self.project, self.dataset, name)
+            )
         ]
 
     def _verify_bucket_folder_exists(self):
@@ -66,10 +72,10 @@ class GCPDatasetLoader(DatasetLoader):
         :raises: ValueError: If no files are found in the specified directory in the bucket.
         """
         # List the blobs in the bucket. If no blobs are found, raise an error.
-        blobs = list(self.bucket.list_blobs(prefix=f"{self.dataset}/"))
+        blobs = list(self.bucket.list_blobs(prefix=f"{self.project}/{self.dataset}/"))
         if not blobs:
             raise ValueError(
-                "No images found in bucket or bucket does not exist. Please double-check gs://{self.bucket_name}/{dir_name}/."
+                f"No images found in bucket or bucket does not exist. Please double-check gs://{self.bucket_name}/{self.project}/{self.dataset}/."
             )
 
     def _decide_if_download_needed(self):
@@ -78,11 +84,15 @@ class GCPDatasetLoader(DatasetLoader):
         """
         # delete the local directory if force_download is True
         if self.force_download:
-            if os.path.exists(os.path.join(self.eval_dir_local, self.dataset)):
-                shutil.rmtree(os.path.join(self.eval_dir_local, self.dataset))
+            if os.path.exists(
+                os.path.join(self.eval_dir_local, self.project, self.dataset)
+            ):
+                shutil.rmtree(
+                    os.path.join(self.eval_dir_local, self.project, self.dataset)
+                )
 
         # Create the local directory if it does not exist
-        local_dir = os.path.join(self.eval_dir_local, self.dataset)
+        local_dir = os.path.join(self.eval_dir_local, self.project, self.dataset)
         if os.path.exists(local_dir) and len(os.listdir(local_dir)) > 0:
             return False
         else:
@@ -94,7 +104,7 @@ class GCPDatasetLoader(DatasetLoader):
         Downloads all files from a specified directory in a Google Cloud Storage bucket to a local directory.
         """
         # Download the blobs to the local directory
-        blobs = self.bucket.list_blobs(prefix=f"{self.dataset}/")
+        blobs = self.bucket.list_blobs(prefix=f"{self.project}/{self.dataset}/")
         blob_names = [
             blob.name for blob in blobs if not blob.name.endswith("/")
         ]  # exclude directories
@@ -135,7 +145,11 @@ class GCPDatasetLoader(DatasetLoader):
             pillow_images = []
             for image_dir in self.image_dirs:
                 image_path = os.path.join(
-                    self.eval_dir_local, self.dataset, image_dir, image_name
+                    self.eval_dir_local,
+                    self.project,
+                    self.dataset,
+                    image_dir,
+                    image_name,
                 )
                 # Load the image using PIL
                 pillow_image = Image.open(image_path)
@@ -157,11 +171,13 @@ class GCPDatasetLoader(DatasetLoader):
         :raises: ValueError: If the names of the images in each image directory are not the same.
         """
         basis_names = os.listdir(
-            os.path.join(self.eval_dir_local, self.dataset, self.image_dirs[0])
+            os.path.join(
+                self.eval_dir_local, self.project, self.dataset, self.image_dirs[0]
+            )
         )
         for image_dir in self.image_dirs:
             image_names = os.listdir(
-                os.path.join(self.eval_dir_local, self.dataset, image_dir)
+                os.path.join(self.eval_dir_local, self.project, self.dataset, image_dir)
             )
             if basis_names != image_names:
                 raise ValueError(

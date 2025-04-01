@@ -93,6 +93,7 @@ for img_name in img_names:
 # # copy to eval_data directory so that we can create masks
 
 eval_data_directory = "../eval_data"
+project_name = "test_project"
 dataset_name = "eval_dataset"
 
 dataset_directory = os.path.join(eval_data_directory, dataset_name)
@@ -120,6 +121,7 @@ generator = ComfyGenerator(
 for input_img_name in img_names:
     print("input_img_name: ", input_img_name)
     args = {
+        "project": project_name,
         "dataset": dataset_name,
         "workflow_apiformat_json": workflow_apiformat_json,
         "pillow_images": [

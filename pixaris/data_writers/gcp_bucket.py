@@ -66,6 +66,7 @@ class GCPBucketWriter(DataWriter):
 
     def store_results(
         self,
+        project: str,
         dataset: str,
         experiment_run_name: str,
         image_name_pairs: Iterable[tuple[Image.Image, str]],
@@ -87,6 +88,7 @@ class GCPBucketWriter(DataWriter):
         :type args: dict[str, any]
 
         :raises: AssertionError: If any value in the metrics dictionary is not a number.
+
         """
         self._validate_args(args)
         experiment_run_name = experiment_run_name + str(np.random.randint(99))
@@ -97,9 +99,9 @@ class GCPBucketWriter(DataWriter):
             "metric_values": metric_values,
             "args": args,
         }
-        pickled_reults = pickle.dumps(results)
+        pickled_results = pickle.dumps(results)
 
-        self._save_results(experiment_run_name, pickled_reults)
+        self._save_results(experiment_run_name, pickled_results)
 
     def _write_to_gcp_tensorboard(self, results):
         tensorboard_writer = GCPTensorboardWriter(

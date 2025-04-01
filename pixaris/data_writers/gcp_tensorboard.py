@@ -130,6 +130,7 @@ class GCPTensorboardWriter(DataWriter):
         image_name_pairs: Iterable[tuple[Image.Image, str]],
         metric_values: dict[str, float],
         args: dict[str, any] = {},
+        project: str = "",
     ):
         """
         Stores the results of an evaluation run to TensorBoard.

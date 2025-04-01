@@ -5,7 +5,9 @@ from pixaris.data_loaders.local import LocalDatasetLoader
 
 class TestLocalDataset(unittest.TestCase):
     def test_get_pillow_images(self):
-        loader = LocalDatasetLoader(dataset="mock", eval_dir_local="test/test_dataset")
+        loader = LocalDatasetLoader(
+            project="test_project", dataset="mock", eval_dir_local="test"
+        )
         dataset = loader.load_dataset()
         print(dataset)
         self.assertEqual(len(dataset), 2)

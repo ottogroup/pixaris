@@ -9,6 +9,7 @@ from pixaris.data_writers.base import DataWriter
 class LocalDataWriter(DataWriter):
     def store_results(
         self,
+        project: str,
         dataset: str,
         experiment_run_name: str,
         image_name_pairs: Iterable[tuple[Image.Image, str]],
@@ -37,7 +38,10 @@ class LocalDataWriter(DataWriter):
         """
         timestamp = time.strftime("%Y%m%d-%H%M%S")
         save_dir = os.path.join(
-            local_results_folder, dataset, experiment_run_name + "_" + timestamp
+            local_results_folder,
+            project,
+            dataset,
+            experiment_run_name + "_" + timestamp,
         )
 
         if not os.path.exists(save_dir):
