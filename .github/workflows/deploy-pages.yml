@@ -1,6 +1,8 @@
 name: Build and Deploy Pages
 on:
   push:
+    tags:
+      - v*
     branches:
       - main
 jobs:
@@ -28,7 +30,7 @@ jobs:
 
       - name: Run Sphinx
         run: sphinx-apidoc -o docs .
-        
+
       - name: Build docs
         run: cd docs && make html
 
