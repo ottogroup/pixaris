@@ -42,3 +42,49 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  build-documentation:
+    runs-on: ubuntu-latest
+    permissions: 
+      contents: read
+      id-token: write
+    concurrency: ci-${{ github.ref }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      - name: Install sphinx
+        run: pip install sphinx
+
+      - name: Install theme
+        run: pip install sphinx-rtd-theme
+
+      - name: Run Sphinx
+        run: sphinx-apidoc -o docs .
+
+      - name: Build docs
+        run: cd docs && make html
+
+      - name: Upload artifact
+        id: upload-artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/_build/html/
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    permissions: 
+      pages: write
+    needs: build-documentation
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
