@@ -76,12 +76,13 @@ jobs:
         with:
           path: docs/_build/html/
 
-  deploy:
+  deploy-documentation:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     permissions: 
+      id-token: write
       pages: write
     needs: build-documentation
     steps:
