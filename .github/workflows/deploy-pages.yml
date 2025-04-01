@@ -6,6 +6,12 @@ on:
     branches:
       - TIGA-556-documentation
       # - main
+
+permissions: 
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build-documentation:
     runs-on: ubuntu-latest
