@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions: 
       contents: read
-      pages: write
       id-token: write
     concurrency: ci-${{ github.ref }}
     steps:
@@ -49,6 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions: 
       id-token: write
+      pages: write
     needs: build-documentation
     steps:
       - name: Deploy to GitHub Pages
