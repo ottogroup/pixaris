@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions: 
       contents: read
+      pages: write
       id-token: write
     concurrency: ci-${{ github.ref }}
     steps:
