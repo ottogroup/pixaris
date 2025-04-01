@@ -7,14 +7,12 @@ on:
       - TIGA-556-documentation
       # - main
 
-permissions: 
-  contents: read
-  pages: write
-  id-token: write
-
 jobs:
   build-documentation:
     runs-on: ubuntu-latest
+    permissions: 
+      contents: read
+      id-token: write
     concurrency: ci-${{ github.ref }}
     steps:
       - name: Checkout
@@ -48,6 +46,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    permissions: 
+      pages: write
     needs: build-documentation
     steps:
       - name: Deploy to GitHub Pages
