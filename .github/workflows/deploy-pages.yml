@@ -1,0 +1,39 @@
+name: Build and Deploy Pages
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    concurrency: ci-${{ github.ref }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1 # Todo: is this nessecary?
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+          cache: poetry
+
+      - name: Install sphinx
+        run: pip install sphinx
+
+      - name: Install theme
+        run: pip install sphinx-rtd-theme
+
+      - name: Run Sphinx
+        run: sphinx-apidoc -o docs .
+        
+      - name: Build docs
+        run: cd docs && make html
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: docs # The folder the action should deploy.
+          branch: gh-pages # The branch the action should deploy to.
