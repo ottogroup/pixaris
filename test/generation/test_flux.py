@@ -10,8 +10,8 @@ class TestFluxFillGenerator(unittest.TestCase):
 
     def setUp(self):
         self.generator = FluxFillGenerator()
-        self.mock_image1 = Image.open("test/test_dataset/mock/input/model_01.png")
-        self.mock_mask1 = Image.open("test/test_dataset/mock/mask/model_01.png")
+        self.mock_image1 = Image.open("test/test_project/mock/input/model_01.png")
+        self.mock_mask1 = Image.open("test/test_project/mock/mask/model_01.png")
 
     def test_encode_image_to_base64(self):
         """
@@ -21,7 +21,7 @@ class TestFluxFillGenerator(unittest.TestCase):
         base64_string = self.generator._encode_image_to_base64(mock_image)
         mock_image.close()
 
-        with open("test/test_dataset/mock_image_base64encoded.txt", "r") as file:
+        with open("test/test_project/mock_image_base64encoded.txt", "r") as file:
             expected_base64_string = file.read()
 
         self.assertTrue(base64_string == expected_base64_string)

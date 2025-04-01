@@ -92,6 +92,7 @@ from pixaris.data_loaders.gcp import GCPDatasetLoader
 loader = GCPDatasetLoader(
     gcp_project_id=<your gcp_project_id here>,
     gcp_bucket_name=<your gcp_bucket_name here>,
+    project=<your project_name here>
     dataset=<your eval_dir here>,
     eval_dir_local="eval_data", # this is the local path where all your datasets are stored
 )
@@ -144,6 +145,7 @@ In `args` you can set a seed, an inspiration image for the workflow, or which wo
 args = {
     "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
     "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
+    "project": PROJECT,
     "dataset": DATASET,
     "generation_params": [
         {
