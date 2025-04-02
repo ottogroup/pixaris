@@ -29,8 +29,11 @@ jobs:
       - name: Install dependencies
         run: make install
 
-      - name: Build documentation
-        run: make docs
+      - name: Run Sphinx
+        run: sphinx-apidoc -o docs .
+
+      - name: Build docs
+        run: cd docs && make html
 
       - name: Upload artifact
         id: upload-artifact

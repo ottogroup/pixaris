@@ -53,20 +53,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
-          cache: poetry
 
-      - name: Install dependencies
-        run: make install
+      - name: Install sphinx
+        run: pip install sphinx
 
-      - name: Build documentation
-        run: make docs
+      - name: Install theme
+        run: pip install sphinx-rtd-theme
+
+      - name: Run Sphinx
+        run: sphinx-apidoc -o docs .
+
+      - name: Build docs
+        run: cd docs && make html
 
       - name: Upload artifact
         id: upload-artifact
