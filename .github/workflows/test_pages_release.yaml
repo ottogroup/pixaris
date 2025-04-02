@@ -1,3 +1,5 @@
+name: Deploy Documentation
+run-name: ${{ github.actor }} - ${{ github.event.head_commit.message }}
 on:
   workflow_dispatch:
   push:
