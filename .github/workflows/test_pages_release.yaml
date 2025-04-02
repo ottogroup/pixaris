@@ -30,10 +30,7 @@ jobs:
         run: make install
 
       - name: Run Sphinx
-        run: sphinx-apidoc -o docs .
-
-      - name: Build docs
-        run: cd docs && make html
+        run: poetry run make docs
 
       - name: Upload artifact
         id: upload-artifact
