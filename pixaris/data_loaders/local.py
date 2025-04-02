@@ -66,11 +66,11 @@ class LocalDatasetLoader(DatasetLoader):
         """
         Returns all images in the evaluation set as an iterable of dictionaries containing PIL Images.
 
-        Returns:
-            List[dict[str, List[dict[str, Image.Image]]]]: The data loaded from the local directory.
-                The key will always be "pillow_images"
-                The value is a dict mapping node names to PIL Image objects.
-                    This dict has a key for each directory in the image_dirs list representing a Node Name.
+        :return: list of dicts containing data loaded from the local directory.
+            The key will always be "pillow_images".
+            The value is a dict mapping node names to PIL Image objects.
+            This dict has a key for each directory in the image_dirs list representing a Node Name.
+        :rtype: List[dict[str, List[dict[str, Image.Image]]]]:
         """
         image_names = self._retrieve_and_check_dataset_image_names()
 

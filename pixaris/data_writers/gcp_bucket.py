@@ -75,15 +75,22 @@ class GCPBucketWriter(DataWriter):
     ):
         """
         Stores the pickled results of an evaluation run to Bucket.
-        Args:
-            dataset (str): The name of the evaluation set.
-            experiment_run_name (str): The name of the run.
-            images (Iterable[Image.Image]): A collection of images to log.
-            metrics (dict[str, float]): A dictionary of metric names and their corresponding values.
-            args (dict[str, any], optional): args given to the ImageGenerator that generated the images.
-            project (str, optional): The name of the project. Defaults to "". Will be ignored here.
-        Raises:
-            AssertionError: If any value in the metrics dictionary is not a number.
+
+        :param dataset: The name of the evaluation set.
+        :type dataset: str
+        :param experiment_run_name: The name of the run.
+        :type experiment_run_name: str
+        :param images: A collection of images to log.
+        :type images: Iterable[Image.Image]
+        :param metrics: A dictionary of metric names and their corresponding values.
+        :type metrics: dict[str, float]
+        :param args: args given to the ImageGenerator that generated the images.
+        :type args: dict[str, any]
+        :param project: The name of the project Will be ignored here.
+        :type project: str
+
+        :raises: AssertionError: If any value in the metrics dictionary is not a number.
+
         """
         self._validate_args(args)
         experiment_run_name = experiment_run_name + str(np.random.randint(99))
@@ -114,6 +121,10 @@ class GCPBucketWriter(DataWriter):
         )
 
     def upload_experiment_from_bucket_to_tensorboard(self):
+        """
+        Uploads experiment results from a Google Cloud Storage bucket to TensorBoard.
+        """
+
         storage_client = storage.Client()
         bucket = storage_client.bucket(self.bucket_name)
         for blob in bucket.list_blobs(prefix=self.bucket_results_path):

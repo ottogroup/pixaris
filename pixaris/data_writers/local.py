@@ -20,15 +20,23 @@ class LocalDataWriter(DataWriter):
     ):
         """
         Save a collection of images locally under a specified experiment name.
-        Args:
-            project (str): The name of the project.
-            dataset (str): The name of the evaluation set.
-            experiment_run_name (str): The name of the experiment. This will be used to create a subfolder where images will be saved.
-            images (Iterable[Image.Image]): An iterable collection of PIL Image objects to be saved.
-            metrics (dict): The metrics of the experiment to be saved as a JSON file.
-            args (dict): The arguments of the experiment to be saved as a JSON file.
-            local_results_folder (str, optional): The root folder where the experiment subfolder will be created. Defaults to 'eval_data/generated_images'.
-            global_tracking_file (str, optional): The name of the global tracking file. Defaults to 'all_experiment_results.jsonl'.
+
+        :param project: The name of the project. This will be used to create a subfolder where images will be saved.
+        :type project: str
+        :param dataset: The name of the evaluation set.
+        :type dataset: str
+        :param experiment_run_name: The name of the experiment. This will be used to create a subfolder where images will be saved.
+        :type experiment_run_name: str
+        :param image_name_pairs: An iterable collection of tuples, where each tuple contains a PIL Image object and its corresponding name.
+        :type image_name_pairs: Iterable[tuple[Image.Image, str]]
+        :param metric_values: The metrics of the experiment to be saved as a JSON file.
+        :type metric_values: dict[str, float]
+        :param args: The arguments of the experiment to be saved as a JSON file. If any argument is a PIL Image, it will be saved as an image file.
+        :type args: dict[str, any]
+        :param local_results_folder: The root folder where the experiment subfolder will be created. Defaults to 'local_results'.
+        :type local_results_folder: str, optional
+        :param global_tracking_file: The name of the global tracking file. Defaults to 'all_experiment_results.jsonl'.
+        :type global_tracking_file: str, optional
         """
         timestamp = time.strftime("%Y%m%d-%H%M%S")
         save_dir = os.path.join(

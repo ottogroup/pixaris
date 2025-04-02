@@ -27,15 +27,15 @@ class BigqueryFeedbackHandler(FeedbackHandler):
         """
         Writes feedback for one image to BigQuery table.
 
-        Args:
-            feedback: dict with feedback information. Dict is expected to have the following keys:
-                - project: name of the project
-                - feedback_iteration: name of the iteration
-                - dataset: name of the evaluation set (optional)
-                - image_name: name of the image
-                - experiment_name: name of the experiment (optional)
-                - feedback_indicator: string with feedback value (either "Like", "Dislike", or "Neither")
-                - comment: string with feedback comment (optional)
+        :param feedback: dict with feedback information. Dict is expected to have the following keys:
+            - project: name of the project
+            - feedback_iteration: name of the iteration
+            - dataset: name of the evaluation set (optional)
+            - image_name: name of the image
+            - experiment_name: name of the experiment (optional)
+            - feedback_indicator: string with feedback value (either "Like", "Dislike", or "Neither")
+            - comment: string with feedback comment (optional)
+        :type feedback: dict
         """
         # assert non-nullable values are present
         assert all(
