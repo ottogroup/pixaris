@@ -12,8 +12,8 @@ import sys
 sys.path.insert(0, os.path.abspath(".."))
 
 project = "pixaris"
-copyright = "2025, one.o"
-author = "one.o"
+copyright = "2025, Otto Group data.works GmbH"
+author = "Otto Group data.works GmbH"
 release = "0.1"
 
 # -- General configuration ---------------------------------------------------
