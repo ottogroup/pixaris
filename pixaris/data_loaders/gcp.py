@@ -15,6 +15,8 @@ class GCPDatasetLoader(DatasetLoader):
     :type gcp_project_id: str
     :param gcp_bucket_name: The name of the Google Cloud Storage bucket.
     :type gcp_bucket_name: str
+    :param project: The name of the project containing the evaluation set.
+    :type project: str
     :param dataset: The name of the evaluation set to download images for.
     :type dataset: str
     :param eval_dir_local: The local directory where evaluation images will be saved. Defaults to "eval_data".

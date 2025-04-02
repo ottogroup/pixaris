@@ -24,8 +24,8 @@ class GCPTensorboardWriter(DataWriter):
         """
         Initializes the GCPTensorboardWriter.
 
-        :param project_id: The Google Cloud project ID.
-        :type project_id: str
+        :param gcp_project_id: The Google Cloud project ID.
+        :type gcp_project_id: str
         :param location: The Google Cloud location.
         :type location: str
         :param bucket_name: The name of the Google Cloud Storage bucket to store the workflow image. If None, the workflow image will not be stored in a bucket. Defaults to None.
