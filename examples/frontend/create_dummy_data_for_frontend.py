@@ -104,16 +104,29 @@ def create_dummy_data_entries(
         feedback_entry = {
             "project": project_name,
             "feedback_iteration": "dummy_iteration",
-            "eval_set": dataset_name,
+            "dataset": "",
             "image_name": image_name,
             "experiment_name": experiment_run_name,
             "date": random_date(),
+            "comment": "dummy_comment",
             "likes": random.randint(0, 100),
             "dislikes": random.randint(0, 100),
-            "comment": "dummy_comment",
-            "misc": "dummy_misc",
         }
         dummy_feedback_data.append(feedback_entry)
+        feedback_iteration_path = os.path.join(
+            current_directory,
+            local_results_folder,
+            project_name,
+            "feedback_iterations",
+            "dummy_iteration",
+        )
+        os.makedirs(feedback_iteration_path, exist_ok=True)
+        create_tiger_image(
+            os.path.join(feedback_iteration_path, "dummy_experiment_run_1.jpg")
+        )
+        create_tiger_image(
+            os.path.join(feedback_iteration_path, "dummy_experiment_run_2.jpg")
+        )
 
     return dummy_experiment_data, dummy_feedback_data
 
@@ -127,13 +140,13 @@ def create_dummy_files(base_output_directory, num_entries, base_experiment_run_n
         for item in dummy_experiment_data:
             f.write(json.dumps(item) + "\n")
 
-    feedback_results_path = os.path.join(
+    feedback_tracking_path = os.path.join(
         current_directory,
         local_results_folder,
         project_name,
-        "feedback_results.jsonl",
+        "feedback_tracking.jsonl",
     )
-    with open(feedback_results_path, "w") as f:
+    with open(feedback_tracking_path, "w") as f:
         for item in dummy_feedback_data:
             f.write(json.dumps(item) + "\n")
 

@@ -17,6 +17,7 @@ Inspired by the MLOps mindset, we aim to cultivate an ImageOps approach. With Pi
 - **Scalable Experiment Tracking**: Designed for image generation at scale, Pixaris allows you to manage and visualize large sets of experiments with ease, leveraging the power of TensorBoard and Google Cloud Platform (GCP).
 - **Flexible Hyperparameter Search**: Explore a limitless range of parameters, such as prompt, model, cfg, noise, seed, ... to discover the optimal settings for your image generation tasks.
 - **Local and Remote Workflow Execution**: Trigger ComfyUI workflows locally, remotely with a connection via iap tunnel, or deploy them onto a cluster.
+- **Feedback on Experiments**: Give feedback on your images, remotely with your team or locally.
 
 **Target Audience**
 
@@ -193,6 +194,14 @@ If you want to use Pixaris without setting it up manually, you can pull the preb
 ```sh
 docker pull ghcr.io/og-dw/tiga_pixaris:latest
 ```
+
+## Feedback GUI
+You can directly use the GUI to inspect your experiment results and provide Feedback on them.
+
+### Giving feedback on an iteration
+When reviewing your results from an experiment, you can eazily rate which images are good and which aren't. To do this either alone or with your team, you can use the pixaris frontend for experiment tracking and feedback.
+Start your GUI using either the `LocalFeedbackHandler` or `BigqueryFeedbackHandler` in `examples/frontend/deploy_frontend_locally.py`. Once startet, go to the Feedback tab in the GUI, select the project and iteration you want to provide feedback on and vote!
+
 
 ## Naming Conventions
 For clarity, we would like to state what terminology we use in Pixaris:
