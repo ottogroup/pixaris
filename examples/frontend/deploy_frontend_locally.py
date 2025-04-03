@@ -1,4 +1,5 @@
-from pixaris.feedback_handlers.gcp import BigqueryFeedbackHandler
+# from pixaris.feedback_handlers.gcp import BigqueryFeedbackHandler
+from pixaris.feedback_handlers.local import LocalFeedbackHandler
 from pixaris.frontend.main import launch_ui
 from pixaris.experiments_tracker.local import LocalExperimentTracker
 import yaml
@@ -7,11 +8,12 @@ import yaml
 
 config = yaml.safe_load(open("pixaris/config.yaml"))
 
-feedback_handler = BigqueryFeedbackHandler(
-    gcp_project_id=config["gcp_project_id"],
-    gcp_bq_feedback_table=config["gcp_bq_feedback_table"],
-    gcp_feedback_bucket=config["gcp_feedback_bucket"],
-)
+# feedback_handler = BigqueryFeedbackHandler(
+#     gcp_project_id=config["gcp_project_id"],
+#     gcp_bq_feedback_table=config["gcp_bq_feedback_table"],
+#     gcp_feedback_bucket=config["gcp_feedback_bucket"],
+# )
+feedback_handler = LocalFeedbackHandler()
 
 experiment_tracker = LocalExperimentTracker()
 

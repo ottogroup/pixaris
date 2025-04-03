@@ -20,7 +20,7 @@ def initialise_iteration_in_bigquery(
     """
     Initialise feedback iteration in BigQuery and upload images to GCP bucket.
     """
-    feedback_handler = BigqueryFeedbackHandler(
+    gcp_feedback_handler = BigqueryFeedbackHandler(
         gcp_project_id=config["gcp_project_id"],
         gcp_bq_feedback_table=config["gcp_bq_feedback_table"],
         gcp_feedback_bucket=config["gcp_feedback_bucket"],
@@ -35,7 +35,7 @@ def initialise_iteration_in_bigquery(
             "feedback_indicator": "Neither",  # used only for initialisation of feedback iteration
             "comment": "upload",
         }
-        feedback_handler.write_single_feedback(feedback)
+        gcp_feedback_handler.write_single_feedback(feedback)
 
 
 def upload_images_to_bucket(
