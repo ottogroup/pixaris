@@ -1,9 +1,9 @@
 import os
-from pixaris.experiments_tracker.base import ExperimentTracker
+from pixaris.experiment_handlers.base import ExperimentHandler
 import pandas as pd
 
 
-class LocalExperimentTracker(ExperimentTracker):
+class LocalExperimentHandler(ExperimentHandler):
     def load_projects_and_datasets(
         self,
         local_results_folder: str = "local_results",

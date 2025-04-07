@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 
-class ExperimentTracker:
+class ExperimentHandler:
     @abstractmethod
     def load_projects_and_datasets(
         self,

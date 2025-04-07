@@ -4,7 +4,7 @@ from pixaris.frontend.tab_feedback import render_feedback_tab
 from pixaris.frontend.tab_experiment_tracking import render_experiment_tracking_tab
 
 from pixaris.feedback_handlers.gcp import BigqueryFeedbackHandler
-from pixaris.experiments_tracker.local import LocalExperimentTracker
+from pixaris.experiment_handlers.local import LocalExperimentHandler
 
 import yaml
 
@@ -41,6 +41,6 @@ if __name__ == "__main__":
         gcp_bq_feedback_table=config["gcp_bq_feedback_table"],
         gcp_feedback_bucket=config["gcp_feedback_bucket"],
     )
-    experiment_tracker = LocalExperimentTracker()  # TODO use BigqueryExperimentTracker
+    experiment_tracker = LocalExperimentHandler()  # TODO use BigqueryExperimentTracker
 
     launch_ui(feedback_handler, experiment_tracker)
