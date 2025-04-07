@@ -1,7 +1,7 @@
 import concurrent.futures
 from pixaris.data_loaders.base import DatasetLoader
 from pixaris.generation.base import ImageGenerator
-from pixaris.data_writers.base import DataWriter
+from pixaris.experiment_handlers.base import ExperimentHandler
 from pixaris.metrics.base import BaseMetric
 from pixaris.utils.merge_dicts import merge_dicts
 from pixaris.utils.hyperparameters import (
@@ -26,7 +26,7 @@ def generate_image(data, image_generator, args, failed_args):
 def generate_images_based_on_dataset(
     data_loader: DatasetLoader,
     image_generator: ImageGenerator,
-    data_writer: DataWriter,
+    experiment_handler: ExperimentHandler,
     metrics: list[BaseMetric],
     args: dict[str, any],
 ) -> Iterable[Image.Image]:
@@ -34,11 +34,11 @@ def generate_images_based_on_dataset(
     Generates images based on an evaluation set.
     This function loads a dataset using the provided data loader, generates images
     using the provided image generator, and stores the results using the provided
-    data writer.
+    experiment handler.
     Args:
         data_loader (DatasetLoader): An instance of DatasetLoader to load the dataset.
         image_generator (ImageGenerator): An instance of ImageGenerator to generate images.
-        data_writer (DataWriter): An instance of DataWriter to store the generated images and results.
+        experiment_handler (ExperimentHandler): An instance of ExperimentHandler to store the generated images and results.
         metrics (list[BaseMetric]): A list of metrics to calculate.
         args (dict[str, any]): A dictionary of arguments to be used for image generation and storing results.
         max_parallel_jobs (int): The maximum number of parallel jobs to run. Not providing this arg means no parallelisation.
@@ -50,7 +50,7 @@ def generate_images_based_on_dataset(
     dataset = data_loader.load_dataset()
     generation_params = args.get("generation_params", [])
     image_generator.validate_inputs_and_parameters(dataset, generation_params)
-    data_writer._validate_experiment_run_name(args["experiment_run_name"])
+    experiment_handler._validate_experiment_run_name(args["experiment_run_name"])
     max_parallel_jobs = args.get("max_parallel_jobs", 1)
 
     generated_image_name_pairs = []
@@ -86,7 +86,7 @@ def generate_images_based_on_dataset(
             metric.calculate([pair[0] for pair in generated_image_name_pairs])
         )
 
-    data_writer.store_results(
+    experiment_handler.store_results(
         project=args["project"],
         dataset=args["dataset"],
         experiment_run_name=args["experiment_run_name"],
@@ -100,7 +100,7 @@ def generate_images_based_on_dataset(
 def generate_images_for_hyperparameter_search_based_on_dataset(
     data_loader: DatasetLoader,
     image_generator: ImageGenerator,
-    data_writer: DataWriter,
+    experiment_handler: ExperimentHandler,
     metrics: list[BaseMetric],
     args: dict[str, any],
 ):
@@ -110,11 +110,11 @@ def generate_images_for_hyperparameter_search_based_on_dataset(
     combination of hyperparameters provided. It validates the hyperparameters,
     generates a grid of hyperparameter combinations, and then generates images
     for each combination using the provided data loader, image generator, and
-    data writer.
+    experiment handler.
     Args:
         data_loader (DatasetLoader): The data loader to load the evaluation set.
         image_generator (ImageGenerator): The image generator to generate images.
-        data_writer (DataWriter): The data writer to save generated images.
+        experiment_handler (ExperimentHandler): The experiment handler to save generated images.
         args (dict[str, any]): A dictionary of arguments, including:
             - "workflow_apiformat_json" (str): The path to the workflow file in API format.
             - "hyperparameters" list(dict): A dictionary of hyperparameters to search.
@@ -147,7 +147,7 @@ def generate_images_for_hyperparameter_search_based_on_dataset(
         generate_images_based_on_dataset(
             data_loader=data_loader,
             image_generator=image_generator,
-            data_writer=data_writer,
+            experiment_handler=experiment_handler,
             metrics=metrics,
             args=run_args,
         )

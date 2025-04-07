@@ -1,6 +1,6 @@
 from PIL import Image
 from pixaris.data_loaders.gcp import GCPDatasetLoader
-from pixaris.data_writers.gcp_tensorboard import GCPTensorboardWriter
+from pixaris.experiment_handlers.gcp_tensorboard import GCPTensorboardHandler
 from pixaris.generation.comfyui import ComfyGenerator
 from pixaris.metrics.llm import LLMMetric
 from pixaris.orchestration.base import generate_images_based_on_dataset
@@ -27,7 +27,7 @@ data_loader = GCPDatasetLoader(
 )
 
 generator = ComfyGenerator(workflow_apiformat_json=WORKFLOW_APIFORMAT_JSON)
-data_writer = GCPTensorboardWriter(
+experiment_handler = GCPTensorboardHandler(
     gcp_project_id=config["gcp_project_id"],
     location=config["gcp_location"],
     bucket_name=config["gcp_bucket_name"],
@@ -60,7 +60,7 @@ args = {
 out = generate_images_based_on_dataset(
     data_loader=data_loader,
     image_generator=generator,
-    data_writer=data_writer,
+    experiment_handler=experiment_handler,
     metrics=[llm_metric],
     args=args,
 )

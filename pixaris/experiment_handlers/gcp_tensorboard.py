@@ -1,5 +1,4 @@
-from pixaris.data_writers.base import DataWriter
-from pixaris.data_writers.utils import upload_workflow_file_to_bucket
+from pixaris.experiment_handlers.utils import upload_workflow_file_to_bucket
 from typing import Iterable
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
@@ -13,8 +12,10 @@ import numpy as np
 import json
 import re
 
+from pixaris.experiment_handlers.base import ExperimentHandler
 
-class GCPTensorboardWriter(DataWriter):
+
+class GCPTensorboardHandler(ExperimentHandler):
     def __init__(
         self,
         gcp_project_id: str,
@@ -22,7 +23,7 @@ class GCPTensorboardWriter(DataWriter):
         bucket_name: str = None,
     ):
         """
-        Initializes the GCPTensorboardWriter.
+        Initializes the GCPTensorboardHandler.
 
         :param gcp_project_id: The Google Cloud project ID.
         :type gcp_project_id: str
@@ -38,8 +39,10 @@ class GCPTensorboardWriter(DataWriter):
     def _validate_experiment_run_name(
         self,
         experiment_run_name: str,
-    ):
-        # assert experiment_run_name adheres to tensorboard rules
+    ) -> None:
+        """
+        assert experiment_run_name adheres to tensorboard rules
+        """
         assert re.match(r"[a-z0-9][a-z0-9-]{0,127}", experiment_run_name), (
             "experiment_run_name must adhere to regex [a-z0-9][a-z0-9-]{0,127} - so only lowercase letters, numbers and '-' are allowed, max length 128"
         )

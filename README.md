@@ -64,7 +64,7 @@ Follow these steps to set up and run your experiment:
    Next, define the functionality for generating images using the `Generator`. For example, the `ComfyGenerator` allows you to trigger ComfyUI workflows via API.
 
 3. **[Set Up Experiment Tracking](#setting-up-your-experiment-tracking)**:
-   Use the `DataWriter` to specify where your experiment data will be saved.
+   Use the `ExperimentHandler` to specify where your experiment data will be saved.
 
 4. **[OPTIONAL: Set Up Evaluation Metrics](#optional-setup-evaluation-metrics)**:
    If desired, you can add metrics to your experiment run, such as `llm_metric`, which allows an LLM to evaluate your images.
@@ -77,7 +77,7 @@ Follow these steps to set up and run your experiment:
 
 ### Summary
 
-To utilize Pixaris for evaluating your experiments, you will always need a `DatasetLoader`, `ImageGenerator`, `DataWriter`, and `args`. Once all components are defined, they will be passed to an orchestration function like `generate_images_based_on_dataset`. This function is responsible for loading the data, executing the experiment, and saving the results.
+To utilize Pixaris for evaluating your experiments, you will always need a `DatasetLoader`, `ImageGenerator`, `ExperimentHandler`, and `args`. Once all components are defined, they will be passed to an orchestration function like `generate_images_based_on_dataset`. This function is responsible for loading the data, executing the experiment, and saving the results.
 
 For each component, we offer several options to choose from. For example, the `DatasetLoader` includes the `GCPDatasetLoader` for accessing data in Google Cloud Storage and a separate `LocalDatasetLoader` for accessing local evaluation data. Additionally, you have the flexibility to implement your own component tailored to your specific needs. Attached is an overview of the various components and their implementations.
 
@@ -113,16 +113,16 @@ The workflow_apiformat_json should lead to a JSON file exported from ComfyUI. Yo
 Pixaris also includes an implementation of `FluxFillGenerator`, that calls a Flux API for generation. You can implement your own `ImageGenerator` for image generation with different tools, an API, or whatever you like. Your class needs to inherit from `ImageGenerator` and should call any image generation pipeline. A generator parses a dataset into usable arguments for your generation. Override the function `generate_single_image` to call your generation.
 
 ### Setting up your experiment tracking
-To save the generated images and possibly metrics, we define a `DataWriter`. In our case, we want to have a nice visualization of all input and output images and metrics, so we choose the `GCPTensorboardWriter` using the Google-managed version. This decision was made because a lot of functionality is already implemented, e.g. we like that you can zoom in and out of images.
+To save the generated images and possibly metrics, we define a `ExperimentHandler`. In our case, we want to have a nice visualization of all input and output images and metrics, so we choose the `GCPTensorboardHandler` using the Google-managed version. This decision was made because a lot of functionality is already implemented, e.g. we like that you can zoom in and out of images.
 ```python
-from pixaris.data_writers.gcp_tensorboard import GCPTensorboardWriter
-writer = GCPTensorboardWriter(
+from pixaris.experiment_handlers.gcp_tensorboard import GCPTensorboardHandler
+handler = GCPTensorboardHandler(
     gcp_project_id=<your gcp_project_id here>,
     location=<your gcp_location here>,
     bucket_name=<your gcp_bucket_name here>,
 )
 ```
-Alternatively, you can choose to save your results locally using the `LocalDataWriter` or implement your own class that inherits from the `DataWriter`. Usually, it would save images and possibly metrics from your experiment. If you use the `LocalDataWriter`, you store your results locally and continue working with the JSON outputs. However, you can only look at the generated images one by one and miss out on one of our favorite features of Pixaris: That you can directly compare images from different experiment runs.
+Alternatively, you can choose to save your results locally using the `LocalExperimentHandler` or implement your own class that inherits from the `ExperimentHandler`. Usually, it would save images and possibly metrics from your experiment. If you use the `LocalExperimentHandler`, you store your results locally and continue working with the JSON outputs. However, you can only look at the generated images one by one and miss out on one of our favorite features of Pixaris: That you can directly compare images from different experiment runs.
 
 ### Optional: Setup evaluation metrics
 Maybe we want to generate some metrics to evaluate our results, e.g., for mask generation, calculate the IoU with the correct masks.
@@ -172,7 +172,7 @@ from pixaris.orchestration.base import generate_images_based_on_dataset
 out = generate_images_based_on_dataset(
     data_loader=loader,
     image_generator=comfy_generator,
-    data_writer=writer,
+    experiment_handler=handler,
     metrics=[iou_metric],
     args=args,
 )
@@ -217,4 +217,4 @@ For clarity, we would like to state what terminology we use in Pixaris:
 TODO....Pixaris is open-source software licensed
 
 ## Contribute
-We published this project to inspire everyone to contribute their own ideas to this project. Feel free to fork and add new data loaders, generators, writers, or metrics to Pixaris! Learn here how: https://opensource.guide/how-to-contribute/
+We published this project to inspire everyone to contribute their own ideas to this project. Feel free to fork and add new data loaders, generators, experiment handlers, or metrics to Pixaris! Learn here how: https://opensource.guide/how-to-contribute/

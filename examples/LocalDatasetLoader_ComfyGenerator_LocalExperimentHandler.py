@@ -1,5 +1,5 @@
 from pixaris.data_loaders.local import LocalDatasetLoader
-from pixaris.data_writers.local import LocalDataWriter
+from pixaris.experiment_handlers.local import LocalExperimentHandler
 from pixaris.generation.comfyui import ComfyGenerator
 from pixaris.orchestration.base import generate_images_based_on_dataset
 import os
@@ -10,7 +10,7 @@ from PIL import Image
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 PROJECT = "test_project"
 DATASET = "mock"
-with open(os.getcwd() + "/test/assets/test_inspo_apiformat.json", "r") as file:
+with open(os.getcwd() + "/test/assets/test-background-generation.json", "r") as file:
     WORKFLOW_APIFORMAT_JSON = json.load(file)
 WORKFLOW_PILLOW_IMAGE = Image.open(
     os.getcwd() + "/test/assets/test-background-generation.png"
@@ -26,7 +26,7 @@ data_loader = LocalDatasetLoader(
 
 generator = ComfyGenerator(workflow_apiformat_json=WORKFLOW_APIFORMAT_JSON)
 
-data_writer = LocalDataWriter()
+experiment_handler = LocalExperimentHandler()
 
 args = {
     "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
@@ -41,7 +41,7 @@ args = {
 out = generate_images_based_on_dataset(
     data_loader=data_loader,
     image_generator=generator,
-    data_writer=data_writer,
+    experiment_handler=experiment_handler,
     metrics=[],
     args=args,
 )

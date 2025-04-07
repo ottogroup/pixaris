@@ -10,7 +10,7 @@ import time
 
 from pixaris.data_loaders.base import DatasetLoader
 from pixaris.generation.base import ImageGenerator
-from pixaris.data_writers.base import DataWriter
+from pixaris.experiment_handlers.base import ExperimentHandler
 from pixaris.metrics.base import BaseMetric
 from pixaris.orchestration.base import generate_images_based_on_dataset
 import pickle
@@ -45,7 +45,7 @@ def cli_kubernetes_generate_images_based_on_dataset_execute_remotely():
 
     data_loader = inputs["data_loader"]
     image_generator = inputs["image_generator"]
-    data_writer = inputs["data_writer"]
+    experiment_handler = inputs["experiment_handler"]
     metrics = inputs["metrics"]
     args = inputs["args"]
 
@@ -53,7 +53,7 @@ def cli_kubernetes_generate_images_based_on_dataset_execute_remotely():
     generate_images_based_on_dataset(
         data_loader=data_loader,
         image_generator=image_generator,
-        data_writer=data_writer,
+        experiment_handler=experiment_handler,
         metrics=metrics,
         args=args,
     )
@@ -126,7 +126,7 @@ def copy_bytes_to_pod(
 def pixaris_orchestration_kubernetes_locally(
     data_loader: DatasetLoader,
     image_generator: ImageGenerator,
-    data_writer: DataWriter,
+    experiment_handler: ExperimentHandler,
     metrics: list[BaseMetric],
     args: dict[str, any],
     auto_scale: bool,
@@ -138,7 +138,7 @@ def pixaris_orchestration_kubernetes_locally(
     Args:
     data_loader (DatasetLoader): The data loader to load the evaluation set.
     image_generator (ImageGenerator): The image generator to generate images. E.g. ComfyClusterGenerator
-    data_writer (DataWriter): The data writer to save generated images.
+    experiment_handler (ExperimentHandler): The experiment handler to save generated images.
     metrics (list[BaseMetric]): The metrics to calculate.
     args (dict[str, any]): A dictionary of arguments, including:
         - "workflow_apiformat_json" (str): The path to the workflow file in API format.
@@ -165,7 +165,7 @@ def pixaris_orchestration_kubernetes_locally(
     inputs = {
         "data_loader": data_loader,
         "image_generator": image_generator,
-        "data_writer": data_writer,
+        "experiment_handler": experiment_handler,
         "metrics": metrics,
         "args": args,
     }

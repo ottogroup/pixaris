@@ -1,5 +1,5 @@
 from pixaris.data_loaders.local import LocalDatasetLoader
-from pixaris.data_writers.local import LocalDataWriter
+from pixaris.experiment_handlers.local import LocalExperimentHandler
 from pixaris.generation.flux import FluxFillGenerator
 from pixaris.orchestration.base import generate_images_based_on_dataset
 import os
@@ -23,7 +23,7 @@ data_loader = LocalDatasetLoader(
 
 generator = FluxFillGenerator()
 
-data_writer = LocalDataWriter()
+experiment_handler = LocalExperimentHandler()
 
 args = {
     "generation_params": [
@@ -44,7 +44,7 @@ args = {
 out = generate_images_based_on_dataset(
     data_loader=data_loader,
     image_generator=generator,
-    data_writer=data_writer,
+    experiment_handler=experiment_handler,
     metrics=[],
     args=args,
 )

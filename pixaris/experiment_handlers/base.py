@@ -1,7 +1,27 @@
 from abc import abstractmethod
+from typing import Iterable
+from PIL import Image
 
 
 class ExperimentHandler:
+    @abstractmethod
+    def store_results(
+        self,
+        project: str,
+        dataset: str,
+        experiment_run_name: str,
+        image_name_pairs: Iterable[tuple[Image.Image, str]],
+        metric_values: dict[str, float],
+        args: dict[str, any],
+    ) -> None:
+        pass
+
+    def _validate_experiment_run_name(
+        self,
+        experiment_run_name: str,
+    ):
+        pass
+
     @abstractmethod
     def load_projects_and_datasets(
         self,
@@ -14,6 +34,5 @@ class ExperimentHandler:
         self,
         project: str,
         dataset: str,
-        local_results_folder: str = "local_results",
     ):
         pass
