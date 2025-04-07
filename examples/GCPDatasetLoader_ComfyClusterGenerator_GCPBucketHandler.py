@@ -3,7 +3,7 @@ import os
 
 os.environ["DEV_MODE"] = "true"
 from pixaris.data_loaders.gcp import GCPDatasetLoader
-from pixaris.data_writers.gcp_bucket import GCPBucketWriter
+from pixaris.experiment_handlers.gcp_bucket import GCPBucketExperimentHandler
 from pixaris.generation.comfyui_cluster import ComfyClusterGenerator
 from pixaris.orchestration.kubernetes import pixaris_orchestration_kubernetes_locally
 import yaml
@@ -37,7 +37,7 @@ data_loader = GCPDatasetLoader(
 
 generator = ComfyClusterGenerator(workflow_apiformat_json=WORKFLOW_APIFORMAT_JSON)
 
-data_writer = GCPBucketWriter(
+experiment_handler = GCPBucketExperimentHandler(
     gcp_project_id=config["gcp_project_id"],
     location=config["gcp_location"],
     bucket_name=BUCKET_NAME,
@@ -59,13 +59,13 @@ args = {
 pixaris_orchestration_kubernetes_locally(
     data_loader=data_loader,
     image_generator=generator,
-    data_writer=data_writer,
+    experiment_handler=experiment_handler,
     metrics=[],
     args=args,
     auto_scale=True,
 )
 
 # BUG
-# currently the gcp_tensorboard data writer is not working on the kubernetes cluster. So we have build the folllwoing workaround:"""
+# currently the gcp_tensorboard experiment_handler is not working on the kubernetes cluster. So we have build the folllwoing workaround:"""
 if False:
-    data_writer.upload_experiment_from_bucket_to_tensorboard()
+    experiment_handler.upload_experiment_from_bucket_to_tensorboard()

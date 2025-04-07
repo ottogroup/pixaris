@@ -1,13 +1,13 @@
-from pixaris.data_writers.base import DataWriter
 from typing import Iterable
 from PIL import Image
 import pickle
 import numpy as np
 from google.cloud import storage
-from pixaris.data_writers.gcp_tensorboard import GCPTensorboardWriter
+from pixaris.experiment_handlers.gcp_tensorboard import GCPTensorboardHandler
+from pixaris.experiment_handlers.base import ExperimentHandler
 
 
-class GCPBucketWriter(DataWriter):
+class GCPBucketExperimentHandler(ExperimentHandler):
     def __init__(
         self,
         gcp_project_id: str,
@@ -16,7 +16,7 @@ class GCPBucketWriter(DataWriter):
         bucket_results_path: str,
     ):
         """
-        Initializes the GCPBucketWriter.
+        Initializes the GCPBucketHandler.
         Args:
             gcp_project_id (str): The Google Cloud project ID.
             location (str): The Google Cloud location.
@@ -76,6 +76,8 @@ class GCPBucketWriter(DataWriter):
         """
         Stores the pickled results of an evaluation run to Bucket.
 
+        :param project: The name of the project Will be ignored here.
+        :type project: str
         :param dataset: The name of the evaluation set.
         :type dataset: str
         :param experiment_run_name: The name of the run.
@@ -86,8 +88,6 @@ class GCPBucketWriter(DataWriter):
         :type metrics: dict[str, float]
         :param args: args given to the ImageGenerator that generated the images.
         :type args: dict[str, any]
-        :param project: The name of the project Will be ignored here.
-        :type project: str
 
         :raises: AssertionError: If any value in the metrics dictionary is not a number.
 
@@ -106,13 +106,13 @@ class GCPBucketWriter(DataWriter):
         self._save_results(experiment_run_name, pickled_results)
 
     def _write_to_gcp_tensorboard(self, results):
-        tensorboard_writer = GCPTensorboardWriter(
+        tensorboard_handler = GCPTensorboardHandler(
             gcp_project_id=self.gcp_project_id,
             location=self.location,
             bucket_name=self.bucket_name,
         )
 
-        tensorboard_writer.store_results(
+        tensorboard_handler.store_results(
             dataset=results["dataset"],
             experiment_run_name=results["experiment_run_name"],
             image_name_pairs=results["image_name_pairs"],

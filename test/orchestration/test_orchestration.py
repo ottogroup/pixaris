@@ -1,11 +1,18 @@
 import json
+import shutil
 from unittest.mock import patch
 from PIL import Image
-from pixaris.data_writers.local import LocalDataWriter
+from pixaris.experiment_handlers.local import LocalExperimentHandler
 from pixaris.generation.comfyui import ComfyGenerator
 from pixaris.orchestration.base import generate_images_based_on_dataset
 import unittest
 import os
+
+
+def tearDown():
+    # Remove the temporary directory after each test
+    if os.path.exists("temp_test_results"):
+        shutil.rmtree("temp_test_results")
 
 
 class TestOrchestration(unittest.TestCase):
@@ -15,7 +22,9 @@ class TestOrchestration(unittest.TestCase):
         """
         Test the generate_images function. This one is correct
         """
-        writer = LocalDataWriter()
+        experiment_handler = LocalExperimentHandler(
+            local_results_folder="temp_test_results"
+        )
 
         with open(
             os.getcwd() + "/test/assets/test-just-load-and-save_apiformat.json", "r"
@@ -61,9 +70,11 @@ class TestOrchestration(unittest.TestCase):
             "RGB", (100, 100), color="red"
         )
         images = generate_images_based_on_dataset(
-            mock_loader, generator, writer, [], args
+            mock_loader, generator, experiment_handler, [], args
         )
         self.assertEqual(len(images), 2)
+
+        tearDown()
 
     @patch("pixaris.data_loaders.gcp.GCPDatasetLoader")
     @patch("builtins.print")
@@ -74,7 +85,9 @@ class TestOrchestration(unittest.TestCase):
         """
         One of the images is broken. Should run but throw warnings
         """
-        writer = LocalDataWriter()
+        experiment_handler = LocalExperimentHandler(
+            local_results_folder="temp_test_results"
+        )
 
         with open(
             os.getcwd() + "/test/assets/test-just-load-and-save_apiformat.json", "r"
@@ -120,10 +133,12 @@ class TestOrchestration(unittest.TestCase):
             Exception("Test"),
         ]
         images = generate_images_based_on_dataset(
-            mock_loader, generator, writer, [], args
+            mock_loader, generator, experiment_handler, [], args
         )
         mock_print.assert_any_call("Failed to generate images for 1 of 2.")
         self.assertEqual(len(images), 1)
+
+        tearDown()
 
     @patch("pixaris.data_loaders.gcp.GCPDatasetLoader")
     @patch("pixaris.generation.comfyui.ComfyGenerator.generate_single_image")
@@ -131,7 +146,9 @@ class TestOrchestration(unittest.TestCase):
         """
         All images are broken. Should throw an error
         """
-        writer = LocalDataWriter()
+        experiment_handler = LocalExperimentHandler(
+            local_results_folder="temp_test_results"
+        )
 
         with open(
             os.getcwd() + "/test/assets/test-just-load-and-save_apiformat.json", "r"
@@ -180,10 +197,12 @@ class TestOrchestration(unittest.TestCase):
             generate_images_based_on_dataset(
                 mock_loader,
                 generator,
-                writer,
+                experiment_handler,
                 [],
                 args,
             )
+
+        tearDown()
 
 
 if __name__ == "__main__":
