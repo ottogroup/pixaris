@@ -1,11 +1,11 @@
 import gradio as gr
 import os
-from pixaris.experiments_tracker.base import ExperimentTracker
+from pixaris.experiment_handlers.base import ExperimentHandler
 import pandas as pd
 
 
 def render_experiment_tracking_tab(
-    experiment_tracker: ExperimentTracker,
+    experiment_tracker: ExperimentHandler,
     results_directory: str,
 ):
     dataset_experiment_tracking_results = gr.State(pd.DataFrame())
