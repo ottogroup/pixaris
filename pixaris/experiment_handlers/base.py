@@ -25,7 +25,6 @@ class ExperimentHandler:
     @abstractmethod
     def load_projects_and_datasets(
         self,
-        local_results_folder: str = "local_results",
     ):
         pass
 
