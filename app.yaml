@@ -1,0 +1,12 @@
+runtime: python312
+service: pixaris-app
+entrypoint: python app.py
+
+instance_class: F4_1G
+env_variables:
+  GRADIO_SERVER_NAME: "0.0.0.0"
+  GRADIO_SERVER_PORT: "8080"
+
+handlers:
+  - url: /.*
+    script: auto

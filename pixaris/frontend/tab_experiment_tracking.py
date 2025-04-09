@@ -5,14 +5,14 @@ import pandas as pd
 
 
 def render_experiment_tracking_tab(
-    experiment_tracker: ExperimentHandler,
+    experiment_handler: ExperimentHandler,
     results_directory: str,
 ):
     dataset_experiment_tracking_results = gr.State(pd.DataFrame())
     with gr.Sidebar(open=True):
         gr.Markdown("Experiments")
         with gr.Row(scale=8):
-            PROJECTS_DICT = experiment_tracker.load_projects_and_datasets()
+            PROJECTS_DICT = experiment_handler.load_projects_and_datasets()
             PROJECTS = [""] + list(PROJECTS_DICT.keys())
             project_name = gr.Dropdown(
                 choices=PROJECTS,
@@ -62,7 +62,7 @@ def render_experiment_tracking_tab(
             ):
                 """Update choices of feedback iterations for selected project and display reload button."""
                 dataset_experiment_tracking_results = (
-                    experiment_tracker.load_experiment_results_for_dataset(
+                    experiment_handler.load_experiment_results_for_dataset(
                         project=project_name,
                         dataset=dataset,
                     )
@@ -147,7 +147,7 @@ def render_experiment_tracking_tab(
         def show_experiment_results_table(project_name, dataset):
             if dataset != "":
                 gr.DataFrame(
-                    experiment_tracker.load_experiment_results_for_dataset(
+                    experiment_handler.load_experiment_results_for_dataset(
                         project=project_name,
                         dataset=dataset,
                     ),

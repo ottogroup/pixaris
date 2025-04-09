@@ -10,6 +10,11 @@ import pandas as pd
 
 class LocalExperimentHandler(ExperimentHandler):
     def __init__(self, local_results_folder: str = "local_results"):
+        """
+        Initialize the LocalExperimentHandler.
+        Args:
+            local_results_folder (str, optional): The root folder where the experiment subfolder is located. Defaults to 'local_results'.
+        """
         self.local_results_folder = local_results_folder
 
     def store_results(
@@ -101,11 +106,11 @@ class LocalExperimentHandler(ExperimentHandler):
         ) as f:
             f.write(json.dumps(tracking_info) + "\n")
 
-    def load_projects_and_datasets(self) -> dict:
+    def load_projects_and_datasets(
+        self,
+    ):
         """
         Load the projects and datasets from the local results folder.
-        Args:
-            local_results_folder (str, optional): The root folder where the projects and datasets are located. Defaults to 'eval_data/generated_images'.
         Returns:
             dict: A dictionary containing the projects and datasets. {"project": ["dataset1", "dataset2"]}
         """
@@ -128,7 +133,6 @@ class LocalExperimentHandler(ExperimentHandler):
         Args:
             project (str): The name of the project.
             dataset (str): The name of the evaluation set.
-            local_results_folder (str, optional): The root folder where the experiment subfolder is located. Defaults to 'local_results'.
         Returns:
             pd.DataFrame: The results of the experiment as a DataFrame.
         """

@@ -15,6 +15,6 @@ config = yaml.safe_load(open("pixaris/config.yaml"))
 # )
 feedback_handler = LocalFeedbackHandler()
 
-experiment_tracker = LocalExperimentHandler()
+experiment_handler = LocalExperimentHandler()
 
-launch_ui(feedback_handler, experiment_tracker)
+launch_ui(feedback_handler, experiment_handler)
