@@ -166,7 +166,7 @@ cython_debug/
 .ruff_cache
 
 config.yaml
-eval_data
+local_experiment_inputs
 temp
 temp_test_files
 temp.ipynb

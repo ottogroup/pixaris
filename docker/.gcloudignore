@@ -2,7 +2,7 @@
 pixaris/config.yaml
 .git
 examples
-eval_data
+local_experiment_inputs
 local_results
 temp
 temp.*

@@ -1,6 +1,6 @@
 from PIL import Image
 from pixaris.data_loaders.gcp import GCPDatasetLoader
-from pixaris.experiment_handlers.gcp_tensorboard import GCPTensorboardHandler
+from pixaris.experiment_handlers.gcp import GCPExperimentHandler
 from pixaris.generation.comfyui import ComfyGenerator
 from pixaris.metrics.llm import LLMMetric
 from pixaris.orchestration.base import generate_images_based_on_dataset
@@ -9,8 +9,8 @@ import yaml
 import json
 
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
-PROJECT = "test_project"
-DATASET = "test_dataset"
+PROJECT = "dummy_project"
+DATASET = "dummy_dataset"
 with open(os.getcwd() + "/test/assets/test_inspo_apiformat.json", "r") as file:
     WORKFLOW_APIFORMAT_JSON = json.load(file)
 WORKFLOW_PILLOW_IMAGE = Image.open(os.getcwd() + "/test/assets/test_inspo.png")
@@ -20,17 +20,18 @@ EXPERIMENT_RUN_NAME = "example-run"
 # +
 data_loader = GCPDatasetLoader(
     gcp_project_id=config["gcp_project_id"],
-    gcp_bucket_name=config["gcp_bucket_name"],
+    gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
     project=PROJECT,
     dataset=DATASET,
-    eval_dir_local="eval_data",
+    eval_dir_local="local_experiment_inputs",
 )
 
 generator = ComfyGenerator(workflow_apiformat_json=WORKFLOW_APIFORMAT_JSON)
-experiment_handler = GCPTensorboardHandler(
+
+experiment_handler = GCPExperimentHandler(
     gcp_project_id=config["gcp_project_id"],
-    location=config["gcp_location"],
-    bucket_name=config["gcp_bucket_name"],
+    gcp_bq_experiment_dataset=config["gcp_bq_experiment_dataset"],
+    gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
 )
 
 object_dir = "test/test_project/mock/input/"
