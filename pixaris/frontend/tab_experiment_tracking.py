@@ -14,6 +14,7 @@ def render_experiment_tracking_tab(
         with gr.Row(scale=8):
             PROJECTS_DICT = experiment_handler.load_projects_and_datasets()
             PROJECTS = [""] + list(PROJECTS_DICT.keys())
+
             project_name = gr.Dropdown(
                 choices=PROJECTS,
                 value="",
@@ -121,14 +122,11 @@ def render_experiment_tracking_tab(
                 gr.Markdown("No experiment chosen.")
             else:
                 for experiment_name in experiments:
-                    experiment_images = os.listdir(
-                        os.path.join(
-                            results_directory,
-                            project_name,
-                            dataset,
-                            experiment_name,
-                            "images",
-                        )
+                    experiment_images = experiment_handler.load_images_for_experiment(
+                        project=project_name,
+                        dataset=dataset,
+                        experiment_run_name=experiment_name,
+                        results_directory=results_directory,
                     )
                     gr.Gallery(
                         value=experiment_images,

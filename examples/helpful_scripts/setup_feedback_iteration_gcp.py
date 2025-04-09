@@ -23,7 +23,7 @@ def initialise_iteration_in_bigquery(
     gcp_feedback_handler = BigqueryFeedbackHandler(
         gcp_project_id=config["gcp_project_id"],
         gcp_bq_feedback_table=config["gcp_bq_feedback_table"],
-        gcp_feedback_bucket=config["gcp_feedback_bucket"],
+        gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
     )
 
     # for each image, create the upload entry in feedback table
@@ -47,7 +47,7 @@ def upload_images_to_bucket(
     Upload images to GCP bucket.
     """
     storage_client = storage.Client(project=config["gcp_project_id"])
-    bucket = storage_client.bucket(config["gcp_feedback_bucket"])
+    bucket = storage_client.bucket(config["gcp_pixaris_bucket_name"])
 
     for filename in image_names:
         if filename.endswith((".jpg", ".jpeg", ".png", ".tif")):
