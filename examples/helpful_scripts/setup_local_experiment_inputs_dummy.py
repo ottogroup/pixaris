@@ -2,7 +2,7 @@
 
 # Example: We want to generate backgrounds for photos of products with ComfyUI. We need an input and a mask image for the workflows we want to evaluate. In our ComfyUI workflow, the corresponding nodes are called "Load Input Image" and "Load Mask Image" (see [here](test/assets/test-background-generation.png)). In our dataset, these are loaded from the folders "input" and "mask". Make sure that folder names in the eval set and the node titles in the workflow fit. The dataset directory has the following structure:
 # ```
-# eval_data
+# local_experiment_inputs
 # └───dataset_name
 #     ├───input
 #     │   ├───image_01.jpg
@@ -92,9 +92,9 @@ for img_name in img_names:
 # +
 # # copy to eval_data directory so that we can create masks
 
-eval_data_directory = "../eval_data"
-project_name = "test_project"
-dataset_name = "eval_dataset"
+eval_data_directory = "../local_experiment_inputs"
+project_name = "dummy_project"
+dataset_name = "dummy_dataset"
 
 dataset_directory = os.path.join(eval_data_directory, dataset_name)
 os.makedirs(dataset_directory, exist_ok=True)
@@ -142,5 +142,5 @@ for input_img_name in img_names:
 # +
 # all good? Then upload to bucket
 
-bucket_name = config["gcp_bucket_name"]
+bucket_name = config["gcp_pixaris_bucket_name"]
 # !gsutil -m cp -r {eval_data_directory} gs://{bucket_name}/

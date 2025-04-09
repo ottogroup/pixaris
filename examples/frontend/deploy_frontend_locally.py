@@ -4,6 +4,7 @@ from pixaris.frontend.main import launch_ui
 from pixaris.experiment_handlers.local import LocalExperimentHandler
 import yaml
 
+
 # To create dummy data for the frontend: examples/frontend/create_dummy_data_for_frontend.py
 
 config = yaml.safe_load(open("pixaris/config.yaml"))
