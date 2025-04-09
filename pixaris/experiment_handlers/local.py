@@ -149,3 +149,6 @@ class LocalExperimentHandler(ExperimentHandler):
             except ValueError:
                 pass
         return pd.DataFrame()
+
+    def load_images_for_experiment(self):
+        pass # todo

@@ -11,12 +11,12 @@ class BigqueryFeedbackHandler(FeedbackHandler):
         self,
         gcp_project_id: str,
         gcp_bq_feedback_table: str,
-        gcp_feedback_bucket: str,
+        gcp_pixaris_bucket_name: str,
         local_feedback_directory: str = "local_results",
     ):
         self.gcp_project_id = gcp_project_id
         self.gcp_bq_feedback_table = gcp_bq_feedback_table
-        self.gcp_feedback_bucket = gcp_feedback_bucket
+        self.gcp_pixaris_bucket_name = gcp_pixaris_bucket_name
         os.makedirs(local_feedback_directory, exist_ok=True)
         self.local_feedback_directory = local_feedback_directory
         self.feedback_df = None
@@ -155,7 +155,7 @@ class BigqueryFeedbackHandler(FeedbackHandler):
 
         # add paths for images to df (local and GCS bucket)
         df["image_path_bucket"] = (
-            df["project"] + "/" + df["feedback_iteration"] + "/" + df["image_name"]
+            "results/" + df["project"] + "/feedback_iterations/" + df["feedback_iteration"] + "/" + df["image_name"]
         )
         df["image_path_local"] = (
             f"{self.local_feedback_directory}/"
@@ -214,7 +214,7 @@ class BigqueryFeedbackHandler(FeedbackHandler):
         image_path_local: str,
     ) -> None:
         storage_client = storage.Client(project=self.gcp_project_id)
-        bucket = storage_client.bucket(self.gcp_feedback_bucket)
+        bucket = storage_client.bucket(self.gcp_pixaris_bucket_name)
 
         # download image if possible, otherwise fill with white placeholder image
         try:

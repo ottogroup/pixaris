@@ -55,7 +55,7 @@ if __name__ == "__main__":
     # feedback_handler = BigqueryFeedbackHandler(
     #     gcp_project_id=config["gcp_project_id"],
     #     gcp_bq_feedback_table=config["gcp_bq_feedback_table"],
-    #     gcp_feedback_bucket=config["gcp_feedback_bucket"],
+    #     gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
     # )
     experiment_handler = LocalExperimentHandler()  # TODO use BigqueryExperimentTracker
 
