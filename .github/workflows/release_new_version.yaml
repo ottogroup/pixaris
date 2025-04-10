@@ -106,4 +106,6 @@ jobs:
       - name: Install dependencies
         run: make install
       - name: Publish to PyPI
-        run: poetry publish --build
+        run: poetry build
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
