@@ -9,7 +9,7 @@ from pixaris.experiment_handlers.base import ExperimentHandler
 def launch_ui(
     feedback_handler: FeedbackHandler,
     experiment_handler: ExperimentHandler,
-    results_directory="local_experiment_results/",
+    results_directory="local_results/",
     server_name="localhost",
 ):
     """
