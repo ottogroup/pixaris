@@ -45,7 +45,7 @@ jobs:
 
   build-documentation:
     runs-on: ubuntu-latest
-    permissions: 
+    permissions:
       contents: read
       id-token: write
     concurrency: ci-${{ github.ref }}
@@ -79,7 +79,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    permissions: 
+    permissions:
       id-token: write
       pages: write
     needs: build-documentation
@@ -87,7 +87,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-      
+
   deploy-pypi:
     runs-on: ubuntu-latest
     permissions:
@@ -106,6 +106,4 @@ jobs:
       - name: Install dependencies
         run: make install
       - name: Publish to PyPI
-        env:
-          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
         run: poetry publish --build
