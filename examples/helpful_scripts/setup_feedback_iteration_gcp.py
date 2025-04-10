@@ -51,7 +51,7 @@ def upload_images_to_bucket(
 
     for filename in image_names:
         if filename.endswith((".jpg", ".jpeg", ".png", ".tif")):
-            blob = bucket.blob(f"results/{project}/{feedback_iteration}/{filename}")
+            blob = bucket.blob(f"results/{project}/feedback_iterations/{feedback_iteration}/{filename}")
             blob.upload_from_filename(os.path.join(images_directory, filename))
             print(f"Uploaded {filename} to {feedback_iteration}")
 
