@@ -4,6 +4,8 @@ from PIL import Image
 
 
 class ExperimentHandler:
+    """When implementing a new Experiment Handler, inherit from this one and implement all the abstract methods."""
+
     @abstractmethod
     def store_results(
         self,
