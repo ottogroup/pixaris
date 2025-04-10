@@ -151,4 +151,4 @@ class LocalExperimentHandler(ExperimentHandler):
         return pd.DataFrame()
 
     def load_images_for_experiment(self):
-        pass # todo
+        pass  # todo
