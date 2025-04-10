@@ -3,45 +3,38 @@ import os
 
 os.environ["DEV_MODE"] = "true"
 from pixaris.data_loaders.gcp import GCPDatasetLoader
-from pixaris.experiment_handlers.gcp_bucket import GCPBucketExperimentHandler
+from pixaris.experiment_handlers.gcp import GCPExperimentHandler
 from pixaris.generation.comfyui_cluster import ComfyClusterGenerator
 from pixaris.orchestration.kubernetes import pixaris_orchestration_kubernetes_locally
 import yaml
 import json
 from PIL import Image
-from datetime import datetime
 
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
-PROJECT = "test_project"
-DATASET = "test_dataset"
+PROJECT = "dummy_project"
+DATASET = "dummy_dataset"
 with open(os.getcwd() + "/test/assets/test-background-generation.json", "r") as file:
     WORKFLOW_APIFORMAT_JSON = json.load(file)
 WORKFLOW_PILLOW_IMAGE = Image.open(
     os.getcwd() + "/test/assets/test-background-generation.png"
 )
-EXPERIMENT_RUN_NAME = "example-run"
-current_time = datetime.now().strftime("%y%m%d_%H%M")
-BUCKET_RESULTS_PATH = f"pickled_results/{DATASET}/{current_time}_{EXPERIMENT_RUN_NAME}"
-print(BUCKET_RESULTS_PATH)
-BUCKET_NAME = config["gcp_bucket_name"]
-
+EXPERIMENT_RUN_NAME = "example-cluster-run"
 
 # +
 data_loader = GCPDatasetLoader(
     gcp_project_id=config["gcp_project_id"],
-    gcp_bucket_name=config["gcp_bucket_name"],
+    gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
     project=PROJECT,
     dataset=DATASET,
-    eval_dir_local="eval_data",
+    eval_dir_local="local_experiment_inputs",
 )
 
 generator = ComfyClusterGenerator(workflow_apiformat_json=WORKFLOW_APIFORMAT_JSON)
 
-experiment_handler = GCPBucketExperimentHandler(
+experiment_handler = GCPExperimentHandler(
     gcp_project_id=config["gcp_project_id"],
-    location=config["gcp_location"],
-    bucket_name=BUCKET_NAME,
-    bucket_results_path=BUCKET_RESULTS_PATH,
+    gcp_bq_experiment_dataset=config["gcp_bq_experiment_dataset"],
+    gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
 )
 
 args = {
@@ -64,8 +57,3 @@ pixaris_orchestration_kubernetes_locally(
     args=args,
     auto_scale=True,
 )
-
-# BUG
-# currently the gcp_tensorboard experiment_handler is not working on the kubernetes cluster. So we have build the folllwoing workaround:"""
-if False:
-    experiment_handler.upload_experiment_from_bucket_to_tensorboard()

@@ -17,11 +17,15 @@ args = {
     "pillow_images": [
         {
             "node_name": "Load Input Image",
-            "pillow_image": Image.open("eval_data/test_dataset/input/model_01.png"),
+            "pillow_image": Image.open(
+                "local_experiment_inputs/dummy_project/dummy_dataset/input/model_01.png"
+            ),
         },
         {
             "node_name": "Load Mask Image",
-            "pillow_image": Image.open("eval_data/test_dataset/mask/model_01.png"),
+            "pillow_image": Image.open(
+                "local_experiment_inputs/ummy_project/dummy_dataset/mask/model_01.png"
+            ),
         },
     ],
     "generation_params": [],

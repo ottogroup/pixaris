@@ -11,14 +11,14 @@ class LocalDatasetLoader(DatasetLoader):
     Attributes:
         project (str): The name of the project containing the evaluation set.
         dataset (str): The name of the evaluation set to load images for.
-        eval_dir_local (str): The local directory where evaluation images are saved. Defaults to "eval_data".
+        eval_dir_local (str): The local directory where evaluation images are saved. Defaults to "local_experiment_inputs".
     """
 
     def __init__(
         self,
         project: str,
         dataset: str,
-        eval_dir_local: str = "eval_data",
+        eval_dir_local: str = "local_experiment_inputs",
     ):
         self.dataset = dataset
         self.project = project
