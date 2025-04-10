@@ -49,7 +49,7 @@ def generate_images_based_on_dataset(
     This function loads a dataset using the provided data loader, generates images
     using the provided image generator, and stores the results using the provided
     experiment handler.
-    
+
     :param data_loader: An instance of DatasetLoader to load the dataset.
     :type data_loader: DatasetLoader
     :param image_generator: An instance of ImageGenerator to generate images.
@@ -129,7 +129,7 @@ def generate_images_for_hyperparameter_search_based_on_dataset(
     generates a grid of hyperparameter combinations, and then generates images
     for each combination using the provided data loader, image generator, and
     experiment handler.
-    
+
     :param data_loader: The data loader to load the evaluation set.
     :type data_loader: DatasetLoader
     :param image_generator: The image generator to generate images.

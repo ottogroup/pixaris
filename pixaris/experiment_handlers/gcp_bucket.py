@@ -21,7 +21,7 @@ class GCPBucketExperimentHandler(ExperimentHandler):
         :type gcp_project_id: str
         :param location: The Google Cloud location.
         :type location: str
-        :param bucket_name: The name of the Google Cloud Storage bucket to store the workflow image. 
+        :param bucket_name: The name of the Google Cloud Storage bucket to store the workflow image.
             If None, the workflow image will not be stored in a bucket.
         :type bucket_name: str
         :param bucket_results_path: Path in the bucket where results will be stored.
@@ -63,7 +63,7 @@ class GCPBucketExperimentHandler(ExperimentHandler):
     ):
         """
         Saves pickled results to a bucket.
-        
+
         :param experiment_run_name: The name of the experiment run.
         :type experiment_run_name: str
         :param results: The pickled results to be saved.

@@ -9,10 +9,10 @@ class ComfyGenerator(ImageGenerator):
     """
     ComfyGenerator is a class that extends the ImageGenerator class to provide functionality for generating images using a specified workflow and API host.
     It uses the ComfyUI API to generate images based on the provided workflow and input parameters.
-    
+
     :param workflow_apiformat_json: The workflow file in API format.
     :type workflow_apiformat_json: dict
-    :param api_host: The API host URL. For local experimenting, put "localhost:8188". 
+    :param api_host: The API host URL. For local experimenting, put "localhost:8188".
       There has to be a tunnel to a running comfyUI instance active on port 8188
     :type api_host: str
     """
@@ -33,7 +33,7 @@ class ComfyGenerator(ImageGenerator):
         """
         Gets a unique int for an image calculated from image name and hash. This is needed to have a unique
         seed for the experiments but have the same seed for the same image in different experiments.
-        
+
         :param pillow_image: The PIL image.
         :type pillow_image: Image.Image
         :return: The unique integer for the image.
@@ -53,7 +53,7 @@ class ComfyGenerator(ImageGenerator):
     ) -> str:
         """
         Validates the workflow file to ensure that it is in the correct format.
-        
+
         :param dataset: A list of dictionaries containing the images to be loaded.
         :type dataset: List[dict[str, List[dict[str, Image.Image]]]
         :param parameters: A list of dictionaries containing the parameters to be used for the image generation process.
@@ -144,25 +144,25 @@ class ComfyGenerator(ImageGenerator):
         # Todo: change the docstring format when this issue is closed: https://github.com/sphinx-doc/sphinx/issues/4220
         """
         Generates a single image based on the provided arguments. For this it modifies and executed the workflow to generate the image.
-        
+
         :param args: A dictionary containing the following keys:
         * "workflow_apiformat_json" (dict): The workflow file in JSON apiformat.
         * "pillow_images" (list[dict]): A dict of [str, Image.Image].
           The keys should be Node names
           The values should be the PIL Image objects to be loaded.
           Should look like this::
-          
+
           "pillow_images": [{
           "node_name": "Load Input Image",
           "pillow_image": Image.new("RGB", (100, 100), color="red")}]
         * "generation_params" (list[dict]): A dictionary of generation_params for the image generation process.
           Should look like this::
-        
+
           "generation_params": [{
           "node_name": "GroundingDinoSAMSegment (segment anything)",
           "input": "prompt",
           "value": "model, bag, hair"}]
-          
+
         :rtype args: dict[str, any]
         :return: The generated image and its name
         :rtype: tuple[Image.Image, str]

@@ -5,7 +5,7 @@ def normalize_image(image: Image, max_size=(1024, 1024)) -> Image:
     """
     Normalize the given image by placing it on a white background, scaling it while preserving aspect ratio,
       and returning the resulting image.
-    
+
     :param image: The input image to be normalized.
     :type image: PIL.Image.Image
     :param max_size: The maximum size of the output image, defaults to (1024, 1024).

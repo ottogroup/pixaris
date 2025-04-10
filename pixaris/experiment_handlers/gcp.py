@@ -23,6 +23,7 @@ class GCPExperimentHandler(ExperimentHandler):
     :type gcp_pixaris_bucket_name: str
     :type ExperimentHandler: _type_
     """
+
     def __init__(
         self,
         gcp_project_id: str,
@@ -256,7 +257,7 @@ class GCPExperimentHandler(ExperimentHandler):
     ):
         """
         Store generated images in the Google Cloud Storage bucket.
-        
+
         :param image_name_pairs: An iterable of tuples containing PIL Image objects and their corresponding names.
         :type image_name_pairs: Iterable[tuple[Image.Image, str]]
         """
