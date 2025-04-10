@@ -204,7 +204,8 @@ class GCPFeedbackHandler(FeedbackHandler):
 
         # get relevant data for this feedback iteration
         iteration_df = self.feedback_df.loc[
-            self.feedback_df["feedback_iteration"] == feedback_iteration
+            (self.feedback_df["feedback_iteration"] == feedback_iteration) # only this feedback iteration
+            & (self.feedback_df["dataset"] != "") # only the entries of initialisation
         ].copy()
 
         # download images
@@ -217,7 +218,7 @@ class GCPFeedbackHandler(FeedbackHandler):
                 self._download_image(image_path_bucket, image_path_local)
 
         print("Done.")
-        return iteration_df["image_path_local"].unique().tolist()
+        return iteration_df["image_path_local"].tolist()
 
     def _download_image(
         self,
