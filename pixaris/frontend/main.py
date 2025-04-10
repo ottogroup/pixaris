@@ -27,7 +27,6 @@ def launch_ui(
         ),
         analytics_enabled=False,
     ) as demo:
-
         with gr.Tab("Experiment Tracking"):
             render_experiment_tracking_tab(
                 experiment_handler=experiment_handler,
