@@ -14,7 +14,7 @@ class IoUMetric(BaseMetric):
     def _iou(self, image1, image2) -> float:
         """
         Calculate the Intersection over Union (IoU) of two binary images.
-        
+
         :param image1: The first binary image.
         :type image1: Image.Image
         :param image2: The second binary image.

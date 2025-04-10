@@ -11,10 +11,11 @@ import pandas as pd
 class LocalExperimentHandler(ExperimentHandler):
     """
     LocalExperimentHandler is a class that handles the storage and retrieval of experiment results locally.
-    
+
     :param local_results_folder: The root folder where the experiment subfolder is located. Defaults to 'local_results'.
     :type local_results_folder: str, optional
     """
+
     def __init__(self, local_results_folder: str = "local_results"):
         """
         Initialize the LocalExperimentHandler.
@@ -115,10 +116,10 @@ class LocalExperimentHandler(ExperimentHandler):
     ):
         """
         Load the projects and datasets from the local results folder.
-        
-        :return: A dictionary containing the projects and datasets. 
-          Example:: 
-          
+
+        :return: A dictionary containing the projects and datasets.
+          Example::
+
           {"project": ["dataset1", "dataset2"]}
         :rtype: dict[str, list[str]]
         """

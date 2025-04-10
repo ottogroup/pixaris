@@ -18,7 +18,7 @@ class ComfyClusterGenerator(ImageGenerator):
     """
     Cluster to run Comfy workflows. It will automatically fetch available hosts, initiate a new ComfyGenerator for each and distribute the workflows to them.
     If the environment variable DEV_MODE is set to true, it will run the workflows locally and it uses localhost:8188.
-    
+
     :param workflow_apiformat_json: The path to the workflow file in API format. (ABSOLUTE PATH)!
     :type workflow_apiformat_json: str
     """
@@ -70,7 +70,7 @@ class ComfyClusterGenerator(ImageGenerator):
 
     def update_available_hosts(self):
         """
-        Update the available hosts by fetching the IPs of the pods and checking if the Comfy UI is running on them. 
+        Update the available hosts by fetching the IPs of the pods and checking if the Comfy UI is running on them.
         Use mutex to avoid conflicts.
         """
         available_hosts = self._fetch_available_hosts()
@@ -148,7 +148,7 @@ class ComfyClusterGenerator(ImageGenerator):
     ) -> str:
         """
         Creates a dummy generator and then calls ComfyGenerator's validate_inputs_and_parameters method.
-        
+
         :param dataset: A list of dictionaries containing the images to be loaded.
         :type dataset: List[dict[str, List[dict[str, Image.Image]]]
         :param parameters: A list of dictionaries containing the parameters to be used for the image generation process.
@@ -164,25 +164,25 @@ class ComfyClusterGenerator(ImageGenerator):
         """
         Generates a single image based on the provided arguments. For this it searches for a host, initialises a ComfyGenerator,
         and lets it modify and execute the workflow to generate the image.
-        
+
         :param args: A dictionary containing the following keys:
         * "workflow_apiformat_json" (str): The path to the workflow file in API format. (ABSOLUTE PATH)!
         * "pillow_images" (list[dict]): A dict of [str, Image.Image].
           The keys should be Node names
           The values should be the PIL Image objects to be loaded.
           Should look like this::
-    
+
           "pillow_images": [{
           "node_name": "Load Input Image",
           "pillow_image": Image.new("RGB", (100, 100), color="red"),}]
-        
+
         * "generation_params" (list[dict]): A dictionary of generation_params for the image generation process.
           Should look like this::
-    
+
           "generation_params": [{"node_name": "GroundingDinoSAMSegment (segment anything)",
           "input": "prompt",
           "value": "model, bag, hair"}],
-        
+
         :rtype args: dict[str, any]
         :return: The generated image.
         :rtype: tuple[Image.Image, str]

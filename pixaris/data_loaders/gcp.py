@@ -145,9 +145,9 @@ class GCPDatasetLoader(DatasetLoader):
         Returns all images in the evaluation set as an iterator of dictionaries containing PIL Images.
 
         :return: list of dicts containing data loaded from the bucket.
-            The key will always be "pillow_images". 
-            The value is a dict mapping node names to PIL Image objects. 
-            This dict has a key for each directory in the image_dirs list representing a Node Name. 
+            The key will always be "pillow_images".
+            The value is a dict mapping node names to PIL Image objects.
+            This dict has a key for each directory in the image_dirs list representing a Node Name.
         :rtype: List[dict[str, List[dict[str, Image.Image]]]]:
         """
         self._download_dataset()

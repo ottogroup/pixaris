@@ -6,7 +6,7 @@ def expand_hyperparameters(params: list[dict]):
     Expands a list of hyperparameters to a list of dictionaries, each containing a single value.
     This will be used to check if each possible hyperparameter is valid.
     Not using generate_hyperparameter_grid to save time and noch check hyperparameter multiple times
-    
+
     :param params: A list of dictionaries where each dictionary represents a hyperparameter with keys "node_name", "input"
       and "value". The "value" key should have a list of possible values for that hyperparameter.
     :type params: list[dict]
@@ -34,7 +34,7 @@ def generate_hyperparameter_grid(
     :param params: A list of dictionaries where each dictionary represents a hyperparameter with keys "node_name", "input"
       and "value". The "value" key should have a list of possible values for that hyperparameter.
     :type params: list[dict]
-    :return: list of dictionaries containing a single value. Length of the list is the product of all values 
+    :return: list of dictionaries containing a single value. Length of the list is the product of all values
       in the hyperparameters
     :rtype: list[dict]
     """

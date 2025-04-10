@@ -5,7 +5,7 @@ from PIL import Image
 def dict_mean(input_dict_list: Iterable[dict]) -> dict:
     """
     Calculate the mean value for each key in a list of dictionaries.
-    
+
     :param input_dict_list: A list of dictionaries with the same keys.
     :type input_dict_list: Iterable[dict]
     :return: A dictionary with the mean values for each key.
@@ -27,7 +27,7 @@ def normalize_image(image: Image.Image, max_size=(1024, 1024)) -> Image.Image:
     """
     Normalize the given image by placing it on a white background, scaling it while preserving aspect ratio,
     and returning the resulting image.
-    
+
     :param image: The image to normalize.
     :type image: PIL.Image.Image
     :param max_size: The maximum size of the resulting image. Defaults to (1024, 1024).

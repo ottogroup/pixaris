@@ -15,6 +15,7 @@ class ComfyWorkflow:
     It also provides methods to check the status of the workflow and download images.
     It is designed to work with the ComfyUI API and requires the API host and workflow in JSON format.
     """
+
     api_host = ""
     workflow_apiformat_json = {}
     last_history = {}
@@ -29,7 +30,7 @@ class ComfyWorkflow:
     def _remove_preview_images(self, workflow_apiformat_json: dict) -> dict:
         """
         Remove all nodes of class type "PreviewImage" from the workflow.
-        
+
         :parm workflow_apiformat_json: The workflow file in JSON format.
         :type workflow_apiformat_json: dict
         :return: The workflow file with all nodes of class type "PreviewImage" removed.

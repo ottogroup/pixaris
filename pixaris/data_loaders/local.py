@@ -6,9 +6,9 @@ from PIL import Image
 
 class LocalDatasetLoader(DatasetLoader):
     """
-    LocalDatasetLoader is a class for loading datasets from a local directory. 
+    LocalDatasetLoader is a class for loading datasets from a local directory.
         Upon initialisation, the dataset is loaded from the local directory.
-    
+
     :param project: The name of the project containing the evaluation set.
     :type project: str
     :param dataset: The name of the evaluation set to load images for.
@@ -16,7 +16,6 @@ class LocalDatasetLoader(DatasetLoader):
     :param eval_dir_local: The local directory where evaluation images are saved. Defaults to "local_experiment_inputs".
     :type eval_dir_local: str
     """
-    
 
     def __init__(
         self,

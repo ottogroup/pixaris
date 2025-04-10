@@ -11,7 +11,7 @@ from vertexai.preview.vision_models import ImageGenerationModel
 class Imagen2ImageGenerator(ImageGenerator):
     """
     ImagenGenerator is a class that generates images using the Google Gemini API.
-    
+
     :param gcp_project_id: The Google Cloud Platform project ID.
     :type gcp_project_id: str
     :param gcp_location: The Google Cloud Platform location.

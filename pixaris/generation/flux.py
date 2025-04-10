@@ -13,6 +13,7 @@ class FluxFillGenerator(ImageGenerator):
     FluxFillGenerator is responsible for generating images using the Flux API,
     specifically the fill model, which needs an image and a mask as input.
     """
+
     def validate_inputs_and_parameters(
         self,
         dataset: List[dict[str, List[dict[str, Image.Image]]]] = [],
@@ -62,7 +63,7 @@ class FluxFillGenerator(ImageGenerator):
     ) -> Image.Image:
         """
         Generates images using the Flux API and checks the status until the image is ready.
-        
+
         :param pillow_images: A list of dictionaries containing pillow images and mask images.
           Example:: [{'node_name': 'Load Input Image', 'pillow_image': <PIL.Image>}, {'node_name': 'Load Mask Image', 'pillow_image': <PIL.Image>}]
         :type pillow_images: List[dict]
