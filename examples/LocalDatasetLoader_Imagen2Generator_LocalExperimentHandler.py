@@ -1,6 +1,6 @@
 from pixaris.data_loaders.local import LocalDatasetLoader
 from pixaris.experiment_handlers.local import LocalExperimentHandler
-from pixaris.generation.comfyui import ComfyGenerator
+from pixaris.generation.imagen2 import Imagen2ImageGenerator
 from pixaris.orchestration.base import generate_images_based_on_dataset
 import os
 import yaml
@@ -16,15 +16,19 @@ WORKFLOW_PILLOW_IMAGE = Image.open(
     os.getcwd() + "/test/assets/test-background-generation.png"
 )
 EXPERIMENT_RUN_NAME = "example-run"
+PROMPT = "A beautiful image of a moon"
 
 # +
 data_loader = LocalDatasetLoader(
     project=PROJECT,
     dataset=DATASET,
-    eval_dir_local="test",
+    eval_dir_local="local_experiment_inputs",
 )
 
-generator = ComfyGenerator(workflow_apiformat_json=WORKFLOW_APIFORMAT_JSON)
+generator = Imagen2ImageGenerator(
+    gcp_project_id=config["gcp_project_id"],
+    gcp_location=config["gcp_location"],
+)
 
 experiment_handler = LocalExperimentHandler()
 

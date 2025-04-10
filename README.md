@@ -92,15 +92,15 @@ First step: load your dataset using a `DatasetLoader`. If you have your data in 
 from pixaris.data_loaders.gcp import GCPDatasetLoader
 loader = GCPDatasetLoader(
     gcp_project_id=<your gcp_project_id here>,
-    gcp_bucket_name=<your gcp_bucket_name here>,
+    gcp_pixaris_bucket_name=<your gcp_pixaris_bucket_name here>,
     project=<your project_name here>
     dataset=<your eval_dir here>,
-    eval_dir_local="eval_data", # this is the local path where all your datasets are stored
+    eval_dir_local="local_experiment_inputs", # this is the local path where all your datasets are stored
 )
 ```
 Alternatively, you can  use the `LocalDatasetLoader` if you have your `dataset` saved locally, or implement your own `DatasetLoader` with whatever requirements and tools you have. A `DatasetLoader` should return a dataset that can be parsed by an `ImageGenerator`.
 
-Information on how what an `dataset` consists of and how you can create one can be found [here](examples/helpful_scripts/setup_local_eval_dataset.py).
+Information on how what an `dataset` consists of and how you can create one can be found [here](examples/helpful_scripts/setup_local_experiment_inputs_dummy.py).
 
 ### Setting up how you are generating images
 We implemented a neat `ImageGenerator` that uses ComfyUI.
@@ -119,7 +119,7 @@ from pixaris.experiment_handlers.gcp_tensorboard import GCPTensorboardHandler
 handler = GCPTensorboardHandler(
     gcp_project_id=<your gcp_project_id here>,
     location=<your gcp_location here>,
-    bucket_name=<your gcp_bucket_name here>,
+    bucket_name=<your gcp_pixaris_bucket_name here>,
 )
 ```
 Alternatively, you can choose to save your results locally using the `LocalExperimentHandler` or implement your own class that inherits from the `ExperimentHandler`. Usually, it would save images and possibly metrics from your experiment. If you use the `LocalExperimentHandler`, you store your results locally and continue working with the JSON outputs. However, you can only look at the generated images one by one and miss out on one of our favorite features of Pixaris: That you can directly compare images from different experiment runs.

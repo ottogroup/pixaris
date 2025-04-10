@@ -53,10 +53,10 @@ def create_feedback_iteration(
 
 # ### Create Feedback Iteration
 
-project = "mock"
+project = "dummy_project"
 feedback_iteration = "test_feedback_iteration_01"
 images_directory = (
-    "/home/fidelius/tiga_pixaris/local_results/mock/example-run_20250401-115520"
+    "local_results/dummy_project/dummy_datatet/example-run_20250401-115520"
 )
 
 create_feedback_iteration(

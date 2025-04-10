@@ -13,13 +13,13 @@ class GCPDatasetLoader(DatasetLoader):
 
     :param gcp_project_id: The Google Cloud Platform project ID.
     :type gcp_project_id: str
-    :param gcp_bucket_name: The name of the Google Cloud Storage bucket.
-    :type gcp_bucket_name: str
+    :param gcp_pixaris_bucket_name: The name of the Google Cloud Storage bucket.
+    :type gcp_pixaris_bucket_name: str
     :param project: The name of the project containing the evaluation set.
     :type project: str
     :param dataset: The name of the evaluation set to download images for.
     :type dataset: str
-    :param eval_dir_local: The local directory where evaluation images will be saved. Defaults to "eval_data".
+    :param eval_dir_local: The local directory where evaluation images will be saved. Defaults to "local_experiment_inputs".
     :type eval_dir_local: str
     :param force_download: Whether to force download the images even if they already exist locally. Defaults to False.
     :type force_download: bool
@@ -28,14 +28,14 @@ class GCPDatasetLoader(DatasetLoader):
     def __init__(
         self,
         gcp_project_id: str,
-        gcp_bucket_name: str,
+        gcp_pixaris_bucket_name: str,
         project: str,
         dataset: str,
-        eval_dir_local: str = "eval_data",
+        eval_dir_local: str = "local_experiment_inputs",
         force_download: bool = True,
     ):
         self.gcp_project_id = gcp_project_id
-        self.bucket_name = gcp_bucket_name
+        self.bucket_name = gcp_pixaris_bucket_name
         self.project = project
         self.dataset = dataset
         self.eval_dir_local = eval_dir_local
@@ -74,10 +74,14 @@ class GCPDatasetLoader(DatasetLoader):
         :raises: ValueError: If no files are found in the specified directory in the bucket.
         """
         # List the blobs in the bucket. If no blobs are found, raise an error.
-        blobs = list(self.bucket.list_blobs(prefix=f"{self.project}/{self.dataset}/"))
+        blobs = list(
+            self.bucket.list_blobs(
+                prefix=f"experiment_inputs/{self.project}/{self.dataset}/"
+            )
+        )
         if not blobs:
             raise ValueError(
-                f"No images found in bucket or bucket does not exist. Please double-check gs://{self.bucket_name}/{self.project}/{self.dataset}/."
+                f"No images found in bucket or bucket does not exist. Please double-check gs://{self.bucket_name}/experiment_inputs/{self.project}/{self.dataset}/."
             )
 
     def _decide_if_download_needed(self):
@@ -106,13 +110,20 @@ class GCPDatasetLoader(DatasetLoader):
         Downloads all files from a specified directory in a Google Cloud Storage bucket to a local directory.
         """
         # Download the blobs to the local directory
-        blobs = self.bucket.list_blobs(prefix=f"{self.project}/{self.dataset}/")
+        blobs = self.bucket.list_blobs(
+            prefix=f"experiment_inputs/{self.project}/{self.dataset}/"
+        )
         blob_names = [
             blob.name for blob in blobs if not blob.name.endswith("/")
         ]  # exclude directories
+
+        # remove experiment_inputs/ from the blob names
+        blob_names = [name.replace("experiment_inputs/", "") for name in blob_names]
+
         results = transfer_manager.download_many_to_path(
             self.bucket,
             blob_names,
+            blob_name_prefix="experiment_inputs/",
             destination_directory=os.path.join(self.eval_dir_local),
             worker_type=transfer_manager.THREAD,
         )
