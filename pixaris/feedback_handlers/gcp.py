@@ -157,6 +157,8 @@ class GCPFeedbackHandler(FeedbackHandler):
         df["image_path_bucket"] = (
             "results/"
             + df["project"]
+            + "/"
+            + df["dataset"]
             + "/feedback_iterations/"
             + df["feedback_iteration"]
             + "/"
