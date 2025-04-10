@@ -1,8 +1,8 @@
-from pixaris.feedback_handlers.gcp import GCPFeedbackHandler
-from pixaris.feedback_handlers.local import LocalFeedbackHandler
 from pixaris.frontend.main import launch_ui
-from pixaris.experiment_handlers.local import LocalExperimentHandler
+from pixaris.feedback_handlers.gcp import GCPFeedbackHandler
 from pixaris.experiment_handlers.gcp import GCPExperimentHandler
+# from pixaris.feedback_handlers.local import LocalFeedbackHandler
+# from pixaris.experiment_handlers.local import LocalExperimentHandler
 import yaml
 
 
