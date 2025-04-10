@@ -141,10 +141,7 @@ def generate_images_for_hyperparameter_search_based_on_dataset(
     :param args: A dictionary of arguments, including:
     * "workflow_apiformat_json" (str): The path to the workflow file in API format.
     * "hyperparameters" list(dict): A dictionary of hyperparameters to search.
-      each entry should contain the following keys:
-        * "node_name" (str): The name of the node to adjust.
-        * "input" (str): The input to adjust.
-        * "value" (list): A list of values to search. Each value should be a valid input for the node.
+      Each element of the list should be compatible with the generation parameters, that the image_generator takes as an input.
     * "experiment_run_name" (str): The base name for each run.
     :type args: dict[str, any]
     :raises ValueError: If no hyperparameters are provided or if the hyperparameters are invalid.
