@@ -1,5 +1,4 @@
 import gradio as gr
-import os
 from pixaris.experiment_handlers.base import ExperimentHandler
 import pandas as pd
 
