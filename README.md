@@ -213,8 +213,6 @@ For clarity, we would like to state what terminology we use in Pixaris:
 - **Hyperparameters**: Multiple sets of different Generation Params, used in hyperparameter search.
 - **args**: Includes inputs, e.g., can include workflow apiformat, input images, generation params, save directory, etc.
 
-## License Information
-TODO....Pixaris is open-source software licensed
 
 ## Contribute
 We published this project to inspire everyone to contribute their own ideas to this project. Feel free to fork and add new data loaders, generators, experiment handlers, or metrics to Pixaris! Learn here how: https://opensource.guide/how-to-contribute/

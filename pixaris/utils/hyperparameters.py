@@ -6,8 +6,12 @@ def expand_hyperparameters(params: list[dict]):
     Expands a list of hyperparameters to a list of dictionaries, each containing a single value.
     This will be used to check if each possible hyperparameter is valid.
     Not using generate_hyperparameter_grid to save time and noch check hyperparameter multiple times
-    returns:
-    list of dictionaries containing a single value. Length of the list is the sum of all values in the hyperparameters
+
+    :param params: A list of dictionaries where each dictionary represents a hyperparameter with keys "node_name", "input"
+      and "value". The "value" key should have a list of possible values for that hyperparameter.
+    :type params: list[dict]
+    :return: list of dictionaries containing a single value. Length of the list is the sum of all values in the hyperparameters
+    :rtype: list[dict]
     """
 
     hyperparameters = [
@@ -26,16 +30,13 @@ def generate_hyperparameter_grid(
 ) -> list[list[dict]]:
     """
     Generates a grid of hyperparameter combinations.
-    Args:
-        params (list[dict]): A list of dictionaries where each dictionary
-                             represents a hyperparameter with keys "node_name",
-                             "input", and "value". The "value" key should have
-                             a list of possible values for that hyperparameter.
-    Returns:
-        list[list[dict]]: A list of lists, where each inner list represents a
-                          combination of hyperparameters. Each hyperparameter
-                          in the combination is represented as a dictionary
-                          with keys "node_name", "input", and "value".
+
+    :param params: A list of dictionaries where each dictionary represents a hyperparameter with keys "node_name", "input"
+      and "value". The "value" key should have a list of possible values for that hyperparameter.
+    :type params: list[dict]
+    :return: list of dictionaries containing a single value. Length of the list is the product of all values
+      in the hyperparameters
+    :rtype: list[dict]
     """
     value_grid = ParameterGrid(
         dict((id, param["value"]) for (id, param) in enumerate(params))

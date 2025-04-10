@@ -11,14 +11,18 @@ def upload_workflow_file_to_bucket(
     """
     Upload a file to a Google Cloud Storage bucket.
 
-    Args:
-        gcp_project_id (str): The Google Cloud project ID.
-        bucket_name (str): The name of the bucket.
-        dataset (str): The name of the evaluation set.
-        experiment_run_name (str): The name of the experiment.
-        local_file_path (str): The path to the file to upload.
-    Returns:
-        str: The path to the uploaded file in the bucket.
+    :param gcp_project_id: The Google Cloud project ID.
+    :type gcp_project_id: str
+    :param bucket_name: The name of the bucket.
+    :type bucket_name: str
+    :param dataset: The name of the evaluation set.
+    :type dataset: str
+    :param experiment_run_name: The name of the experiment.
+    :type experiment_run_name: str
+    :param local_file_path: The path to the file to upload.
+    :type local_file_path: str
+    :return: The path to the uploaded file in the bucket.
+    :rtype: str
     """
 
     storage_client = storage.Client()

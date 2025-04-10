@@ -12,6 +12,19 @@ import gradio as gr
 
 
 class GCPExperimentHandler(ExperimentHandler):
+    """
+    GCPExperimentHandler is a class for storing experiment results in Google Cloud Storage and BigQuery.
+    It is also used to retrieve the images for display.
+
+    :param gcp_project_id: The Google Cloud Platform project ID.
+    :type gcp_project_id: str
+    :param gcp_bq_experiment_dataset: The BigQuery dataset for storing experiment results.
+    :type gcp_bq_experiment_dataset: str
+    :param gcp_pixaris_bucket_name: The name of the Google Cloud Storage bucket for storing images.
+    :type gcp_pixaris_bucket_name: str
+    :type ExperimentHandler: _type_
+    """
+
     def __init__(
         self,
         gcp_project_id: str,
@@ -118,7 +131,6 @@ class GCPExperimentHandler(ExperimentHandler):
         :type key: str
         :param value: The content to upload (PIL Image or dict).
         :type value: any
-        :param project: The name of the project.
         :return: The GCS path of the uploaded file.
         :rtype: str
         """
@@ -246,6 +258,7 @@ class GCPExperimentHandler(ExperimentHandler):
     ):
         """
         Store generated images in the Google Cloud Storage bucket.
+
         :param image_name_pairs: An iterable of tuples containing PIL Image objects and their corresponding names.
         :type image_name_pairs: Iterable[tuple[Image.Image, str]]
         """

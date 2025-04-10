@@ -12,12 +12,19 @@ def __retry_internal(
     Executes a function and retries it if it failed.
 
     :param f: the function to execute.
+    :type f: callable
     :param exceptions: an exception or a tuple of exceptions to catch. default: Exception.
+    :type exceptions: BaseException
     :param tries: the maximum number of attempts. default: -1 (infinite).
+    :type tries: int
     :param delay: initial delay between attempts. default: 0.
+    :type delay: int
     :param max_delay: the maximum value of delay. default: None (no limit).
+    :type max_delay: int
     :param backoff: multiplier applied to delay between attempts. default: 1 (no backoff).
+    :type backoff: int
     :returns: the result of the f function.
+    :rtype: any
     """
     _tries, _delay = tries, delay
     while _tries:
@@ -39,11 +46,17 @@ def retry(exceptions=Exception, tries=-1, delay=0, max_delay=None, backoff=1):
     """Returns a retry decorator.
 
     :param exceptions: an exception or a tuple of exceptions to catch. default: Exception.
+    :type exceptions: BaseException
     :param tries: the maximum number of attempts. default: -1 (infinite).
+    :type tries: int
     :param delay: initial delay between attempts. default: 0.
+    :type delay: int
     :param max_delay: the maximum value of delay. default: None (no limit).
+    :type max_delay: int
     :param backoff: multiplier applied to delay between attempts. default: 1 (no backoff).
-    :returns: a retry decorator.
+    :type backoff: int
+    :return: a retry decorator.
+    :rtype: decorator
     """
 
     @decorator
