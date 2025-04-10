@@ -169,6 +169,8 @@ class GCPFeedbackHandler(FeedbackHandler):
         df["image_path_local"] = (
             f"{self.local_feedback_directory}/"
             + df["project"]
+            + "/"
+            + df["dataset"]
             + "/feedback_iterations/"
             + df["feedback_iteration"]
             + "/"

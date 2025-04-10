@@ -24,5 +24,5 @@ if __name__ == "__main__":
         feedback_handler=feedback_handler,
         experiment_handler=experiment_handler,
         server_name="0.0.0.0",
-        results_directory="/tmp/local_experiment_results/"
+        results_directory="/tmp/local_experiment_results/",
     )
