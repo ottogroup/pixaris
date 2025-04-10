@@ -6,7 +6,7 @@ import os
 from PIL import Image
 
 
-class BigqueryFeedbackHandler(FeedbackHandler):
+class GCPFeedbackHandler(FeedbackHandler):
     def __init__(
         self,
         gcp_project_id: str,
