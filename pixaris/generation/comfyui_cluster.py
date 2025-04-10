@@ -18,6 +18,9 @@ class ComfyClusterGenerator(ImageGenerator):
     """
     Cluster to run Comfy workflows. It will automatically fetch available hosts, initiate a new ComfyGenerator for each and distribute the workflows to them.
     If the environment variable DEV_MODE is set to true, it will run the workflows locally and it uses localhost:8188.
+    
+    :param workflow_apiformat_json: The path to the workflow file in API format. (ABSOLUTE PATH)!
+    :type workflow_apiformat_json: str
     """
 
     def __init__(
@@ -32,8 +35,8 @@ class ComfyClusterGenerator(ImageGenerator):
         """
         Fetch the IPs of the pods running the Comfy UI in the cluster. If the environment variable DEV_MODE is set to true, it will return localhost.
 
-        Returns:
-            list[str]: List of IPs of the pods
+        :return: List of IPs of the pods
+        :rtype: list[str]
         """
         if DEV_MODE:
             return ["127.0.0.1"]
@@ -51,8 +54,8 @@ class ComfyClusterGenerator(ImageGenerator):
         """
         Fetch the available hosts by checking if the Comfy UI is running on the pod.
 
-        Returns:
-            list[str]: List of available hosts
+        :return: List of available hosts
+        :rtype: list[str]
         """
         hosts = []
         for ip in self._fetch_pod_ips():
@@ -67,7 +70,8 @@ class ComfyClusterGenerator(ImageGenerator):
 
     def update_available_hosts(self):
         """
-        Update the available hosts by fetching the IPs of the pods and checking if the Comfy UI is running on them. Use mutex to avoid conflicts.
+        Update the available hosts by fetching the IPs of the pods and checking if the Comfy UI is running on them. 
+        Use mutex to avoid conflicts.
         """
         available_hosts = self._fetch_available_hosts()
         global mutex
@@ -83,8 +87,8 @@ class ComfyClusterGenerator(ImageGenerator):
         """
         Get an available host. If no host is available, it will wait with a exponential backoff and try again, after the 15th retry, it will raise an exception. Use mutex to avoid conflicts.
 
-        Returns:
-            str: The host to use
+        :return: The host to use
+        :rtype: str
         """
         global mutex
         for i in range(1, 15 + 1):
@@ -100,8 +104,8 @@ class ComfyClusterGenerator(ImageGenerator):
         """
         Release a host. Use mutex to avoid conflicts.
 
-        Args:
-            host (str): The host to release
+        :param host: The host to release
+        :type host: str
         """
         global mutex
         with mutex:
@@ -111,8 +115,8 @@ class ComfyClusterGenerator(ImageGenerator):
         """
         Mark a host as unresponsive. Use mutex to avoid conflicts.
 
-        Args:
-            host (str): The host to mark as unresponsive
+        :param host: The host to mark as unresponsive
+        :type host: str
         """
         global mutex
         with mutex:
@@ -144,37 +148,44 @@ class ComfyClusterGenerator(ImageGenerator):
     ) -> str:
         """
         Creates a dummy generator and then calls ComfyGenerator's validate_inputs_and_parameters method.
-        Args:
-            dataset (List[dict[str, List[dict[str, Image.Image]]]): A list of dictionaries containing the images to be loaded.
-            parameters (list[dict[str, str, any]]): A list of dictionaries containing the parameters to be used for the image generation process.
+        
+        :param dataset: A list of dictionaries containing the images to be loaded.
+        :type dataset: List[dict[str, List[dict[str, Image.Image]]]
+        :param parameters: A list of dictionaries containing the parameters to be used for the image generation process.
+        :type parameters: list[dict[str, str, any]]
+        :return: The path to the validated workflow file.
+        :rtype: str
         """
         dummy_generator = ComfyGenerator(self.workflow_apiformat_json)
         dummy_generator.validate_inputs_and_parameters(dataset, parameters)
 
     def generate_single_image(self, args: dict[str, any]) -> tuple[Image.Image, str]:
+        # Todo: change the docstring format when this issue is closed: https://github.com/sphinx-doc/sphinx/issues/4220
         """
         Generates a single image based on the provided arguments. For this it searches for a host, initialises a ComfyGenerator,
         and lets it modify and execute the workflow to generate the image.
-        Args:
-            args (dict[str, any]): A dictionary containing the following keys:
-            - "workflow_apiformat_json" (str): The path to the workflow file in API format. (ABSOLUTE PATH)!
-                    "example.json"
-            - "pillow_images" (list[dict]): A dict of [str, Image.Image].
-                    The keys should be Node names
-                    The values should be the PIL Image objects to be loaded.
-                "pillow_images": [{
-                    "node_name": "Load Input Image",
-                    "pillow_image": Image.new("RGB", (100, 100), color="red"),
-                }]
-            - "generation_params" (list[dict]): A dictionary of generation_params for the image generation process.
-                It should look like this:
-                [{
-                    "node_name": "GroundingDinoSAMSegment (segment anything)",
-                    "input": "prompt",
-                    "value": "model, bag, hair",
-                }],
-        Returns:
-            Image.Image: The generated image.
+        
+        :param args: A dictionary containing the following keys:
+        * "workflow_apiformat_json" (str): The path to the workflow file in API format. (ABSOLUTE PATH)!
+        * "pillow_images" (list[dict]): A dict of [str, Image.Image].
+          The keys should be Node names
+          The values should be the PIL Image objects to be loaded.
+          Should look like this::
+    
+          "pillow_images": [{
+          "node_name": "Load Input Image",
+          "pillow_image": Image.new("RGB", (100, 100), color="red"),}]
+        
+        * "generation_params" (list[dict]): A dictionary of generation_params for the image generation process.
+          Should look like this::
+    
+          "generation_params": [{"node_name": "GroundingDinoSAMSegment (segment anything)",
+          "input": "prompt",
+          "value": "model, bag, hair"}],
+        
+        :rtype args: dict[str, any]
+        :return: The generated image.
+        :rtype: tuple[Image.Image, str]
         """
         # on first execution, load config and start background task while ensuring only one worker will do it.
         global mutex

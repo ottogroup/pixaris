@@ -11,15 +11,17 @@ class IoUMetric(BaseMetric):
         super().__init__()
         self.reference_images = reference_images
 
-    def _iou(self, image1, image2):
+    def _iou(self, image1, image2) -> float:
         """
         Calculate the Intersection over Union (IoU) of two binary images.
-        Args:
-            image1 (PIL.Image.Image): The first binary image.
-            image2 (PIL.Image.Image): The second binary image.
-        Returns:
-            float: The IoU value, which is the ratio of the intersection area to the union area of the two images.
-                Returns 0 if the union is zero.
+        
+        :param image1: The first binary image.
+        :type image1: Image.Image
+        :param image2: The second binary image.
+        :type image2: Image.Image
+        :return: The IoU value, which is the ratio of the intersection area to the union area of the two images.
+          Returns 0 if the union is zero.
+        :rtype: float
         """
 
         # Convert images to numpy arrays
@@ -35,19 +37,18 @@ class IoUMetric(BaseMetric):
         # Calculate IoU
         return intersection / union if union != 0 else 0
 
-    def calculate(self, x: Iterable[Image]) -> dict:
+    def calculate(self, generated_images: Iterable[Image]) -> dict:
         """
         Calculate the Intersection over Union (IoU) for a list of generated images.
 
-        Args:
-            generated_images (dict[str, Image]): A dict of names and generated images.
-            eval_dir (str): Eval dir which is used to determine reference image dir.
-        Returns:
-            dict: The mean IoU score.
+        :param generated_images: A list of generated images.
+        :type generated_images: Iterable[Image]
+        :return: A dictionary containing a single entry: "iou": the average IoU score.
+        :rtype: dict
         """
 
         iou_scores = []
-        for gen, ref in zip(x, self.reference_images):
+        for gen, ref in zip(generated_images, self.reference_images):
             # Normalize images and convert to binary
             ref = normalize_image(ref, gen.size).convert("1")
             gen = gen.convert("1")

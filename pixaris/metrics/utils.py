@@ -5,10 +5,12 @@ from PIL import Image
 def dict_mean(input_dict_list: Iterable[dict]) -> dict:
     """
     Calculate the mean value for each key in a list of dictionaries.
-    Args:
-        input_dict_list Iterable[dict]: A list or iterator of dictionaries.
-    Returns:
-        dict: A dictionary containing the mean value for each key in the input dictionaries.
+    
+    :param input_dict_list: A list of dictionaries with the same keys.
+    :type input_dict_list: Iterable[dict]
+    :return: A dictionary with the mean values for each key.
+    :rtype: dict
+    :raises ValueError: If the input list is empty or if the dictionaries have different keys.
     """
     # check if all dicts have the same keys
     if len(set(map(frozenset, input_dict_list))) > 1:
@@ -25,10 +27,13 @@ def normalize_image(image: Image.Image, max_size=(1024, 1024)) -> Image.Image:
     """
     Normalize the given image by placing it on a white background, scaling it while preserving aspect ratio,
     and returning the resulting image.
-    Parameters:
-    - image (PIL.Image): The input image to be normalized.
-    Returns:
-    - PIL.Image: The normalized image with a white background.
+    
+    :param image: The image to normalize.
+    :type image: PIL.Image.Image
+    :param max_size: The maximum size of the resulting image. Defaults to (1024, 1024).
+    :type max_size: tuple[int, int], optional
+    :return: The normalized image.
+    :rtype: PIL.Image.Image
     """
     # place on white background
     if image.mode != "RGBA":

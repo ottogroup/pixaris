@@ -11,6 +11,14 @@ from pixaris.metrics.utils import dict_mean
 
 
 class LLMMetric(BaseMetric):
+    """
+    LLMMetric is a class that calculates various metrics for generated images using a large language model (LLM).
+
+    :param object_images: A list of object images to compare against.
+    :type object_images: list[Image]
+    :type style_images: A list of style images to compare against.
+    :type style_images: list[Image]
+    """
     def __init__(self, object_images: list[Image], style_images: list[Image]):
         super().__init__()
         self.object_images = object_images
@@ -19,10 +27,11 @@ class LLMMetric(BaseMetric):
     def _PIL_image_to_vertex_image(self, image: Image) -> GenAIImage:
         """
         Converts a PIL image to a vertex image.
-        Args:
-            image (PIL.Image): The input PIL image.
-        Returns:
-            GenAIImage: The converted vertex image.
+        
+        :param image: The PIL image.
+        :type image: PIL.Image.Image
+        :return: The vertex image.
+        :rtype: vertexai.generative_models.Image
         """
         img_byte_arr = io.BytesIO()
         image.save(img_byte_arr, format="PNG")
@@ -36,16 +45,18 @@ class LLMMetric(BaseMetric):
     ):
         """
         Generates a prompt for rating images on various metrics and returns a JSON object with the ratings.
-        Args:
-            input_image_vertex (Part): The input image.
-            output_image_vertex (Part): The output image.
-            style_image_vertex (Part): The style image.
-        Returns:
-            str: A prompt that provokes a response  with a JSON with the following keys:
-                - llm_reality: How real does the first picture look where 0 is not real at all and 1 is photorealistic?
-                - llm_similarity: How similar is the main object in the first picture to the template in the second picture where 0 is not similar at all and 1 is identical?
-                - llm_errors: How many errors can you find in the first picture?
-                - llm_style: How well does the style of the first picture match the style of the third picture where 0 is not at all and 1 is identical?
+        :param evaulation_image: The input image.
+        :type evaulation_image: PIL.Image.Image
+        :param object_image: The output image.
+        :type object_image: PIL.Image.Image
+        :param style_image: The style image.
+        :type style_image: PIL.Image.Image
+        :return: A prompt that provokes a response  with a JSON with the following keys:
+        * llm_reality: How real does the first picture look where 0 is not real at all and 1 is photorealistic?
+        * llm_similarity: How similar is the main object in the first picture to the template in the second picture where 0 is not similar at all and 1 is identical?
+        * llm_errors: How many errors can you find in the first picture?
+        * llm_style: How well does the style of the first picture match the style of the third picture where 0 is not at all and 1 is identical?
+        :rtype: list[vertexai.generative_models.Part, str]
         """
         json_prompt = "rate the following evluation image on the following metrics. return only a json file without newlines with the following keys:"
         reality_prompt = "llm_reality: How real does the evaluation image look where 0 is not real at all and 1 is photorealistic?"
@@ -69,10 +80,11 @@ class LLMMetric(BaseMetric):
     def _postprocess_response(self, response_text: str) -> str:
         """
         If there is some sort of JSON-like structure in the response text, extract it and return it.
-        Args:
-        response_text (str): The response text from the model.
-        Returns:
-        str: The extracted JSON-like structure if found, otherwise the original response text.
+        
+        :param response_text: The response text from the model.
+        :type response_text: str
+        :return: The extracted JSON-like structure if found, otherwise the original response text.
+        :rtype: str
         """
         pattern = r"\{.*\}"
         match = re.search(pattern, response_text)
@@ -85,10 +97,11 @@ class LLMMetric(BaseMetric):
     def _response_to_dict(self, response_text: str) -> dict:
         """
         Converts the response text to a dictionary.
-        Args:
-            response_text (str): The response text from the model.
-        Returns:
-            dict: The response text as a dictionary.
+        
+        :param response_text: The response text from the model.
+        :type response_text: str
+        :return: The response text as a dictionary.
+        :rtype: dict
         """
         parsed_text = self._postprocess_response(response_text)
         response_dict = json.loads(parsed_text)
@@ -104,10 +117,11 @@ class LLMMetric(BaseMetric):
     def _call_gemini(self, prompt) -> str:
         """
         Sends the prompt to Google API
-        Args:
-            prompt (str): The prompt for the LLM metrics. Generated by llm_prompt().
-        Returns:
-            string: The LLM response.
+        
+        :param prompt: The prompt for the LLM metrics. Generated by llm_prompt().
+        :type prompt: list[vertexai.generative_models.Part, str]
+        :return: The LLM response.
+        :rtype: str
         """
         with open("pixaris/config.yaml", "r") as f:
             config = yaml.safe_load(f)
@@ -124,13 +138,14 @@ class LLMMetric(BaseMetric):
         """
         Perform an evaluation by calling the `call_gemini` function with the given parameters.
         Assures that gemini returns correct json code by calling it up to max_tries times if it fails.
-        Args:
-            prompt: The prompt for the
-            max_tries (optional): The maximum number of tries to perform the  Defaults to 3.
-        Returns:
-            A dictionary containing the response from the `call_gemini` function.
-        Raises:
-            ValueError: If an error occurs during the
+        
+        :param prompt: The prompt for the LLM metrics. Generated by llm_prompt().
+        :type prompt: list[vertexai.generative_models.Part, str]
+        :param max_tries: The maximum number of tries to perform the LLM call. Defaults to 3.
+        :type max_tries: int
+        :return: The LLM response as a dictionary.
+        :rtype: dict
+        :raises ValueError: If the response cannot be parsed as JSON.
         """
         for i in range(max_tries):
             try:
@@ -141,10 +156,11 @@ class LLMMetric(BaseMetric):
     def _combined_score(self, response: dict) -> float:
         """
         Calculates the combined score from the response dictionary.
-        Args:
-            response (dict): The response dictionary.
-        Returns:
-            float: The combined score. Score at the moment is just the mean of all the scores.
+        
+        :param response: The response dictionary.
+        :type response: dict
+        return: The combined score. Score is the unweighted mean of all the scores.
+        :rtype: float
         """
         return sum(response.values()) / len(response.values())
 
@@ -157,13 +173,17 @@ class LLMMetric(BaseMetric):
     ) -> dict:
         """
         Calculates the LLM score for the generated image.
-        Args:
-            generated_image (Image): The generated image.
-            template_image (Image): The template image.
-            style_image (Image): The style image.
-            sample_size (optional): The number of llm calls to evaluate. Defaults to 3
-        Returns:
-            dict: A dictionary containing the LLM scores.
+
+        :param evaluation_image: The generated image.
+        :type evaluation_image: PIL.Image.Image
+        :param object_image: The object image the evaluation image should be similar to.
+        :type object_image: PIL.Image.Image
+        :param style_image: The style image the evaluation image should be similar to.
+        :type style_image: PIL.Image.Image
+        :param sample_size: The number of times to call the LLM for the same image. Defaults to 3.
+        :type sample_size: int, optional
+        :return: A dictionary containing the LLM scores for the evaluation image.
+        :rtype: dict
         """
         scores = [
             self._successful_evaluation(
@@ -187,29 +207,31 @@ class LLMMetric(BaseMetric):
 
         return average_scores_per_metric
 
-    def calculate(self, x: list[Image]) -> dict:
+    def calculate(self, evaluation_images: list[Image]) -> dict:
         """
         Calculate the LLM metrics for a list of generated images.
-        Args:
-            x (list[Image]): A list of evaluation images.
-        Returns:
-            dict: A dictionary containing the mean LLM scores for each prompt.
+
+        :param evaluation_images: A list of generated images.
+        :type evaluation_images: list[Image]
+        :return: A dictionary containing the LLM metrics for the generated images.
+        :rtype: dict
+        :raises ValueError: If the number of evaluation images does not match the number of object or style images.
         """
-        if len(x) != len(self.object_images):
+        if len(evaluation_images) != len(self.object_images):
             raise ValueError(
                 "There should be as many object images as generated images in the llm metric"
             )
-        if len(x) != len(self.style_images):
+        if len(evaluation_images) != len(self.style_images):
             raise ValueError(
                 "There should be as many style images as generated images in the llm metric"
             )
 
-        with ThreadPoolExecutor(len(x)) as executor:
+        with ThreadPoolExecutor(len(evaluation_images)) as executor:
             llm_metrics = dict_mean(
                 list(
                     executor.map(
                         self._llm_scores_per_image,
-                        x,
+                        evaluation_images,
                         self.object_images,
                         self.style_images,
                     )

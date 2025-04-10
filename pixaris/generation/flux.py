@@ -13,24 +13,19 @@ class FluxFillGenerator(ImageGenerator):
     FluxFillGenerator is responsible for generating images using the Flux API,
     specifically the fill model, which needs an image and a mask as input.
     """
-
-    def __init__(self):
-        pass
-
     def validate_inputs_and_parameters(
         self,
         dataset: List[dict[str, List[dict[str, Image.Image]]]] = [],
         parameters: list[dict[str, str, any]] = [],
-    ) -> str:
+    ):
         """
         Validates the provided dataset and parameters for image generation.
 
-        Args:
-            dataset (List[dict[str, List[dict[str, Image.Image]]]]): A list of datasets containing image and mask information.
-            parameters (list[dict[str, str, any]]): A list of dictionaries containing generation parameters.
-
-        Raises:
-            ValueError: If the validation fails for any reason (e.g., missing fields).
+        :param dataset: A list of datasets containing image and mask information.
+        :type dataset: List[dict[str, List[dict[str, Image.Image]]]
+        :param parameters: A list of dictionaries containing generation parameters.
+        :type parameters: list[dict[str, str, any]]
+        :raises ValueError: If the validation fails for any reason (e.g., missing fields).
         """
         # Validate dataset
         if not dataset:
@@ -50,11 +45,11 @@ class FluxFillGenerator(ImageGenerator):
         """
         Encodes a PIL image to a base64 string.
 
-        Args:
-            pillow_image (Image.Image): The PIL image.
+        :param pillow_image: The PIL image.
+        :type pillow_image: PIL.Image.Image
 
-        Returns:
-            str: Base64 encoded string representation of the image.
+        :return: Base64 encoded string representation of the image.
+        :rtype: str
         """
         buffered = BytesIO()
         pillow_image.save(buffered, format="JPEG")  # Adjust format as needed
@@ -67,19 +62,16 @@ class FluxFillGenerator(ImageGenerator):
     ) -> Image.Image:
         """
         Generates images using the Flux API and checks the status until the image is ready.
+        
+        :param pillow_images: A list of dictionaries containing pillow images and mask images.
+          Example:: [{'node_name': 'Load Input Image', 'pillow_image': <PIL.Image>}, {'node_name': 'Load Mask Image', 'pillow_image': <PIL.Image>}]
+        :type pillow_images: List[dict]
+        :param generation_params: A list of dictionaries containing generation params.
+        :type generation_params: list[dict]
 
-        Args:
-            pillow_images (List[dict]): A list of dictionaries containing pillow images and mask images.
-                Example: [{'node_name': 'Load Input Image', 'pillow_image': <PIL.Image>}, {'node_name': 'Load Mask Image', 'pillow_image': <PIL.Image>}]
-            generation_params (list[dict]): A list of dictionaries containing generation params.
-
-        Returns:
-            PIL.Image.Image: The generated image.
-
-        Raises:
-            requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
+        :return: The generated image.
+        :rtype: PIL.Image.Image
         """
-
         input_image = pillow_images[0]["pillow_image"]
         mask_image = pillow_images[1]["pillow_image"]
 
@@ -139,15 +131,15 @@ class FluxFillGenerator(ImageGenerator):
         """
         Generates a single image based on the provided arguments.
 
-        Args:
-            args (dict[str, any]): A dictionary containing the following keys:
-                - pillow_images (list[dict]): A list of dictionaries containing pillow images and mask images.
-                - generation_params (list[dict]): A list of dictionaries containing generation params.
+        :param args: A dictionary containing the following keys:
+        * pillow_images (list[dict]): A list of dictionaries containing pillow images and mask images.
+        * generation_params (list[dict]): A list of dictionaries containing generation params.
+        :type args: dict[str, any]
 
-        Returns:
-            tuple[Image.Image, str]: A tuple containing:
-                - image (Image.Image): The generated image.
-                - image_name (str): The name of the generated image.
+        :return: A tuple containing:
+        * image (Image.Image): The generated image.
+        * image_name (str): The name of the generated image.
+        :rtype: tuple[Image.Image, str]
         """
         pillow_images = args.get("pillow_images", [])
         generation_params = args.get("generation_params", [])
