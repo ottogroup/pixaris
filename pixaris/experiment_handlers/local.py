@@ -9,6 +9,13 @@ import pandas as pd
 
 
 class LocalExperimentHandler(ExperimentHandler):
+    """
+    LocalExperimentHandler is a class that handles the storage and retrieval of experiment results locally.
+
+    :param local_results_folder: The root folder where the experiment subfolder is located. Defaults to 'local_results'.
+    :type local_results_folder: str, optional
+    """
+
     def __init__(self, local_results_folder: str = "local_results"):
         """
         Initialize the LocalExperimentHandler.
@@ -42,10 +49,8 @@ class LocalExperimentHandler(ExperimentHandler):
         :type metric_values: dict[str, float]
         :param args: The arguments of the experiment to be saved as a JSON file. If any argument is a PIL Image, it will be saved as an image file.
         :type args: dict[str, any]
-        :param local_results_folder: The root folder where the experiment subfolder will be created. Defaults to 'local_results'.
-        :type local_results_folder: str, optional
-        :param global_tracking_file: The name of the global tracking file. Defaults to 'all_experiment_results.jsonl'.
-        :type global_tracking_file: str, optional
+        :param dataset_tracking_file_name: The name of the tracking file. Defaults to 'experiment_tracking.jsonl'.
+        :type dataset_tracking_file_name: str
         """
         timestamp = time.strftime("%Y%m%d-%H%M%S")
         save_dir = os.path.join(
@@ -111,8 +116,12 @@ class LocalExperimentHandler(ExperimentHandler):
     ):
         """
         Load the projects and datasets from the local results folder.
-        Returns:
-            dict: A dictionary containing the projects and datasets. {"project": ["dataset1", "dataset2"]}
+
+        :return: A dictionary containing the projects and datasets.
+          Example::
+
+          {"project": ["dataset1", "dataset2"]}
+        :rtype: dict[str, list[str]]
         """
         projects = os.listdir(self.local_results_folder)
         projects.sort()
@@ -130,11 +139,13 @@ class LocalExperimentHandler(ExperimentHandler):
     ) -> pd.DataFrame:
         """
         Load the results of an experiment.
-        Args:
-            project (str): The name of the project.
-            dataset (str): The name of the evaluation set.
-        Returns:
-            pd.DataFrame: The results of the experiment as a DataFrame.
+
+        :param project: The name of the project.
+        :type project: str
+        :param dataset: The name of the evaluation set.
+        :type dataset: str
+        :return: The results of the experiment as a DataFrame.
+        :rtype: pd.DataFrame
         """
         results_file = os.path.join(
             self.local_results_folder,

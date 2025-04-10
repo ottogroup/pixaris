@@ -6,12 +6,15 @@ from PIL import Image
 
 class LocalDatasetLoader(DatasetLoader):
     """
-    LocalDatasetLoader is a class for loading datasets from a local directory. Upon initialisation,
-    the dataset is loaded from the local directory.
-    Attributes:
-        project (str): The name of the project containing the evaluation set.
-        dataset (str): The name of the evaluation set to load images for.
-        eval_dir_local (str): The local directory where evaluation images are saved. Defaults to "local_experiment_inputs".
+    LocalDatasetLoader is a class for loading datasets from a local directory.
+        Upon initialisation, the dataset is loaded from the local directory.
+
+    :param project: The name of the project containing the evaluation set.
+    :type project: str
+    :param dataset: The name of the evaluation set to load images for.
+    :type dataset: str
+    :param eval_dir_local: The local directory where evaluation images are saved. Defaults to "local_experiment_inputs".
+    :type eval_dir_local: str
     """
 
     def __init__(
@@ -37,11 +40,9 @@ class LocalDatasetLoader(DatasetLoader):
         """
         Retrieves the names of the images in the evaluation set and checks if they are the same in each image directory.
 
-        Returns:
-            list[str]: The names of the images in the evaluation set.
-
-        Raises:
-            ValueError: If the names of the images in each image directory are not the same.
+        :raises ValueError: If the names of the images in each image directory are not the same.
+        :return: The names of the images in the evaluation set.
+        :rtype: list[str]
         """
         basis_names = os.listdir(
             os.path.join(
