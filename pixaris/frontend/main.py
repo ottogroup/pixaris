@@ -52,7 +52,7 @@ if __name__ == "__main__":
     config = yaml.safe_load(open("pixaris/config.yaml"))
     feedback_handler = LocalFeedbackHandler()
 
-    # feedback_handler = BigqueryFeedbackHandler(
+    # feedback_handler = GCPFeedbackHandler(
     #     gcp_project_id=config["gcp_project_id"],
     #     gcp_bq_feedback_table=config["gcp_bq_feedback_table"],
     #     gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],

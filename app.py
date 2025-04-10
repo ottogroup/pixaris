@@ -1,22 +1,24 @@
 import yaml
 from pixaris.frontend.main import launch_ui
-from pixaris.feedback_handlers.gcp import BigqueryFeedbackHandler
-from pixaris.experiment_handlers.local import LocalExperimentHandler
+from pixaris.feedback_handlers.gcp import GCPFeedbackHandler
+from pixaris.experiment_handlers.gcp import GCPExperimentHandler
 
 
 if __name__ == "__main__":
     config = yaml.safe_load(open("pixaris/config.yaml"))
     local_results_dir = "/tmp/local_results/"
 
-    feedback_handler = BigqueryFeedbackHandler(
+    feedback_handler = GCPFeedbackHandler(
         gcp_project_id=config["gcp_project_id"],
         gcp_bq_feedback_table=config["gcp_bq_feedback_table"],
         gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
         local_feedback_directory=local_results_dir,
     )
-    experiment_handler = LocalExperimentHandler(
-        local_results_folder=local_results_dir
-    )  # TODO use BigqueryExperimenthandler
+    experiment_handler = GCPExperimentHandler(
+        gcp_project_id=config["gcp_project_id"],
+        gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
+        gcp_pixaris_bucket_prefix=config["gcp_pixaris_bucket_prefix"],
+    )
 
     launch_ui(
         feedback_handler=feedback_handler,

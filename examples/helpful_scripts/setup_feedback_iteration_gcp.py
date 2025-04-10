@@ -3,7 +3,7 @@ from google.cloud import storage
 import os
 import yaml
 from datetime import datetime
-from pixaris.feedback_handlers.gcp import BigqueryFeedbackHandler
+from pixaris.feedback_handlers.gcp import GCPFeedbackHandler
 
 config = yaml.safe_load(open("pixaris/config.yaml"))
 
@@ -20,7 +20,7 @@ def initialise_iteration_in_bigquery(
     """
     Initialise feedback iteration in BigQuery and upload images to GCP bucket.
     """
-    gcp_feedback_handler = BigqueryFeedbackHandler(
+    gcp_feedback_handler = GCPFeedbackHandler(
         gcp_project_id=config["gcp_project_id"],
         gcp_bq_feedback_table=config["gcp_bq_feedback_table"],
         gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
