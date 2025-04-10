@@ -135,6 +135,7 @@ class GCPFeedbackHandler(FeedbackHandler):
             SELECT
                 `project`,
                 feedback_iteration,
+                dataset,
                 image_name,
                 SUM(likes) AS likes_count,
                 SUM(dislikes) AS dislikes_count,
@@ -147,6 +148,7 @@ class GCPFeedbackHandler(FeedbackHandler):
                 `project` = "{project}"
             GROUP BY
                 `project`,
+                dataset,
                 feedback_iteration,
                 image_name;
         """
