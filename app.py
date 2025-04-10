@@ -16,8 +16,8 @@ if __name__ == "__main__":
     )
     experiment_handler = GCPExperimentHandler(
         gcp_project_id=config["gcp_project_id"],
+        gcp_bq_experiment_dataset=config["gcp_bq_experiment_dataset"],
         gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
-        gcp_pixaris_bucket_prefix=config["gcp_pixaris_bucket_prefix"],
     )
 
     launch_ui(
