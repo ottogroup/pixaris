@@ -8,6 +8,7 @@ from google.cloud import bigquery, storage
 import os
 import time
 from datetime import datetime
+import gradio as gr
 
 
 class GCPExperimentHandler(ExperimentHandler):
@@ -337,7 +338,10 @@ class GCPExperimentHandler(ExperimentHandler):
                     project, dataset = parts[0], parts[1]
                     if project not in project_dict and project != "pickled_results":
                         project_dict[project] = []
-                    if dataset not in project_dict[project]:
+                    if (
+                        dataset not in project_dict[project]
+                        and dataset != "feedback_iterations"
+                    ):
                         project_dict[project].append(dataset)
         return project_dict
 
@@ -356,7 +360,6 @@ class GCPExperimentHandler(ExperimentHandler):
         :return: The results of the experiment as a pandas DataFrame.
         :rtype: pd.DataFrame
         """
-
         query = f"""
         SELECT *
         FROM `{self.gcp_bq_experiment_dataset}.{project}_{dataset}_experiment_results`
@@ -370,3 +373,48 @@ class GCPExperimentHandler(ExperimentHandler):
             return results.to_dataframe()
         except Exception as e:
             raise RuntimeError(f"Failed to load experiment results from BigQuery: {e}")
+
+    def load_images_for_experiment(
+        self,
+        project: str,
+        dataset: str,
+        experiment_run_name: str,
+        results_directory: str,
+    ) -> list[str]:
+        """
+        Downloads images for a feedback iteration from GCP bucket to local directory.
+        Returns list of local image paths that belong to the feedback iteration.
+
+        Args:
+            experiment_run_name: str - Name of the experiment run.
+
+        Returns:
+            List of local image paths.
+        """
+        print(f"Downloading images for feedback iteration {experiment_run_name}...")
+        path_in_parent_folder = f"{project}/{dataset}/{experiment_run_name}/"
+        # list images in bucket/project/dataset/experiment_run_name
+        blobs = self.pixaris_bucket.list_blobs(
+            prefix=f"results/{path_in_parent_folder}",
+        )
+
+        local_image_paths = []
+        # download images
+        for blob in blobs:
+            if blob.name.endswith("/"):
+                continue  # directory, skip.
+            image_path_local = os.path.join(
+                results_directory, blob.name.replace("results/", "")
+            )
+            local_image_paths.append(image_path_local)
+
+            # download image if not already downloaded
+            if not os.path.exists(image_path_local):
+                gr.Info(
+                    f"Downloading image '{blob.name.split('/')[-1]}'...", duration=1
+                )
+                os.makedirs(os.path.dirname(image_path_local), exist_ok=True)
+                blob.download_to_filename(image_path_local)
+
+        print("Done.")
+        return local_image_paths

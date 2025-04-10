@@ -37,3 +37,12 @@ class ExperimentHandler:
         dataset: str,
     ):
         pass
+
+    @abstractmethod
+    def load_images_for_experiment(
+        self,
+        project: str,
+        dataset: str,
+        experiment_run_name: str,
+    ):
+        pass

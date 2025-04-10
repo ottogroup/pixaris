@@ -6,17 +6,17 @@ import os
 from PIL import Image
 
 
-class BigqueryFeedbackHandler(FeedbackHandler):
+class GCPFeedbackHandler(FeedbackHandler):
     def __init__(
         self,
         gcp_project_id: str,
         gcp_bq_feedback_table: str,
-        gcp_feedback_bucket: str,
+        gcp_pixaris_bucket_name: str,
         local_feedback_directory: str = "local_results",
     ):
         self.gcp_project_id = gcp_project_id
         self.gcp_bq_feedback_table = gcp_bq_feedback_table
-        self.gcp_feedback_bucket = gcp_feedback_bucket
+        self.gcp_pixaris_bucket_name = gcp_pixaris_bucket_name
         os.makedirs(local_feedback_directory, exist_ok=True)
         self.local_feedback_directory = local_feedback_directory
         self.feedback_df = None
@@ -135,6 +135,7 @@ class BigqueryFeedbackHandler(FeedbackHandler):
             SELECT
                 `project`,
                 feedback_iteration,
+                dataset,
                 image_name,
                 SUM(likes) AS likes_count,
                 SUM(dislikes) AS dislikes_count,
@@ -147,6 +148,7 @@ class BigqueryFeedbackHandler(FeedbackHandler):
                 `project` = "{project}"
             GROUP BY
                 `project`,
+                dataset,
                 feedback_iteration,
                 image_name;
         """
@@ -155,7 +157,12 @@ class BigqueryFeedbackHandler(FeedbackHandler):
 
         # add paths for images to df (local and GCS bucket)
         df["image_path_bucket"] = (
-            df["project"] + "/" + df["feedback_iteration"] + "/" + df["image_name"]
+            "results/"
+            + df["project"]
+            + "/feedback_iterations/"
+            + df["feedback_iteration"]
+            + "/"
+            + df["image_name"]
         )
         df["image_path_local"] = (
             f"{self.local_feedback_directory}/"
@@ -193,7 +200,10 @@ class BigqueryFeedbackHandler(FeedbackHandler):
 
         # get relevant data for this feedback iteration
         iteration_df = self.feedback_df.loc[
-            self.feedback_df["feedback_iteration"] == feedback_iteration
+            (
+                self.feedback_df["feedback_iteration"] == feedback_iteration
+            )  # only this feedback iteration
+            & (self.feedback_df["dataset"] != "")  # only the entries of initialisation
         ].copy()
 
         # download images
@@ -214,7 +224,7 @@ class BigqueryFeedbackHandler(FeedbackHandler):
         image_path_local: str,
     ) -> None:
         storage_client = storage.Client(project=self.gcp_project_id)
-        bucket = storage_client.bucket(self.gcp_feedback_bucket)
+        bucket = storage_client.bucket(self.gcp_pixaris_bucket_name)
 
         # download image if possible, otherwise fill with white placeholder image
         try:

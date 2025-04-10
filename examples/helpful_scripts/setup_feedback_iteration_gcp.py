@@ -3,7 +3,7 @@ from google.cloud import storage
 import os
 import yaml
 from datetime import datetime
-from pixaris.feedback_handlers.gcp import BigqueryFeedbackHandler
+from pixaris.feedback_handlers.gcp import GCPFeedbackHandler
 
 config = yaml.safe_load(open("pixaris/config.yaml"))
 
@@ -20,10 +20,10 @@ def initialise_iteration_in_bigquery(
     """
     Initialise feedback iteration in BigQuery and upload images to GCP bucket.
     """
-    gcp_feedback_handler = BigqueryFeedbackHandler(
+    gcp_feedback_handler = GCPFeedbackHandler(
         gcp_project_id=config["gcp_project_id"],
         gcp_bq_feedback_table=config["gcp_bq_feedback_table"],
-        gcp_feedback_bucket=config["gcp_feedback_bucket"],
+        gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
     )
 
     # for each image, create the upload entry in feedback table
@@ -47,11 +47,13 @@ def upload_images_to_bucket(
     Upload images to GCP bucket.
     """
     storage_client = storage.Client(project=config["gcp_project_id"])
-    bucket = storage_client.bucket(config["gcp_feedback_bucket"])
+    bucket = storage_client.bucket(config["gcp_pixaris_bucket_name"])
 
     for filename in image_names:
         if filename.endswith((".jpg", ".jpeg", ".png", ".tif")):
-            blob = bucket.blob(f"{project}/{feedback_iteration}/{filename}")
+            blob = bucket.blob(
+                f"results/{project}/feedback_iterations/{feedback_iteration}/{filename}"
+            )
             blob.upload_from_filename(os.path.join(images_directory, filename))
             print(f"Uploaded {filename} to {feedback_iteration}")
 
