@@ -11,6 +11,11 @@ from vertexai.preview.vision_models import ImageGenerationModel
 class Imagen2ImageGenerator(ImageGenerator):
     """
     ImagenGenerator is a class that generates images using the Google Gemini API.
+    
+    :param gcp_project_id: The Google Cloud Platform project ID.
+    :type gcp_project_id: str
+    :param gcp_location: The Google Cloud Platform location.
+    :type gcp_location: str
     """
 
     def __init__(self, gcp_project_id: str, gcp_location: str):
@@ -21,17 +26,17 @@ class Imagen2ImageGenerator(ImageGenerator):
         self,
         dataset: List[dict[str, List[dict[str, Image.Image]]]] = [],
         parameters: list[dict[str, str, any]] = [],
-    ) -> str:
+    ):
         """
         Validates the provided dataset and parameters for image generation.
 
-        Args:
-            dataset (List[dict[str, List[dict[str, Image.Image]]]]): A list of datasets containing image and mask information.
-            parameters (list[dict[str, str, any]]): A list of dictionaries containing generation parameters.
-
-        Raises:
-            ValueError: If the validation fails for any reason (e.g., missing fields).
+        :param dataset: A list of datasets containing image and mask information.
+        :type dataset: List[dict[str, List[dict[str, Image.Image]]]
+        :param parameters: A list of dictionaries containing generation parameters.
+        :type parameters: list[dict[str, str, any]]
+        :raises ValueError: If the validation fails for any reason (e.g., missing fields).
         """
+
         # Validate dataset
         if not dataset:
             raise ValueError("Dataset cannot be empty.")
@@ -50,11 +55,11 @@ class Imagen2ImageGenerator(ImageGenerator):
         """
         Encodes a PIL image to bytes.
 
-        Args:
-            pillow_image (Image.Image): The PIL image.
+        :param pillow_image: The PIL image.
+        :type pillow_image: PIL.Image.Image
 
-        Returns:
-            bytes: Byte representation of the image.
+        :return: Byte array representation of the image.
+        :rtype: bytes
         """
         imgByteArr = BytesIO()
         pillow_image.save(imgByteArr, format=pillow_image.format)
@@ -67,16 +72,13 @@ class Imagen2ImageGenerator(ImageGenerator):
         """
         Generates images using the Flux API and checks the status until the image is ready.
 
-        Args:
-            pillow_images (List[dict]): A list of dictionaries containing pillow images and mask images.
-                Example: [{'node_name': 'Load Input Image', 'pillow_image': <PIL.Image>}, {'node_name': 'Load Mask Image', 'pillow_image': <PIL.Image>}]
-            generation_params (list[dict]): A list of dictionaries containing generation params.
-
-        Returns:
-            PIL.Image.Image: The generated image.
-
-        Raises:
-            requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
+        :param pillow_images: A list of dictionaries containing pillow images and mask images.
+          Example:: [{'node_name': 'Load Input Image', 'pillow_image': <PIL.Image>}, {'node_name': 'Load Mask Image', 'pillow_image': <PIL.Image>}]
+        :type pillow_images: List[dict]
+        :param generation_params: A list of dictionaries containing generation params.
+        :type generation_params: list[dict]
+        :return: The generated image.
+        :rtype: PIL.Image.Image
         """
 
         vertexai.init(project=self.gcp_project_id, location=self.gcp_location)
@@ -117,15 +119,15 @@ class Imagen2ImageGenerator(ImageGenerator):
         """
         Generates a single image based on the provided arguments.
 
-        Args:
-            args (dict[str, any]): A dictionary containing the following keys:
-                - pillow_images (list[dict]): A list of dictionaries containing pillow images and mask images.
-                - generation_params (list[dict]): A list of dictionaries containing generation params.
+        :param args: A dictionary containing the following keys:
+        * pillow_images (list[dict]): A list of dictionaries containing pillow images and mask images.
+        * generation_params (list[dict]): A list of dictionaries containing generation params.
+        :type args: dict[str, any]
 
-        Returns:
-            tuple[Image.Image, str]: A tuple containing:
-                - image (Image.Image): The generated image.
-                - image_name (str): The name of the generated image.
+        :return: A tuple containing:
+        * image (Image.Image): The generated image.
+        * image_name (str): The name of the generated image.
+        :rtype: tuple[Image.Image, str]
         """
         pillow_images = args.get("pillow_images", [])
         generation_params = args.get("generation_params", [])
