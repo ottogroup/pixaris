@@ -155,7 +155,12 @@ class GCPFeedbackHandler(FeedbackHandler):
 
         # add paths for images to df (local and GCS bucket)
         df["image_path_bucket"] = (
-            "results/" + df["project"] + "/feedback_iterations/" + df["feedback_iteration"] + "/" + df["image_name"]
+            "results/"
+            + df["project"]
+            + "/feedback_iterations/"
+            + df["feedback_iteration"]
+            + "/"
+            + df["image_name"]
         )
         df["image_path_local"] = (
             f"{self.local_feedback_directory}/"
