@@ -30,7 +30,7 @@ def random_timestamp():
     return random_datetime.isoformat()
 
 
-def create_tiger_image(path):
+def create_tiger_image():
     # Create a blank 64x64 pixel image
     img = Image.new("RGB", (64, 64), "white")
     draw = ImageDraw.Draw(img)
@@ -65,8 +65,7 @@ def create_tiger_image(path):
     draw.arc([30, 42, 34, 46], start=0, end=180, fill=black, width=1)
     draw.arc([32, 42, 36, 46], start=0, end=180, fill=black, width=1)
 
-    # Save the image
-    img.save(path)
+    return img
 
 
 def create_dummy_data_entries(
@@ -83,10 +82,12 @@ def create_dummy_data_entries(
         experiment_directory = os.path.join(base_output_directory, experiment_run_name)
         os.makedirs(experiment_directory, exist_ok=True)
 
+        # create experiment output image
         image_name = f"{experiment_run_name}.jpg"
 
         image_path = os.path.join(experiment_directory, image_name)
-        create_tiger_image(image_path)
+        img = create_tiger_image()
+        img.save(image_path)
 
         experiment_entry = {
             "timestamp": random_timestamp(),
@@ -120,13 +121,10 @@ def create_dummy_data_entries(
             "feedback_iterations",
             "dummy_iteration",
         )
+        # save dummy images in feedback iteration
         os.makedirs(feedback_iteration_path, exist_ok=True)
-        create_tiger_image(
-            os.path.join(feedback_iteration_path, "dummy_experiment_run_1.jpg")
-        )
-        create_tiger_image(
-            os.path.join(feedback_iteration_path, "dummy_experiment_run_2.jpg")
-        )
+        img.save(os.path.join(feedback_iteration_path, "dummy_experiment_run_1.jpg"))
+        img.save(os.path.join(feedback_iteration_path, "dummy_experiment_run_2.jpg"))
 
     return dummy_experiment_data, dummy_feedback_data
 

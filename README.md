@@ -200,7 +200,7 @@ You can directly use the GUI to inspect your experiment results and provide Feed
 
 ### Giving feedback on an iteration
 When reviewing your results from an experiment, you can eazily rate which images are good and which aren't. To do this either alone or with your team, you can use the pixaris frontend for experiment tracking and feedback.
-Start your GUI using either the `LocalFeedbackHandler` or `BigqueryFeedbackHandler` in `examples/frontend/deploy_frontend_locally.py`. Once startet, go to the Feedback tab in the GUI, select the project and iteration you want to provide feedback on and vote!
+Start your GUI using either the `LocalFeedbackHandler` or `GCPFeedbackHandler` in `examples/frontend/deploy_frontend_locally.py`. Once startet, go to the Feedback tab in the GUI, select the project and iteration you want to provide feedback on and vote!
 
 
 ## Naming Conventions

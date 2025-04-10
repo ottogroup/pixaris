@@ -1,6 +1,16 @@
+# general information for gcp
 gcp_project_id: "your-project-id"
-gcp_pixaris_bucket_name: "your-bucket-name"
 gcp_location: "your-location"
+gcp_pixaris_bucket_name: "your-bucket-name"
+
+# information for feedback tracking
+gcp_bq_feedback_table: "<project>.<dataset>.feedback_tracking"
+
+# information for experiment tracking
+gcp_bq_experiment_dataset: "<project>.experiment_tracking_dataset"
+gcp_service_account_for_appengine_deployment: "your-service-account-for-appengine-deployment"
+# for deploying pixaris to an appengine
+gcp_service_account_for_appengine_deployment: "your-service-account-for-appengine-deployment"
+
+# FLux
 bfl_api_key: "your-bfl-api-key" # for using flux
-gcp_feedback_bucket: "your-pixaris-feedback-bucket"
-gcp_bq_feedback_table: "your-pixaris-bq-feedback-table"
