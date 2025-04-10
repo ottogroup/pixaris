@@ -21,7 +21,7 @@ class GCPDatasetLoader(DatasetLoader):
     :type dataset: str
     :param eval_dir_local: The local directory where evaluation images will be saved. Defaults to "local_experiment_inputs".
     :type eval_dir_local: str
-    :param force_download: Whether to force download the images even if they already exist locally. Defaults to False.
+    :param force_download: Whether to force download the images even if they already exist locally. Defaults to True.
     :type force_download: bool
     """
 
@@ -145,7 +145,7 @@ class GCPDatasetLoader(DatasetLoader):
         Returns all images in the evaluation set as an iterator of dictionaries containing PIL Images.
 
         :return: list of dicts containing data loaded from the bucket.
-            The key will always be "pillow_images"
+            The key will always be "pillow_images".
             The value is a dict mapping node names to PIL Image objects.
             This dict has a key for each directory in the image_dirs list representing a Node Name.
         :rtype: List[dict[str, List[dict[str, Image.Image]]]]:

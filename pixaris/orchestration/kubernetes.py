@@ -135,20 +135,24 @@ def pixaris_orchestration_kubernetes_locally(
     Trigger remote evaluation on the Kubernetes cluster. This function will pickle the inputs and upload them to the
     Kubernetes cluster. It will then trigger the remote evaluation.
 
-    Args:
-    data_loader (DatasetLoader): The data loader to load the evaluation set.
-    image_generator (ImageGenerator): The image generator to generate images. E.g. ComfyClusterGenerator
-    experiment_handler (ExperimentHandler): The experiment handler to save generated images.
-    metrics (list[BaseMetric]): The metrics to calculate.
-    args (dict[str, any]): A dictionary of arguments, including:
-        - "workflow_apiformat_json" (str): The path to the workflow file in API format.
-        - "workflow_pillow_image" (PIL.Image): The image to use as input for the workflow.
-        - "dataset" (str): The evaluation set to use.
-        - "pillow_images" (list[dict]): A list of images to use as input for the workflow.
-        - "experiment_run_name" (str): The name of the run.
-        - "max_parallel_jobs" (int): The maximum number of parallel jobs to run.
-    auto_scale (bool): Whether to auto scale the cluster to the maximum number of parallel jobs.
-
+    :param data_loader: The data loader to load the evaluation set.
+    :type data_loader: DatasetLoader
+    :param image_generator: The image generator to generate images. E.g. ComfyClusterGenerator
+    :type image_generator: ImageGenerator
+    :param experiment_handler: The experiment handler to save generated images.
+    :type experiment_handler: ExperimentHandler
+    :param metrics: The metrics to calculate.
+    :type metrics: list[BaseMetric]
+    :param auto_scale: Whether to auto scale the cluster to the maximum number of parallel jobs.
+    :type auto_scale: bool
+    :param args: A dictionary of arguments, including:
+    * "workflow_apiformat_json" (str): The path to the workflow file in API format.
+    * "workflow_pillow_image" (PIL.Image): The image to use as input for the workflow.
+    * "dataset" (str): The evaluation set to use.
+    * "pillow_images" (list[dict]): A list of images to use as input for the workflow.
+    * "experiment_run_name" (str): The name of the run.
+    * "max_parallel_jobs" (int): The maximum number of parallel jobs to run.
+    :type args: dict[str, any]
     """
     config.load_kube_config()
     if auto_scale:  # always necessary unless the cluster was already scaled up manually

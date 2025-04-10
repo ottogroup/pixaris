@@ -9,6 +9,13 @@ from pixaris.utils.retry import retry
 
 
 class ComfyWorkflow:
+    """
+    ComfyWorkflow is a class that handles the execution of a workflow in ComfyUI.
+    It provides methods to manipulate the workflow, set parameters, upload images, and execute the workflow.
+    It also provides methods to check the status of the workflow and download images.
+    It is designed to work with the ComfyUI API and requires the API host and workflow in JSON format.
+    """
+
     api_host = ""
     workflow_apiformat_json = {}
     last_history = {}
@@ -23,10 +30,11 @@ class ComfyWorkflow:
     def _remove_preview_images(self, workflow_apiformat_json: dict) -> dict:
         """
         Remove all nodes of class type "PreviewImage" from the workflow.
-        Args:
-            workflow_apiformat_json (dict): The workflow file in JSON format.
-        Returns:
-            dict: The workflow file with all nodes of class type "PreviewImage" removed.
+
+        :parm workflow_apiformat_json: The workflow file in JSON format.
+        :type workflow_apiformat_json: dict
+        :return: The workflow file with all nodes of class type "PreviewImage" removed.
+        :rtype: dict
         """
         ids_to_remove = [
             id
@@ -38,7 +46,9 @@ class ComfyWorkflow:
         return workflow_apiformat_json
 
     def node_id_for_name(self, node_name: str) -> str:
-        """Get the id of a node by its name."""
+        """
+        Get the id of a node by its name.
+        """
         for id in self.workflow_apiformat_json:
             if self.workflow_apiformat_json[id]["_meta"]["title"] == node_name:
                 return id

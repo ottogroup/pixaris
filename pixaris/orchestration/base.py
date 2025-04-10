@@ -13,6 +13,20 @@ from PIL import Image
 
 
 def generate_image(data, image_generator, args, failed_args):
+    """
+    Generates a single image based on the provided data and image generator.
+
+    :param data: input data, e.g. a dictionary containing images and masks
+    :type data: dict
+    :param image_generator: the image generator to use for generating images
+    :type image_generator: ImageGenerator
+    :param args: additional arguments for image generation. To be set during generation
+    :type args: dict
+    :param failed_args: list to store failed arguments. Has to exist and be handled outside this function.
+    :type failed_args: list
+    :return: generated image and name
+    :rtype: tuple[PIL.Image.Image, str]
+    """
     consolidated_args = merge_dicts(data, args)
     try:
         return image_generator.generate_single_image(consolidated_args)
@@ -29,21 +43,25 @@ def generate_images_based_on_dataset(
     experiment_handler: ExperimentHandler,
     metrics: list[BaseMetric],
     args: dict[str, any],
-) -> Iterable[Image.Image]:
+) -> Iterable[tuple[Image.Image, str]]:
     """
     Generates images based on an evaluation set.
     This function loads a dataset using the provided data loader, generates images
     using the provided image generator, and stores the results using the provided
     experiment handler.
-    Args:
-        data_loader (DatasetLoader): An instance of DatasetLoader to load the dataset.
-        image_generator (ImageGenerator): An instance of ImageGenerator to generate images.
-        experiment_handler (ExperimentHandler): An instance of ExperimentHandler to store the generated images and results.
-        metrics (list[BaseMetric]): A list of metrics to calculate.
-        args (dict[str, any]): A dictionary of arguments to be used for image generation and storing results.
-        max_parallel_jobs (int): The maximum number of parallel jobs to run. Not providing this arg means no parallelisation.
-    Returns:
-        Iterable[tuple[Image.Image, str]]: A list of generated images and names
+
+    :param data_loader: An instance of DatasetLoader to load the dataset.
+    :type data_loader: DatasetLoader
+    :param image_generator: An instance of ImageGenerator to generate images.
+    :type image_generator: ImageGenerator
+    :param experiment_handler: An instance of ExperimentHandler to store the generated images and results.
+    :type experiment_handler: ExperimentHandler
+    :param metrics: A list of metrics to calculate.
+    :type metrics: list[BaseMetric]
+    :param args: A dictionary of arguments to be used for image generation and storing results.
+    :type args: dict[str, any]
+    :return: A list of generated images and names
+    :rtype: list[tuple[PIL.Image.Image, str]]
     """
 
     # Validate inputs
@@ -111,20 +129,22 @@ def generate_images_for_hyperparameter_search_based_on_dataset(
     generates a grid of hyperparameter combinations, and then generates images
     for each combination using the provided data loader, image generator, and
     experiment handler.
-    Args:
-        data_loader (DatasetLoader): The data loader to load the evaluation set.
-        image_generator (ImageGenerator): The image generator to generate images.
-        experiment_handler (ExperimentHandler): The experiment handler to save generated images.
-        args (dict[str, any]): A dictionary of arguments, including:
-            - "workflow_apiformat_json" (str): The path to the workflow file in API format.
-            - "hyperparameters" list(dict): A dictionary of hyperparameters to search.
-                each entry should contain the following keys:
-                - "node_name" (str): The name of the node to adjust.
-                - "input" (str): The input to adjust.
-                - "value" (list): A list of values to search. Each value should be a valid input for the node.
-            - "experiment_run_name" (str): The base name for each run.
-    Raises:
-        ValueError: If no hyperparameters are provided.
+
+    :param data_loader: The data loader to load the evaluation set.
+    :type data_loader: DatasetLoader
+    :param image_generator: The image generator to generate images.
+    :type image_generator: ImageGenerator
+    :param experiment_handler: The experiment handler to save generated images.
+    :type experiment_handler: ExperimentHandler
+    :param metrics: A list of metrics to calculate.
+    :type metrics: list[BaseMetric]
+    :param args: A dictionary of arguments, including:
+    * "workflow_apiformat_json" (str): The path to the workflow file in API format.
+    * "hyperparameters" list(dict): A dictionary of hyperparameters to search.
+      Each element of the list should be compatible with the generation parameters, that the image_generator takes as an input.
+    * "experiment_run_name" (str): The base name for each run.
+    :type args: dict[str, any]
+    :raises ValueError: If no hyperparameters are provided or if the hyperparameters are invalid.
     """
     hyperparameters = args.get("hyperparameters")
     if not hyperparameters:
