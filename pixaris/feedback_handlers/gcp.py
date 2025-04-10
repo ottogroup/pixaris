@@ -215,7 +215,7 @@ class GCPFeedbackHandler(FeedbackHandler):
                 self._download_image(image_path_bucket, image_path_local)
 
         print("Done.")
-        return iteration_df["image_path_local"].tolist()
+        return iteration_df["image_path_local"].unique().tolist()
 
     def _download_image(
         self,
