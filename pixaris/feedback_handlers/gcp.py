@@ -200,8 +200,10 @@ class GCPFeedbackHandler(FeedbackHandler):
 
         # get relevant data for this feedback iteration
         iteration_df = self.feedback_df.loc[
-            (self.feedback_df["feedback_iteration"] == feedback_iteration) # only this feedback iteration
-            & (self.feedback_df["dataset"] != "") # only the entries of initialisation
+            (
+                self.feedback_df["feedback_iteration"] == feedback_iteration
+            )  # only this feedback iteration
+            & (self.feedback_df["dataset"] != "")  # only the entries of initialisation
         ].copy()
 
         # download images
