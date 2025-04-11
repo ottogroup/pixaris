@@ -108,9 +108,38 @@ class LocalFeedbackHandler(FeedbackHandler):
         # Display success message
         gr.Info("Feedback saved locally", duration=1)
 
-    def initialise_iteration_locally(
+    def _save_images_to_feedback_destination_folder(
         self,
         experiment_directory: str,
+        project: str,
+        feedback_iteration: str,
+    ):
+        """
+        Copies images from the experiment directory to the feedback directory.
+
+        :param experiment_directory: Path to the directory containing the images
+        :type experiment_directory: str
+        :param project: Name of the project
+        :type project: str
+        :param feedback_iteration: Name of the feedback iteration
+        :type feedback_iteration: str
+        """
+        # copy the image folder to the feedback directory
+        feedback_dir = os.path.join(
+            self.local_feedback_directory,
+            project,
+            self.project_feedback_dir,
+            feedback_iteration,
+        )
+        os.makedirs(feedback_dir, exist_ok=True)
+        shutil.copytree(
+            os.path.join(experiment_directory, "images"),
+            feedback_dir,
+            dirs_exist_ok=True,
+        )
+
+    def _initialise_feedback_iteration_in_table(
+        self,
         project: str,
         feedback_iteration: str,
         image_names: list[str],
@@ -133,19 +162,6 @@ class LocalFeedbackHandler(FeedbackHandler):
         :param experiment_name: Name of the experiment (optional)
         :type experiment_name: str
         """
-        # copy the image folder to the feedback directory
-        feedback_dir = os.path.join(
-            self.local_feedback_directory,
-            project,
-            self.project_feedback_dir,
-            feedback_iteration,
-        )
-        os.makedirs(feedback_dir, exist_ok=True)
-        shutil.copytree(
-            os.path.join(experiment_directory, "images"),
-            feedback_dir,
-            dirs_exist_ok=True,
-        )
 
         # for each image, create the upload entry in feedback table
         for image_name in image_names:
@@ -186,15 +202,19 @@ class LocalFeedbackHandler(FeedbackHandler):
         :param experiment_name: Name of the experiment (optional)
         :type experiment_name: str
         """
-
         # add date for versioning if not provided
         if not date_suffix:
             date_suffix = datetime.now().strftime("%y%m%d")
         feedback_iteration = f"{date_suffix}_{feedback_iteration}"
 
-        image_names = os.listdir(os.path.join(experiment_directory, "images"))
-        self.initialise_iteration_locally(
+        self._save_images_to_feedback_destination_folder(
             experiment_directory=experiment_directory,
+            project=project,
+            feedback_iteration=feedback_iteration,
+        )
+
+        image_names = os.listdir(os.path.join(experiment_directory, "images"))
+        self._initialise_feedback_iteration_in_table(
             project=project,
             feedback_iteration=feedback_iteration,
             image_names=image_names,

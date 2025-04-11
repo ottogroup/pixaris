@@ -5,6 +5,8 @@ from datetime import datetime
 import os
 from PIL import Image
 
+from pixaris.utils.bigquery import ensure_table_exists
+
 
 class GCPFeedbackHandler(FeedbackHandler):
     """
@@ -107,13 +109,13 @@ class GCPFeedbackHandler(FeedbackHandler):
                 duration=10,
             )
 
-    def initialise_iteration_in_bigquery(
+    def _initialise_feedback_iteration_in_table(
         self,
         project: str,
         feedback_iteration: str,
         image_names: list[str],
         dataset: str = None,
-        experiment_name: str = None,
+        experiment_run_name: str = None,
     ):
         """
         Initialise feedback iteration in BigQuery and upload images to GCP bucket.
@@ -129,7 +131,20 @@ class GCPFeedbackHandler(FeedbackHandler):
         :param experiment_name: Name of the experiment (optional)
         :type experiment_name: str
         """
-
+        # ensure table exists
+        ensure_table_exists(
+            table_ref=self.gcp_bq_feedback_table,
+            bigquery_input={
+                "project": "placeholder_project",
+                "feedback_iteration": "placeholder_iteration",
+                "dataset": "placeholder_dataset",
+                "image_name": "placeholder_name",
+                "experiment_name": "placeholder_experiment",
+                "likes": 0,
+                "dislikes": 0,
+                "comment": "placeholder_comment",
+            },
+        )
         # for each image, create the upload entry in feedback table
         for image in image_names:
             feedback = {
@@ -137,15 +152,15 @@ class GCPFeedbackHandler(FeedbackHandler):
                 "feedback_iteration": feedback_iteration,
                 "image_name": image,
                 "dataset": dataset,
-                "experiment_name": experiment_name,
+                "experiment_name": experiment_run_name,
                 "feedback_indicator": "Neither",  # used only for initialisation of feedback iteration
                 "comment": "upload",
             }
             self.write_single_feedback(feedback)
 
-    def upload_images_to_bucket(
+    def _save_images_to_feedback_iteration_folder(
         self,
-        images_directory: str,
+        local_image_directory: str,
         project: str,
         feedback_iteration: str,
         image_names: list[str],
@@ -170,17 +185,17 @@ class GCPFeedbackHandler(FeedbackHandler):
                 blob = bucket.blob(
                     f"results/{project}/feedback_iterations/{feedback_iteration}/{filename}"
                 )
-                blob.upload_from_filename(os.path.join(images_directory, filename))
+                blob.upload_from_filename(os.path.join(local_image_directory, filename))
                 print(f"Uploaded {filename} to {feedback_iteration}")
 
     def create_feedback_iteration(
         self,
-        images_directory: str,
+        local_image_directory: str,
         project: str,
         feedback_iteration: str,
         date_suffix: str = None,
         dataset: str = None,
-        experiment_name: str = None,
+        experiment_run_name: str = None,
     ):
         """
         Upload images to GCP bucket and persist initialisation of feedback iteration to BigQuery.
@@ -191,32 +206,32 @@ class GCPFeedbackHandler(FeedbackHandler):
         :type project: str
         :param feedback_iteration: Name of the feedback iteration
         :type feedback_iteration: str
-        :param date_suffix: Date suffix for versioning (optional)
+        :param date_suffix: Date suffix for versioning. Will be set automatically to today if not provided.
         :type date_suffix: str
-        :param dataset: Name of the evaluation set (optional)
+        :param dataset: Name of the evaluation dataset (optional)
         :type dataset: str
         :param experiment_name: Name of the experiment (optional)
         :type experiment_name: str
         """
-        image_names = os.listdir(images_directory)
+        image_names = os.listdir(local_image_directory)
 
         # add date for versioning if not provided
         if not date_suffix:
             date_suffix = datetime.now().strftime("%y%m%d")
         feedback_iteration = f"{date_suffix}_{feedback_iteration}"
 
-        self.upload_images_to_bucket(
-            images_directory=images_directory,
+        self._save_images_to_feedback_iteration_folder(
+            local_image_directory=local_image_directory,
             project=project,
             feedback_iteration=feedback_iteration,
             image_names=image_names,
         )
-        self.initialise_iteration_in_bigquery(
+        self._initialise_feedback_iteration_in_table(
             project=project,
             feedback_iteration=feedback_iteration,
             image_names=image_names,
             dataset=dataset,
-            experiment_name=experiment_name,
+            experiment_run_name=experiment_run_name,
         )
 
     def load_projects_list(self) -> list[str]:
