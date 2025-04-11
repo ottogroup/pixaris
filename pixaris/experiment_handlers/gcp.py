@@ -308,7 +308,8 @@ class GCPExperimentHandler(ExperimentHandler):
         # set and adjust experiment_run_name with timestamp
         self.experiment_run_name = experiment_run_name
         self.experiment_run_name = self._ensure_unique_experiment_run_name()
-        args["experiment_run_name"] = self.experiment_run_name # otherwise will overwrite unique experiment_run_name
+        # prevent that args["experiment_run_name"] will overwrite unique experiment_run_name
+        args["experiment_run_name"] = self.experiment_run_name
 
         self._validate_args(args)
 
@@ -396,7 +397,9 @@ class GCPExperimentHandler(ExperimentHandler):
         self.pixaris_bucket = self.storage_client.bucket(self.gcp_pixaris_bucket_name)
 
         print(f"Downloading images for experiment_run_name {experiment_run_name}...")
-        path_in_parent_folder = f"{project}/{dataset}/{experiment_run_name}/generated_images/"
+        path_in_parent_folder = (
+            f"{project}/{dataset}/{experiment_run_name}/generated_images/"
+        )
         # list images in bucket/project/dataset/experiment_run_name
         blobs = self.pixaris_bucket.list_blobs(
             prefix=f"results/{path_in_parent_folder}",
