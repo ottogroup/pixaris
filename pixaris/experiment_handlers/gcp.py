@@ -9,6 +9,7 @@ import os
 import time
 from datetime import datetime
 import gradio as gr
+from pixaris.utils.bigquery import ensure_table_exists
 
 
 class GCPExperimentHandler(ExperimentHandler):
@@ -42,43 +43,6 @@ class GCPExperimentHandler(ExperimentHandler):
         self.project = None
         self.dataset = None
         self.experiment_run_name = None
-
-    def _python_type_to_bq_type(self, python_type):
-        """
-        Maps a Python data type to a corresponding BigQuery data type.
-
-        :param python_type: The Python data type to map.
-        :type python_type: type
-        :return: The corresponding BigQuery data type as a string.
-        :rtype: str
-        """
-        type_mapping = {
-            str: "STRING",
-            int: "INTEGER",
-            float: "FLOAT",
-            bool: "BOOLEAN",
-            bytes: "BYTES",
-        }
-        return type_mapping.get(
-            python_type, "STRING"
-        )  # Default to STRING if type is unknown, such as datetime
-
-    def _create_schema_from_dict(self, data_dict):
-        """
-        Creates a BigQuery schema from a dictionary of data.
-
-        :param data_dict: A dictionary where keys are field names and values are field values.
-        :type data_dict: dict
-        :return: A list of BigQuery SchemaField objects.
-        :rtype: list[bigquery.SchemaField]
-        """
-        schema = []
-        for key, value in data_dict.items():
-            field_type = self._python_type_to_bq_type(type(value))
-            schema.append(
-                bigquery.SchemaField(name=key, field_type=field_type, mode="NULLABLE")
-            )
-        return schema
 
     def _ensure_unique_experiment_run_name(self) -> str:
         """
@@ -156,26 +120,6 @@ class GCPExperimentHandler(ExperimentHandler):
 
         return gcs_path
 
-    def _ensure_table_exists(self, table_ref: str, bigquery_input: dict):
-        """
-        Ensures that the BigQuery table exists with the correct schema.
-
-        :param table_ref: The reference to the BigQuery table.
-        :type table_ref: str
-        :param bigquery_input: The dictionary used to generate the schema.
-        :type bigquery_input: dict
-        """
-        schema = self._create_schema_from_dict(bigquery_input)
-
-        try:
-            table = self.bigquery_client.get_table(table_ref)
-            if table.schema != schema:
-                raise ValueError(f"Schema mismatch for table {table_ref}.")
-        except Exception:
-            table = bigquery.Table(table_ref, schema=schema)
-            self.bigquery_client.create_table(table)
-            print(f"Created table {table_ref}.")
-
     def _add_default_metrics(self, bigquery_input: dict):
         """
         Adds default metrics to the BigQuery input dictionary if they are not already present.
@@ -246,7 +190,7 @@ class GCPExperimentHandler(ExperimentHandler):
         table_ref = f"{self.gcp_bq_experiment_dataset}.{self.project}_{self.dataset}_experiment_results"
 
         # Ensure table exists with correct schema
-        self._ensure_table_exists(table_ref, bigquery_input)
+        ensure_table_exists(table_ref, bigquery_input)
 
         # Insert the row into BigQuery
         self.bigquery_client.insert_rows_json(table_ref, [bigquery_input])
