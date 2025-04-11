@@ -115,7 +115,7 @@ class GCPFeedbackHandler(FeedbackHandler):
         feedback_iteration: str,
         image_names: list[str],
         dataset: str = None,
-        experiment_run_name: str = None,
+        experiment_name: str = None,
     ):
         """
         Initialise feedback iteration in BigQuery and upload images to GCP bucket.
@@ -152,7 +152,7 @@ class GCPFeedbackHandler(FeedbackHandler):
                 "feedback_iteration": feedback_iteration,
                 "image_name": image,
                 "dataset": dataset,
-                "experiment_name": experiment_run_name,
+                "experiment_name": experiment_name,
                 "feedback_indicator": "Neither",  # used only for initialisation of feedback iteration
                 "comment": "upload",
             }
@@ -195,7 +195,7 @@ class GCPFeedbackHandler(FeedbackHandler):
         feedback_iteration: str,
         date_suffix: str = None,
         dataset: str = None,
-        experiment_run_name: str = None,
+        experiment_name: str = None,
     ):
         """
         Upload images to GCP bucket and persist initialisation of feedback iteration to BigQuery.
@@ -231,7 +231,7 @@ class GCPFeedbackHandler(FeedbackHandler):
             feedback_iteration=feedback_iteration,
             image_names=image_names,
             dataset=dataset,
-            experiment_run_name=experiment_run_name,
+            experiment_name=experiment_name,
         )
 
     def load_projects_list(self) -> list[str]:

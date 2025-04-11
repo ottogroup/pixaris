@@ -22,5 +22,5 @@ gcp_feedback_handler.create_feedback_iteration(
     project=project,
     feedback_iteration=feedback_iteration,
     dataset="your_dataset",  # optional
-    experiment_run_name="your_experiment",  # optional
+    experiment_name="your_experiment",  # optional
 )
