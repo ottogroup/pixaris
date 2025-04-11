@@ -39,7 +39,7 @@ def render_feedback_tab(
         feedback_handler.write_single_feedback(feedback=previous_details)
         return previous_details
 
-    with gr.Sidebar(open=True):
+    with gr.Sidebar(open=True, position="right"):
         with gr.Row(scale=1):
             columns = gr.Slider(
                 minimum=1,

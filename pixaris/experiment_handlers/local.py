@@ -64,10 +64,10 @@ class LocalExperimentHandler(ExperimentHandler):
 
         # Save each image in the collection
         if image_name_pairs:
-            os.makedirs(os.path.join(save_dir, "images"), exist_ok=True)
+            os.makedirs(os.path.join(save_dir, "generated_images"), exist_ok=True)
         for image, name in image_name_pairs:
             image.save(
-                os.path.join(save_dir, "images", name.split(".")[0] + ".png"),
+                os.path.join(save_dir, "generated_images", name.split(".")[0] + ".png"),
                 "PNG",
                 # if you switch to JPEG, use quality=95 as input! Otherwise, expect square artifacts
             )
