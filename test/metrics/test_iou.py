@@ -23,7 +23,7 @@ class IOUMetricTest(unittest.TestCase):
         """
         iou should be between 0 and 1 if images and masks are different
         """
-        image = "test/test_project/mock/mask/model_01.png"
+        image = "test/test_project/mock/mask/chinchilla.png"
         images = [Image.open(image)]
         mask_images = [Image.new("1", image.size, 255) for image in images]
 

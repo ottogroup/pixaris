@@ -10,7 +10,7 @@ class TestLocalDataset(unittest.TestCase):
         )
         dataset = loader.load_dataset()
         print(dataset)
-        self.assertEqual(len(dataset), 2)
+        self.assertEqual(len(dataset), 4)
         for entry in dataset:
             self.assertIn("pillow_images", entry)
             paths = entry["pillow_images"]

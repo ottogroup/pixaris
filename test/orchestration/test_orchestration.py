@@ -43,7 +43,7 @@ class TestOrchestration(unittest.TestCase):
             "experiment_run_name": "testrun",
         }
 
-        mock_image = Image.open("test/test_project/mock/input/model_01.png")
+        mock_image = Image.open("test/test_project/mock/input/chinchilla.png")
 
         mock_loader.load_dataset.return_value = [
             {
@@ -106,7 +106,7 @@ class TestOrchestration(unittest.TestCase):
             "experiment_run_name": "testrun",
         }
 
-        mock_image = Image.open("test/test_project/mock/input/model_01.png")
+        mock_image = Image.open("test/test_project/mock/input/chinchilla.png")
 
         mock_loader.load_dataset.return_value = [
             {
