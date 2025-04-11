@@ -8,8 +8,8 @@ import json
 from PIL import Image
 
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
-PROJECT = "dummy_project"
-DATASET = "dummy_dataset"
+PROJECT = "test_project"
+DATASET = "mock"
 with open(os.getcwd() + "/test/assets/test-background-generation.json", "r") as file:
     WORKFLOW_APIFORMAT_JSON = json.load(file)
 WORKFLOW_PILLOW_IMAGE = Image.open(

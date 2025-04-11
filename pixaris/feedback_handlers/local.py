@@ -1,4 +1,5 @@
 import json
+import shutil
 from pixaris.feedback_handlers.base import FeedbackHandler
 import gradio as gr
 from datetime import datetime
@@ -7,6 +8,20 @@ import pandas as pd
 
 
 class LocalFeedbackHandler(FeedbackHandler):
+    """
+    Local feedback handler for Pixaris. This class is used to handle feedback
+    iterations locally. It allows for the creation of feedback iterations,
+    writing feedback to local storage, and loading feedback data from local
+    storage.
+
+    :param project_feedback_dir: Directory where feedback iterations are stored. Default is "feedback_iterations".
+    :type project_feedback_dir: str
+    :param project_feedback_file: Name of the feedback file. Default is "feedback_tracking.jsonl".
+    :type project_feedback_file: str
+    :param local_feedback_directory: Local directory for storing feedback data. Default is "local_results".
+    :type local_feedback_directory: str
+    """
+
     def __init__(
         self,
         project_feedback_dir: str = "feedback_iterations",
@@ -26,13 +41,13 @@ class LocalFeedbackHandler(FeedbackHandler):
         Writes feedback for one image to local feedback storage.
 
         :param feedback: dict with feedback information. Dict is expected to have the following keys:
-            - project: name of the project
-            - feedback_iteration: name of the iteration
-            - dataset: name of the evaluation set (optional)
-            - image_name: name of the image
-            - experiment_name: name of the experiment (optional)
-            - feedback_indicator: string with feedback value (either "Like", "Dislike", or "Neither")
-            - comment: string with feedback comment (optional)
+        * project: name of the project
+        * feedback_iteration: name of the iteration
+        * dataset: name of the evaluation set (optional)
+        * image_name: name of the image
+        * experiment_name: name of the experiment (optional)
+        * feedback_indicator: string with feedback value (either "Like", "Dislike", or "Neither")
+        * comment: string with feedback comment (optional)
         :type feedback: dict
         """
         # assert non-nullable values are present
@@ -93,12 +108,106 @@ class LocalFeedbackHandler(FeedbackHandler):
         # Display success message
         gr.Info("Feedback saved locally", duration=1)
 
+    def initialise_iteration_locally(
+        self,
+        experiment_directory: str,
+        project: str,
+        feedback_iteration: str,
+        image_names: list[str],
+        dataset: str = "",
+        experiment_name: str = "",
+    ):
+        """
+        Initialise feedback iteration locally
+
+        :param experiment_directory: Path to the directory containing the images
+        :type experiment_directory: str
+        :param project: Name of the project
+        :type project: str
+        :param feedback_iteration: Name of the feedback iteration
+        :type feedback_iteration: str
+        :param image_names: List of image names to use in the feedback iteration
+        :type image_names: list[str]
+        :param dataset: Name of the dataset (optional)
+        :type dataset: str
+        :param experiment_name: Name of the experiment (optional)
+        :type experiment_name: str
+        """
+        # copy the image folder to the feedback directory
+        feedback_dir = os.path.join(
+            self.local_feedback_directory,
+            project,
+            self.project_feedback_dir,
+            feedback_iteration,
+        )
+        os.makedirs(feedback_dir, exist_ok=True)
+        shutil.copytree(
+            os.path.join(experiment_directory, "images"),
+            feedback_dir,
+            dirs_exist_ok=True,
+        )
+
+        # for each image, create the upload entry in feedback table
+        for image_name in image_names:
+            feedback = {
+                "project": project,
+                "feedback_iteration": feedback_iteration,
+                "dataset": dataset,
+                "experiment_name": experiment_name,
+                "image_name": image_name,
+                "feedback_indicator": "Neither",  # used only for initialisation of feedback iteration
+                "comment": "upload",
+            }
+            self.write_single_feedback(feedback)
+
+    def create_feedback_iteration(
+        self,
+        experiment_directory: str,
+        project: str,
+        feedback_iteration: str,
+        date_suffix: str = None,
+        dataset: str = "",
+        experiment_name: str = "",
+    ):
+        """
+        Saves images in experiment_directorey to a feedback_iteration folder.
+        Puts initial entries into local feedback database.
+
+        :param experiment_directory: Path to the directory containing the images
+        :type experiment_directory: str
+        :param project: Name of the project
+        :type project: str
+        :param feedback_iteration: Name of the feedback iteration
+        :type feedback_iteration: str
+        :param image_names: List of image names to use in the feedback iteration
+        :type image_names: list[str]
+        :param dataset: Name of the dataset (optional)
+        :type dataset: str
+        :param experiment_name: Name of the experiment (optional)
+        :type experiment_name: str
+        """
+
+        # add date for versioning if not provided
+        if not date_suffix:
+            date_suffix = datetime.now().strftime("%y%m%d")
+        feedback_iteration = f"{date_suffix}_{feedback_iteration}"
+
+        image_names = os.listdir(os.path.join(experiment_directory, "images"))
+        self.initialise_iteration_locally(
+            experiment_directory=experiment_directory,
+            project=project,
+            feedback_iteration=feedback_iteration,
+            image_names=image_names,
+            dataset=dataset,
+            experiment_name=experiment_name,
+        )
+
     def load_projects_list(self) -> list[str]:
         """
         Retrieves list of projects from local storage.
 
-        Returns:
-            List of project names.
+        :return: List of project names
+        :rtype: list[str]
         """
         projects = [
             d
@@ -117,11 +226,8 @@ class LocalFeedbackHandler(FeedbackHandler):
         local directory to the dataframe. Saves the resulting df to self.feedback_df.
         Saves the list of feedback iterations to self.feedback_iteration_choices.
 
-        Args:
-            project: str Name of the project
-
-        Returns:
-            None
+        :param project: Name of the project
+        :type project: str
         """
         print(f"Searching locally for feedback data for project {project}...")
         feedback_file_path = os.path.join(
@@ -172,11 +278,10 @@ class LocalFeedbackHandler(FeedbackHandler):
         """
         Returns list of local image paths that belong to the feedback iteration.
 
-        Args:
-            feedback_iteration: str Name of the feedback iteration
-
-        Returns:
-            List of local image paths.
+        :param feedback_iteration: Name of the feedback iteration
+        :type feedback_iteration: str
+        :return: List of local image paths
+        :rtype: list[str]
         """
         print(f"Downloading images for feedback iteration {feedback_iteration}...")
 
