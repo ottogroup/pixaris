@@ -5,8 +5,25 @@ from datetime import datetime
 import os
 from PIL import Image
 
+from pixaris.utils.bigquery import ensure_table_exists
+
 
 class GCPFeedbackHandler(FeedbackHandler):
+    """
+    GCPFeedbackHandler is a class that handles feedback for Pixaris using Google Cloud Platform (GCP).
+    Contains methods to start handle feedback iterations storing data in BigQuery and images in a GCP bucket.
+    It also retrieves feedback data from the BigQuery table and downloads images from the GCP bucket to display them in the frontend.
+
+    :param gcp_project_id: GCP project ID
+    :type gcp_project_id: str
+    :param gcp_bq_feedback_table: GCP BigQuery table for feedback
+    :type gcp_bq_feedback_table: str
+    :param gcp_pixaris_bucket_name: GCP bucket name for Pixaris
+    :type gcp_pixaris_bucket_name: str
+    :param local_feedback_directory: Local directory to store feedback images, default is "local_results"
+    :type local_feedback_directory: str
+    """
+
     def __init__(
         self,
         gcp_project_id: str,
@@ -28,13 +45,13 @@ class GCPFeedbackHandler(FeedbackHandler):
         Writes feedback for one image to BigQuery table.
 
         :param feedback: dict with feedback information. Dict is expected to have the following keys:
-            - project: name of the project
-            - feedback_iteration: name of the iteration
-            - dataset: name of the evaluation set (optional)
-            - image_name: name of the image
-            - experiment_name: name of the experiment (optional)
-            - feedback_indicator: string with feedback value (either "Like", "Dislike", or "Neither")
-            - comment: string with feedback comment (optional)
+        * project: name of the project
+        * feedback_iteration: name of the iteration
+        * dataset: name of the evaluation set (optional)
+        * image_name: name of the image
+        * experiment_name: name of the experiment (optional)
+        * feedback_indicator: string with feedback value (either "Like", "Dislike", or "Neither")
+        * comment: string with feedback comment (optional)
         :type feedback: dict
         """
         # assert non-nullable values are present
@@ -47,7 +64,7 @@ class GCPFeedbackHandler(FeedbackHandler):
                 "feedback_indicator",
             ]
         ), (
-            "Missing required feedback keys. Must have 'project', 'feedback_iteration', 'image_name', 'feedback_indicator'"
+            "Missing required feedback keys. Must have 'project', 'feedback_iteration', 'image_name', 'feedback_indicator'."
         )
 
         # setup row to insert to table
@@ -80,8 +97,10 @@ class GCPFeedbackHandler(FeedbackHandler):
                 "Invalid feedback indicator. Must be 'Like', 'Dislike', or 'Neither'"
             )
 
-        client = bigquery.Client(project=self.gcp_project_id)
-        errors = client.insert_rows_json(self.gcp_bq_feedback_table, [row_to_insert])
+        bigquery_client = bigquery.Client(project=self.gcp_project_id)
+        errors = bigquery_client.insert_rows_json(
+            self.gcp_bq_feedback_table, [row_to_insert]
+        )
 
         # Check for errors and display warnings to UI
         if errors == []:  # todo: move displaying this to frontend!
@@ -92,6 +111,134 @@ class GCPFeedbackHandler(FeedbackHandler):
                 duration=10,
             )
 
+    def _initialise_feedback_iteration_in_table(
+        self,
+        project: str,
+        feedback_iteration: str,
+        image_names: list[str],
+        dataset: str = None,
+        experiment_name: str = None,
+    ):
+        """
+        Initialise feedback iteration in BigQuery and upload images to GCP bucket.
+
+        :param project: Name of the project
+        :type project: str
+        :param feedback_iteration: Name of the feedback iteration
+        :type feedback_iteration: str
+        :param image_names: List of image names to upload
+        :type image_names: list[str]
+        :param dataset: Name of the evaluation set (optional)
+        :type dataset: str
+        :param experiment_name: Name of the experiment (optional)
+        :type experiment_name: str
+        """
+        bigquery_client = bigquery.Client(project=self.gcp_project_id)
+        # ensure table exists with a dummy entry that will not be persisted
+        ensure_table_exists(
+            table_ref=self.gcp_bq_feedback_table,
+            bigquery_input={
+                "project": "placeholder_project",
+                "feedback_iteration": "placeholder_iteration",
+                "dataset": "placeholder_dataset",
+                "image_name": "placeholder_name",
+                "experiment_name": "placeholder_experiment",
+                "date": datetime.now().isoformat(),
+                "likes": 0,
+                "dislikes": 0,
+                "comment": "placeholder_comment",
+            },
+            bigquery_client=bigquery_client,
+        )
+        # for each image, create the upload entry in feedback table
+        for image in image_names:
+            feedback = {
+                "project": project,
+                "feedback_iteration": feedback_iteration,
+                "dataset": dataset,
+                "image_name": image,
+                "experiment_name": experiment_name,
+                "feedback_indicator": "Neither",  # used only for initialisation of feedback iteration
+                "comment": "upload",
+            }
+            self.write_single_feedback(feedback)
+
+    def _save_images_to_feedback_iteration_folder(
+        self,
+        local_image_directory: str,
+        project: str,
+        feedback_iteration: str,
+        image_names: list[str],
+    ):
+        """
+        Upload images to GCP bucket.
+
+        :param project: Name of the project
+        :type project: str
+        :param feedback_iteration: Name of the feedback iteration
+        :type feedback_iteration: str
+        :param image_names: List of image names to upload
+        :type image_names: list[str]
+        :param images_directory: Path to local directory containing images to upload
+        :type images_directory: str
+        """
+        storage_client = storage.Client(project=self.gcp_project_id)
+        bucket = storage_client.bucket(self.gcp_pixaris_bucket_name)
+
+        for filename in image_names:
+            if filename.endswith((".jpg", ".jpeg", ".png", ".tif")):
+                blob = bucket.blob(
+                    f"results/{project}/feedback_iterations/{feedback_iteration}/{filename}"
+                )
+                blob.upload_from_filename(os.path.join(local_image_directory, filename))
+                print(f"Uploaded {filename} to {feedback_iteration}")
+
+    def create_feedback_iteration(
+        self,
+        local_image_directory: str,
+        project: str,
+        feedback_iteration: str,
+        date_suffix: str = None,
+        dataset: str = None,
+        experiment_name: str = None,
+    ):
+        """
+        Upload images to GCP bucket and persist initialisation of feedback iteration to BigQuery.
+
+        :param images_directory: Path to local directory containing images to upload
+        :type images_directory: str
+        :param project: Name of the project
+        :type project: str
+        :param feedback_iteration: Name of the feedback iteration
+        :type feedback_iteration: str
+        :param date_suffix: Date suffix for versioning. Will be set automatically to today if not provided.
+        :type date_suffix: str
+        :param dataset: Name of the evaluation dataset (optional)
+        :type dataset: str
+        :param experiment_name: Name of the experiment (optional)
+        :type experiment_name: str
+        """
+        image_names = os.listdir(local_image_directory)
+
+        # add date for versioning if not provided
+        if not date_suffix:
+            date_suffix = datetime.now().strftime("%y%m%d")
+        feedback_iteration = f"{date_suffix}_{feedback_iteration}"
+
+        self._save_images_to_feedback_iteration_folder(
+            local_image_directory=local_image_directory,
+            project=project,
+            feedback_iteration=feedback_iteration,
+            image_names=image_names,
+        )
+        self._initialise_feedback_iteration_in_table(
+            project=project,
+            feedback_iteration=feedback_iteration,
+            image_names=image_names,
+            dataset=dataset,
+            experiment_name=experiment_name,
+        )
+
     def load_projects_list(self) -> list[str]:
         """
         Retrieves list of projects from BigQuery table.
@@ -100,7 +247,7 @@ class GCPFeedbackHandler(FeedbackHandler):
             List of project names.
         """
         print("Querying BigQuery for list of projects...")
-        client = bigquery.Client(project=self.gcp_project_id)
+        bigquery_client = bigquery.Client(project=self.gcp_project_id)
 
         query = f"""
             SELECT
@@ -108,7 +255,7 @@ class GCPFeedbackHandler(FeedbackHandler):
             FROM
                 {self.gcp_bq_feedback_table};
         """
-        rows = client.query_and_wait(query)
+        rows = bigquery_client.query_and_wait(query)
         projects = rows.to_dataframe()["project"].tolist()
         projects.sort()
         self.projects = projects
@@ -129,7 +276,7 @@ class GCPFeedbackHandler(FeedbackHandler):
             None
         """
         print(f"Querying BigQuery for feedback data for project {project}...")
-        client = bigquery.Client(project=self.gcp_project_id)
+        bigquery_client = bigquery.Client(project=self.gcp_project_id)
 
         query = f"""
             SELECT
@@ -152,7 +299,7 @@ class GCPFeedbackHandler(FeedbackHandler):
                 feedback_iteration,
                 image_name;
         """
-        rows = client.query_and_wait(query)
+        rows = bigquery_client.query_and_wait(query)
         df = rows.to_dataframe()
 
         # add paths for images to df (local and GCS bucket)
