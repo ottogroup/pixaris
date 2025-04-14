@@ -193,7 +193,7 @@ docker pull ghcr.io/ottogroup/pixaris:latest
 ```
 
 ## Pixaris UI: Viewing Results and Giving Feedback
-You can directly use the GUI to inspect your experiment results and provide feedback on them. For this, you need to define an `ExperimentHandler` and `Feedbackhandler` to call `launch_ui`. They will handle loading experiments and managing feedback. Both experiment handling and feedback handling have an organising level `project` at the top. This allows you to sort your experiments and feedbacks per use case, topic, time, or whatever you like.
+You can directly use the GUI to inspect your experiment results and provide feedback on them. For this, you need to define an `ExperimentHandler` and `FeedbackHandler` to call `launch_ui`. They will handle loading experiments and managing feedback. Both experiment handling and feedback handling have an organising level `project` at the top. This allows you to sort your experiments and feedbacks per use case, topic, time, or whatever you like.
 
 ![Overview of Classes for UI](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/UI_overview.png)
 
