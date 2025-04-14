@@ -22,11 +22,34 @@ def launch_ui(
     """
     with gr.Blocks(
         title="Pixaris",
-        theme=gr.themes.Default(
+        theme=gr.themes.Monochrome(
             spacing_size=gr.themes.sizes.spacing_sm, radius_size="none"
         ),
         analytics_enabled=False,
+        fill_width=False,
     ) as demo:
+        # add title
+        with gr.Row():
+            with gr.Column(scale=1, min_width=100):
+                gr.Image(
+                    value="test/assets/pixaris_logo.png",
+                    elem_id="pixaris-logo",
+                    show_label=False,
+                    height=100,
+                    width=100,
+                    show_download_button=False,
+                    show_fullscreen_button=False,
+                    show_share_button=False,
+                    interactive=False,
+                )
+            with gr.Column(scale=20):
+                gr.Markdown(
+                    """
+                    <div style="display: flex; align-items: center; height: 100%; justify-content: flex-start;">
+                        <h1 style="margin-left: 20px;">Pixaris</h1>
+                    </div>
+                    """
+                )
         with gr.Tab("Experiment Tracking"):
             render_experiment_tracking_tab(
                 experiment_handler=experiment_handler,

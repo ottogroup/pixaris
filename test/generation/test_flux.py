@@ -10,8 +10,8 @@ class TestFluxFillGenerator(unittest.TestCase):
 
     def setUp(self):
         self.generator = FluxFillGenerator()
-        self.mock_image1 = Image.open("test/test_project/mock/input/model_01.png")
-        self.mock_mask1 = Image.open("test/test_project/mock/mask/model_01.png")
+        self.mock_image1 = Image.open("test/test_project/mock/input/chinchilla.png")
+        self.mock_mask1 = Image.open("test/test_project/mock/mask/chinchilla.png")
 
     def test_encode_image_to_base64(self):
         """
@@ -110,7 +110,7 @@ class TestFluxFillGenerator(unittest.TestCase):
         ):
             image, image_name = self.generator.generate_single_image(args)
             self.assertIsInstance(image, Image.Image)
-            self.assertEqual(image_name, "model_01.png")
+            self.assertEqual(image_name, "chinchilla.png")
 
 
 if __name__ == "__main__":

@@ -128,8 +128,8 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         self.assertEqual(
             image_names,
             [
-                "temp_test_files/test_project/feedback_iterations/test_iteration/model_01.jpg",
-                "temp_test_files/test_project/feedback_iterations/test_iteration/model_02.jpg",
+                "temp_test_files/test_project/feedback_iterations/test_iteration/chinchilla.jpg",
+                "temp_test_files/test_project/feedback_iterations/test_iteration/sillygoose.jpg",
             ],
         )
 
