@@ -1,5 +1,7 @@
 ## Pixaris: An Evaluation Framework for Image Generation
 
+[![PyPI Version](https://img.shields.io/pypi/v/pixaris.svg)](https://pypi.org/project/pixaris/)
+
 Welcome to Pixaris, the experiment tracking solution for data scientists, AI engineers, and creatives working on image generation. Pixaris empowers you to efficiently track, compare, and evaluate your image generation experiments with precision and ease.
 
 **Why Pixaris?**
@@ -8,50 +10,26 @@ Keeping track of experiments and optimizing complex workflows for image generati
 
 Inspired by the MLOps mindset, we aim to cultivate an ImageOps approach. With Pixaris, you can track, compare, and evaluate your experiments with advanced orchestration capabilities and comprehensive metrics.
 
-![Tensorboard](test/assets/tensorboard-example.png)
+![ExperimentTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/pixaris_screenshot_explanations.png)
 
 **Key Features**
 
 - **Advanced Orchestration**: Connect effortlessly with ComfyUI and other tools, streamlining complex workflows and enabling efficient experimentation.
 - **Comprehensive Metrics**: Implement custom metrics, including multimodal LLM evaluations, to gain deeper insights into the quality of your generated images.
-- **Scalable Experiment Tracking**: Designed for image generation at scale, Pixaris allows you to manage and visualize large sets of experiments with ease, leveraging the power of TensorBoard and Google Cloud Platform (GCP).
+- **Scalable Experiment Tracking**: Designed for image generation at scale, Pixaris allows you to manage and visualize large sets of experiments with ease, leveraging the power of a gradio user interface and optionally Google Cloud Platform (GCP).
 - **Flexible Hyperparameter Search**: Explore a limitless range of parameters, such as prompt, model, cfg, noise, seed, ... to discover the optimal settings for your image generation tasks.
 - **Local and Remote Workflow Execution**: Trigger ComfyUI workflows locally, remotely with a connection via iap tunnel, or deploy them onto a cluster.
 - **Feedback on Experiments**: Give feedback on your images, remotely with your team or locally.
 
-**Target Audience**
-
-Pixaris is tailored for data scientists, AI engineers and all other enthusiasts who are focused on image generation, requiring sophisticated testing and evaluation mechanisms.
 
 ## Installation
-To install Pixaris, follow these steps:
+The latest stable release (and required dependencies) can be installed from PyPI:
 
-0. Make sure to have Python 3.12 and Poetry 2.0.1 or higher installed.
-1. Clone the repository:
-    ```sh
-    git clone https://github.com/OG-DW/tiga_pixaris
-    ```
-2. Navigate to the project directory:
-    ```sh
-    cd pixaris
-    ```
-3. Install the required dependencies:
-    ```sh
-    poetry install
-    ```
-4. Optional: If you prefer working with Notebooks, install [jupytext](https://github.com/mwouts/jupytext) and you can convert our py files to ipynb.
-    ```sh
-    pip install jupytext
-    ```
+```sh
+pip install pixaris
+```
 
-    Most common jupytext CLI commands:
-    ```sh
-    # convert notebook.ipynb to a .py file
-    jupytext --to py notebook.ipynb
-
-    # convert notebook.py to an .ipynb file with no outputs
-    jupytext --to notebook notebook.py
-    ```
+Online documentation is available [here](https://ottogroup.github.io/pixaris/modules.html).
 
 ## Getting Started
 
@@ -73,17 +51,35 @@ Follow these steps to set up and run your experiment:
    Here, you will define `args` for your experiment run, such as the path to your comfyui-workflow.json and the `experiment_run_name`.
 
 6. **[Orchestrate Your Experiment Run](#orchestrate-your-experiment-run)**:
-   Finally, orchestrate your experiment run using one of the generate functions, e.g., `generate_images_based_on_dataset`.
+   Orchestrate your experiment run using one of the generate functions, e.g., `generate_images_based_on_dataset`.
+
+7. **[View Your Results](#pixaris-ui-viewing-results-and-giving-feedback)**:
+    Finally, view your results in the experiment tracking tab or gather feedback on generated images in the feedback tab of the UI, calling `launch_ui` with the respective `ExperimentHandler`s and `FeedbackHandler`s.
 
 ### Summary
 
 To utilize Pixaris for evaluating your experiments, you will always need a `DatasetLoader`, `ImageGenerator`, `ExperimentHandler`, and `args`. Once all components are defined, they will be passed to an orchestration function like `generate_images_based_on_dataset`. This function is responsible for loading the data, executing the experiment, and saving the results.
 
-For each component, we offer several options to choose from. For example, the `DatasetLoader` includes the `GCPDatasetLoader` for accessing data in Google Cloud Storage and a separate `LocalDatasetLoader` for accessing local evaluation data. Additionally, you have the flexibility to implement your own component tailored to your specific needs. Attached is an overview of the various components and their implementations.
+For each component, we offer several options to choose from. For example, the `DatasetLoader` includes the `GCPDatasetLoader` for accessing data in Google Cloud Storage and a separate `LocalDatasetLoader` for accessing local evaluation data. Additionally, you have the flexibility to implement your own component tailored to your specific needs. Here you can see an overview of the various components and their implementations.
 
-![Overview of Classes](test/assets/overview.png)
+![Overview of Classes for Orchestration](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/overview.png)
 
 For example usages, check the [examples](examples). Please note, to set up the GCP components, such as `GCPDatasetLoader`, we use a config. Here is an [example_config.yaml](examples/example_config.yaml), please adjust and save a local version in the `pixaris` folder.
+
+#### Load the examples as a notebook
+If you prefer working with Notebooks, install [jupytext](https://github.com/mwouts/jupytext) and you can convert our py files to ipynb.
+```sh
+pip install jupytext
+```
+
+Most common jupytext CLI commands:
+```sh
+# convert notebook.ipynb to a .py file
+jupytext --to py notebook.ipynb
+
+# convert notebook.py to an .ipynb file with no outputs
+jupytext --to notebook notebook.py
+```
 
 ### Loading your data set
 First step: load your dataset using a `DatasetLoader`. If you have your data in a Google Cloud bucket, you can use the `GCPDatasetLoader`.
@@ -108,29 +104,25 @@ We implemented a neat `ImageGenerator` that uses ComfyUI.
 from pixaris.generation.comfyui import ComfyGenerator
 comfy_generator = ComfyGenerator(workflow_apiformat_json=<WORKFLOW_APIFORMAT_JSON>)
 ```
-The workflow_apiformat_json should lead to a JSON file exported from ComfyUI. You can export your workflow in apiformat as shown [here][test/assets/export_apiformat.png].
+The workflow_apiformat_json should lead to a JSON file exported from ComfyUI. You can export your workflow in apiformat as shown [here][https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/export_apiformat.png].
 
 Pixaris also includes an implementation of `FluxFillGenerator`, that calls a Flux API for generation. You can implement your own `ImageGenerator` for image generation with different tools, an API, or whatever you like. Your class needs to inherit from `ImageGenerator` and should call any image generation pipeline. A generator parses a dataset into usable arguments for your generation. Override the function `generate_single_image` to call your generation.
 
 ### Setting up your experiment tracking
-To save the generated images and possibly metrics, we define a `ExperimentHandler`. In our case, we want to have a nice visualization of all input and output images and metrics, so we choose the `GCPTensorboardHandler` using the Google-managed version. This decision was made because a lot of functionality is already implemented, e.g. we like that you can zoom in and out of images.
+To save the generated images and possibly metrics, we define an `ExperimentHandler`. In our case, we want to have the results saved locally, so we choose the `LocalExperimentHandler`.
 ```python
-from pixaris.experiment_handlers.gcp_tensorboard import GCPTensorboardHandler
-handler = GCPTensorboardHandler(
-    gcp_project_id=<your gcp_project_id here>,
-    location=<your gcp_location here>,
-    bucket_name=<your gcp_pixaris_bucket_name here>,
-)
+from pixaris.experiment_handlers.local import LocalExperimentHandler
+handler = LocalExperimentHandler()
 ```
-Alternatively, you can choose to save your results locally using the `LocalExperimentHandler` or implement your own class that inherits from the `ExperimentHandler`. Usually, it would save images and possibly metrics from your experiment. If you use the `LocalExperimentHandler`, you store your results locally and continue working with the JSON outputs. However, you can only look at the generated images one by one and miss out on one of our favorite features of Pixaris: That you can directly compare images from different experiment runs.
+Alternatively, you can choose to save your results remotely in GCP using the `GCPExperimentHandler` or implement your own class that inherits from the `ExperimentHandler`. Usually, it would save images and possibly metrics from your experiment.
 
 ### Optional: Setup evaluation metrics
 Maybe we want to generate some metrics to evaluate our results, e.g., for mask generation, calculate the IoU with the correct masks.
 ```python
-from pixaris.metrics.iou import IoUMetric
-correct_masks_path = <path to your correct masks>
-correct_masks = [Image.open(correct_masks_path + name) for name in os.listdir(correct_masks_path)]
-iou_metric = IoUMetric(true_masks)
+from pixaris.metrics.llm import LLMMetric
+object_images = [<PIL images with the objects>]
+style_images = [<PIL images with style references>]
+llm_metric = LLMMetric(object_images, style_images)
 ```
 
 As always, it is intended for you to implement your own metrics by inheriting from the `BaseMetric` class.
@@ -142,7 +134,12 @@ Depending on the specific components we defined and what they provide, we need t
 For example, additional parameters you want to set in the workflow for the `ComfyGenerator` can be specified by `generation_params`.
 In `args` you can set a seed, an inspiration image for the workflow, or which workflow image should be uploaded for documentation. In contrast to the inputs in the `dataset`, these will be the same for each execution over the workflow within your experiment.
 
+Experiment handling follows the logic, that there is a `project`, which serves as an organising level, e.g. you might want to experiment with beach backdrops. And then in one `project`, there can be multiple `dataset`s to work with, e.g. generation of backgrounds for square and landscape format images, beach_square and beach_landscape.
+
 ```python
+from PIL.Image import Image
+PROJECT = "beach"
+DATASET = "beach_square"
 args = {
     "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
     "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
@@ -192,21 +189,38 @@ We implemented an orchestration that is based on ComfyUI and Google Kubernetes E
 
 If you want to use Pixaris without setting it up manually, you can pull the prebuilt Pixaris Docker image from this repository:
 ```sh
-docker pull ghcr.io/og-dw/tiga_pixaris:latest
+docker pull ghcr.io/ottogroup/pixaris:latest
 ```
 
-## Feedback GUI
-You can directly use the GUI to inspect your experiment results and provide Feedback on them.
+## Pixaris UI: Viewing Results and Giving Feedback
+You can directly use the GUI to inspect your experiment results and provide feedback on them. For this, you need to define an `ExperimentHandler` and `Feedbackhandler` to call `launch_ui`. They will handle loading experiments and managing feedback. Both experiment handling and feedback handling have an organising level `project` at the top. This allows you to sort your experiments and feedbacks per use case, topic, time, or whatever you like.
 
-### Giving feedback on an iteration
-When reviewing your results from an experiment, you can eazily rate which images are good and which aren't. To do this either alone or with your team, you can use the pixaris frontend for experiment tracking and feedback.
-Start your GUI using either the `LocalFeedbackHandler` or `GCPFeedbackHandler` in `examples/frontend/deploy_frontend_locally.py`. Once startet, go to the Feedback tab in the GUI, select the project and iteration you want to provide feedback on and vote!
+![Overview of Classes for UI](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/UI_overview.png)
+
+Using local components:
+```python
+from pixaris.feedback_handlers.local import LocalFeedbackHandler
+feedback_handler = LocalFeedbackHandler()
+experiment_handler = LocalExperimentHandler()
+
+launch_ui(feedback_handler, experiment_handler)
+```
+The UI is then available at `http://localhost:8080`.
+
+### Viewing the Experiment Results
+In the Experiment Tab, you can see the generated images as well as the results of metrics in tabular form.
+![ExperimentTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/pixaris_screenshot_explanations.png)
+
+### Giving Feedback on Generated Images
+When reviewing your generated images, Pixaris UI lets you rate which images are good and which aren't. To do this either alone or with your team, you can use Feedback tab in the UI. `feedback_iteration`s are independent from experiment datasets. You could e.g. have a feedback_iteration that consists of your favorite experiment runs, or you could freely generate a bunch of images and form them into a `feedback_iteration`. It is completely up to you.
+
+WORK IN PROGRESS TODO: add feedback view.
 
 
 ## Naming Conventions
 For clarity, we would like to state what terminology we use in Pixaris:
 - **Workflow Execution**: Running a workflow for a single input, e.g., object image + mask image.
-- **Eval Set**: Set of evaluation inputs, e.g., 10 * (object image + mask image).
+- **Dataset**: Set of evaluation inputs, e.g., 10 * (object image + mask image).
 - **Experiment Run**: One eval set gets run with 1 workflow and 1 set of generation_params.
 - **Hyperparameter Search**: One workflow, one eval set, multiple sets of generation_params, which results in multiple experiment runs.
 - **Generation Params**: Set of parameters to execute a single run.
