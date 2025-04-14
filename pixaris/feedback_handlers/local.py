@@ -108,17 +108,17 @@ class LocalFeedbackHandler(FeedbackHandler):
         # Display success message
         gr.Info("Feedback saved locally", duration=1)
 
-    def _save_images_to_feedback_destination_folder(
+    def _save_images_to_feedback_iteration_folder(
         self,
-        local_images_directory: str,
+        local_image_directory: str,
         project: str,
         feedback_iteration: str,
     ):
         """
         Copies images from the experiment directory to the feedback directory.
 
-        :param local_images_directory: Path to the directory containing the images for the feedback iteration
-        :type local_images_directory: str
+        :param local_image_directory: Path to the directory containing the images for the feedback iteration
+        :type local_image_directory: str
         :param project: Name of the project
         :type project: str
         :param feedback_iteration: Name of the feedback iteration
@@ -133,7 +133,7 @@ class LocalFeedbackHandler(FeedbackHandler):
         )
         os.makedirs(feedback_dir, exist_ok=True)
         shutil.copytree(
-            local_images_directory,
+            local_image_directory,
             feedback_dir,
             dirs_exist_ok=True,
         )
@@ -176,7 +176,7 @@ class LocalFeedbackHandler(FeedbackHandler):
 
     def create_feedback_iteration(
         self,
-        local_images_directory: str,
+        local_image_directory: str,
         project: str,
         feedback_iteration: str,
         date_suffix: str = None,
@@ -187,8 +187,8 @@ class LocalFeedbackHandler(FeedbackHandler):
         Saves images in experiment_directorey to a feedback_iteration folder.
         Puts initial entries into local feedback database.
 
-        :param local_images_directory: Path to the directory containing the images
-        :type local_images_directory: str
+        :param local_image_directory: Path to the directory containing the images
+        :type local_image_directory: str
         :param project: Name of the project
         :type project: str
         :param feedback_iteration: Name of the feedback iteration
@@ -205,13 +205,13 @@ class LocalFeedbackHandler(FeedbackHandler):
             date_suffix = datetime.now().strftime("%y%m%d")
         feedback_iteration = f"{date_suffix}_{feedback_iteration}"
 
-        self._save_images_to_feedback_destination_folder(
-            local_images_directory=local_images_directory,
+        self._save_images_to_feedback_iteration_folder(
+            local_image_directory=local_image_directory,
             project=project,
             feedback_iteration=feedback_iteration,
         )
 
-        image_names = os.listdir(local_images_directory)
+        image_names = os.listdir(local_image_directory)
         self._initialise_feedback_iteration_in_table(
             project=project,
             feedback_iteration=feedback_iteration,
