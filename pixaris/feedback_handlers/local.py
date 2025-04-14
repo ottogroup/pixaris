@@ -110,15 +110,15 @@ class LocalFeedbackHandler(FeedbackHandler):
 
     def _save_images_to_feedback_destination_folder(
         self,
-        experiment_directory: str,
+        local_images_directory: str,
         project: str,
         feedback_iteration: str,
     ):
         """
         Copies images from the experiment directory to the feedback directory.
 
-        :param experiment_directory: Path to the directory containing the images
-        :type experiment_directory: str
+        :param local_images_directory: Path to the directory containing the images for the feedback iteration
+        :type local_images_directory: str
         :param project: Name of the project
         :type project: str
         :param feedback_iteration: Name of the feedback iteration
@@ -133,7 +133,7 @@ class LocalFeedbackHandler(FeedbackHandler):
         )
         os.makedirs(feedback_dir, exist_ok=True)
         shutil.copytree(
-            os.path.join(experiment_directory, "images"),
+            local_images_directory,
             feedback_dir,
             dirs_exist_ok=True,
         )
@@ -143,14 +143,12 @@ class LocalFeedbackHandler(FeedbackHandler):
         project: str,
         feedback_iteration: str,
         image_names: list[str],
-        dataset: str = "",
-        experiment_name: str = "",
+        dataset: str = None,
+        experiment_name: str = None,
     ):
         """
         Initialise feedback iteration locally
 
-        :param experiment_directory: Path to the directory containing the images
-        :type experiment_directory: str
         :param project: Name of the project
         :type project: str
         :param feedback_iteration: Name of the feedback iteration
@@ -178,7 +176,7 @@ class LocalFeedbackHandler(FeedbackHandler):
 
     def create_feedback_iteration(
         self,
-        experiment_directory: str,
+        local_images_directory: str,
         project: str,
         feedback_iteration: str,
         date_suffix: str = None,
@@ -189,8 +187,8 @@ class LocalFeedbackHandler(FeedbackHandler):
         Saves images in experiment_directorey to a feedback_iteration folder.
         Puts initial entries into local feedback database.
 
-        :param experiment_directory: Path to the directory containing the images
-        :type experiment_directory: str
+        :param local_images_directory: Path to the directory containing the images
+        :type local_images_directory: str
         :param project: Name of the project
         :type project: str
         :param feedback_iteration: Name of the feedback iteration
@@ -208,12 +206,12 @@ class LocalFeedbackHandler(FeedbackHandler):
         feedback_iteration = f"{date_suffix}_{feedback_iteration}"
 
         self._save_images_to_feedback_destination_folder(
-            experiment_directory=experiment_directory,
+            local_images_directory=local_images_directory,
             project=project,
             feedback_iteration=feedback_iteration,
         )
 
-        image_names = os.listdir(os.path.join(experiment_directory, "images"))
+        image_names = os.listdir(local_images_directory)
         self._initialise_feedback_iteration_in_table(
             project=project,
             feedback_iteration=feedback_iteration,
