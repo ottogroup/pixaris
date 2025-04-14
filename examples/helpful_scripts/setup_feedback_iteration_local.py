@@ -1,4 +1,3 @@
-import os
 from pixaris.feedback_handlers.local import LocalFeedbackHandler
 
 # ### Create Feedback Iteration

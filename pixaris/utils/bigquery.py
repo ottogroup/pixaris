@@ -57,9 +57,10 @@ def ensure_table_exists(
         table = bigquery_client.get_table(table_ref)
     except Exception as e:
         if table.schema != schema:
-            raise ValueError(f"Schema mismatch for table {table_ref}. Expected {schema}, bigquery table has {table.schema}.")
+            raise ValueError(
+                f"Schema mismatch for table {table_ref}. Expected {schema}, bigquery table has {table.schema}."
+            )
         if e.contains("Not found: Table"):
             table = bigquery.Table(table_ref, schema=schema)
             bigquery_client.create_table(table)
             print(f"Created table {table_ref}.")
-

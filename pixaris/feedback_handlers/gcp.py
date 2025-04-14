@@ -98,7 +98,9 @@ class GCPFeedbackHandler(FeedbackHandler):
             )
 
         bigquery_client = bigquery.Client(project=self.gcp_project_id)
-        errors = bigquery_client.insert_rows_json(self.gcp_bq_feedback_table, [row_to_insert])
+        errors = bigquery_client.insert_rows_json(
+            self.gcp_bq_feedback_table, [row_to_insert]
+        )
 
         # Check for errors and display warnings to UI
         if errors == []:  # todo: move displaying this to frontend!
