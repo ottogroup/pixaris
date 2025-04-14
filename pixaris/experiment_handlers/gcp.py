@@ -190,7 +190,7 @@ class GCPExperimentHandler(ExperimentHandler):
         table_ref = f"{self.gcp_bq_experiment_dataset}.{self.project}_{self.dataset}_experiment_results"
 
         # Ensure table exists with correct schema
-        ensure_table_exists(table_ref, bigquery_input)
+        ensure_table_exists(table_ref, bigquery_input, self.bigquery_client)
 
         # Insert the row into BigQuery
         self.bigquery_client.insert_rows_json(table_ref, [bigquery_input])

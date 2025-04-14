@@ -9,14 +9,14 @@ gcp_feedback_handler = GCPFeedbackHandler(
     gcp_bq_feedback_table=config["gcp_bq_feedback_table"],
     gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
 )
-project = "name_of_project"
-feedback_iteration = "name_of_feedback_iteration"
-images_directory = "local_path_to_directory_with_images"
+project = "dummy_project"
+feedback_iteration = "dummy_feedback_iteration"
+images_directory = "path_to_local_directory_containing_images"
 
 gcp_feedback_handler.create_feedback_iteration(
     local_image_directory=images_directory,
     project=project,
     feedback_iteration=feedback_iteration,
-    dataset="your_dataset",  # optional
-    experiment_name="your_experiment",  # optional
+    dataset=None,  # optional
+    experiment_name=None,  # optional
 )
