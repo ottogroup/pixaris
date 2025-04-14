@@ -8,9 +8,10 @@ gcp_bq_feedback_table: "<project>.<dataset>.feedback_tracking"
 
 # information for experiment tracking
 gcp_bq_experiment_dataset: "<project>.experiment_tracking_dataset"
-gcp_service_account_for_appengine_deployment: "your-service-account-for-appengine-deployment"
+
 # for deploying pixaris to an appengine
 gcp_service_account_for_appengine_deployment: "your-service-account-for-appengine-deployment"
+gcp_project_id_for_app_engine: "your-project-id-for-app-engine"
 
 # FLux
 bfl_api_key: "your-bfl-api-key" # for using flux

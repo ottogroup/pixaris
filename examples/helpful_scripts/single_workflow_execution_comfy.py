@@ -18,13 +18,13 @@ args = {
         {
             "node_name": "Load Input Image",
             "pillow_image": Image.open(
-                "local_experiment_inputs/dummy_project/dummy_dataset/input/model_01.png"
+                "local_experiment_inputs/dummy_project/dummy_dataset/input/chinchilla.png"
             ),
         },
         {
             "node_name": "Load Mask Image",
             "pillow_image": Image.open(
-                "local_experiment_inputs/ummy_project/dummy_dataset/mask/model_01.png"
+                "local_experiment_inputs/ummy_project/dummy_dataset/mask/chinchilla.png"
             ),
         },
     ],

@@ -210,7 +210,7 @@ class GCPExperimentHandler(ExperimentHandler):
         # Upload each image to the GCS bucket
         for pillow_image, name in image_name_pairs:
             image_path = f"{name}"
-            gcp_image_path = f"results/{self.project}/{self.dataset}/{self.experiment_run_name}/{name}"
+            gcp_image_path = f"results/{self.project}/{self.dataset}/{self.experiment_run_name}/generated_images/{name}"
             pillow_image.save(image_path)
             blob = self.pixaris_bucket.blob(gcp_image_path)
             blob.upload_from_filename(image_path)
@@ -245,15 +245,17 @@ class GCPExperimentHandler(ExperimentHandler):
 
         self.project = project
         self.dataset = dataset
-        self.experiment_run_name = experiment_run_name
-
-        self._validate_args(args)
-
         self.storage_client = storage.Client(project=self.gcp_project_id)
         self.bigquery_client = bigquery.Client(project=self.gcp_project_id)
         self.pixaris_bucket = self.storage_client.bucket(self.gcp_pixaris_bucket_name)
 
+        # set and adjust experiment_run_name with timestamp
+        self.experiment_run_name = experiment_run_name
         self.experiment_run_name = self._ensure_unique_experiment_run_name()
+        # prevent that args["experiment_run_name"] will overwrite unique experiment_run_name
+        args["experiment_run_name"] = self.experiment_run_name
+
+        self._validate_args(args)
 
         self._store_generated_images(image_name_pairs)
         self._store_experiment_parameters_and_results(args, metric_values)
@@ -326,8 +328,8 @@ class GCPExperimentHandler(ExperimentHandler):
         results_directory: str,
     ) -> list[str]:
         """
-        Downloads images for a feedback iteration from GCP bucket to local directory.
-        Returns list of local image paths that belong to the feedback iteration.
+        Downloads images for a experiment_run_name from GCP bucket to local directory.
+        Returns list of local image paths that belong to the experiment_run_name.
 
         Args:
             experiment_run_name: str - Name of the experiment run.
@@ -335,8 +337,13 @@ class GCPExperimentHandler(ExperimentHandler):
         Returns:
             List of local image paths.
         """
-        print(f"Downloading images for feedback iteration {experiment_run_name}...")
-        path_in_parent_folder = f"{project}/{dataset}/{experiment_run_name}/"
+        self.storage_client = storage.Client(project=self.gcp_project_id)
+        self.pixaris_bucket = self.storage_client.bucket(self.gcp_pixaris_bucket_name)
+
+        print(f"Downloading images for experiment_run_name {experiment_run_name}...")
+        path_in_parent_folder = (
+            f"{project}/{dataset}/{experiment_run_name}/generated_images/"
+        )
         # list images in bucket/project/dataset/experiment_run_name
         blobs = self.pixaris_bucket.list_blobs(
             prefix=f"results/{path_in_parent_folder}",

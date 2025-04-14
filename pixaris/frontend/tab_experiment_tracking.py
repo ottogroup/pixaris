@@ -8,7 +8,7 @@ def render_experiment_tracking_tab(
     results_directory: str,
 ):
     dataset_experiment_tracking_results = gr.State(pd.DataFrame())
-    with gr.Sidebar(open=True):
+    with gr.Sidebar(open=True, position="right"):
         gr.Markdown("Experiments")
         with gr.Row(scale=8):
             PROJECTS_DICT = experiment_handler.load_projects_and_datasets()
