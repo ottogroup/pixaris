@@ -98,27 +98,29 @@ class GCPExperimentHandler(ExperimentHandler):
         :return: The GCS path of the uploaded file.
         :rtype: str
         """
-        tmp_path = f"{key}"
-        gcs_path = (
-            f"results/{self.project}/{self.dataset}/{self.experiment_run_name}/{key}"
-        )
 
         if isinstance(value, Image.Image):
+            tmp_path = f"{key}.png"
             metadata = PngInfo()
             for metadata_key, metadata_value in value.info.items():
                 metadata.add_text(metadata_key, str(metadata_value))
             value.save(tmp_path, pnginfo=metadata)
         elif isinstance(value, dict):
+            tmp_path = f"{key}.json"
             with open(tmp_path, "w") as f:
                 json.dump(value, f)
         else:
             raise ValueError("Unsupported value type for upload.")
 
+        # upload to bucket
+        gcs_path = f"results/{self.project}/{self.dataset}/{self.experiment_run_name}/{tmp_path}"
         blob = self.pixaris_bucket.blob(gcs_path)
         blob.upload_from_filename(tmp_path)
+        # put together the clickable link
+        clickable_link = f"https://console.cloud.google.com/storage/browser/_details/{self.gcp_pixaris_bucket_name}/{gcs_path}?project={self.gcp_project_id}"
+        # cleanup temporary file
         os.remove(tmp_path)
-
-        return gcs_path
+        return clickable_link
 
     def _add_default_metrics(self, bigquery_input: dict):
         """
@@ -127,19 +129,50 @@ class GCPExperimentHandler(ExperimentHandler):
         :param bigquery_input: The dictionary to update with default metrics.
         :type bigquery_input: dict
         """
-        default_metrics = [
-            "llm_reality",
-            "llm_similarity",
-            "llm_errors",
-            "llm_todeloy",
-            "iou",
-            "hyperparameters",
-            "workflow_apiformat_json",
-            "workflow_pillow_image",
-            "max_parallel_jobs",
-        ]
-        for metric in default_metrics:
-            bigquery_input.setdefault(metric, float(0))
+        default_metrics = {
+            "llm_reality": 0.0,
+            "llm_similarity": 0.0,
+            "llm_errors": 0.0,
+            "llm_todeloy": 0.0,
+            "iou": 0.0,
+            "hyperparameters": "",
+            "generation_params": "",
+            "workflow_apiformat_json": "",
+            "workflow_pillow_image": "",
+            "max_parallel_jobs": 0.0,
+        }
+        for k, v in default_metrics.items():
+            bigquery_input.setdefault(k, v)
+
+    def _prepare_additional_pillow_images_upload(
+        self, args: dict[str, any], image_name_pairs: Iterable[tuple[Image.Image, str]]
+    ):
+        """
+        Prepares additional pillow images for upload by saving them under their node names in image_name_pairs.
+        This function also removes the pillow_images key from args to prevent re-uploading.
+
+        :param args: A dictionary containing additional arguments, including pillow images.
+        :type args: dict[str, any]
+        :param image_name_pairs: An iterable of tuples containing images and their names.
+        :type image_name_pairs: Iterable[tuple[Image.Image, str]]
+        """
+        # all images in pillow_images are additional inputs by the user, e.g. inspo images. No dataset is in here.
+        if pillow_images := args.get("pillow_images"):
+            assert isinstance(pillow_images, list), (
+                "pillow_images must be a list of dictionaries."
+            )
+
+            # each image in pillow_images needs to be saved under an own key in dict for easier saving
+            for image_details in pillow_images:
+                image_name = (
+                    "z_" + image_details["node_name"].replace(" ", "_") + ".png"
+                )
+                pillow_image = image_details["pillow_image"]
+                # save the image under its node_name
+                image_name_pairs.append((pillow_image, image_name))
+
+            # remove pillow_images from args so they are not uploaded later on again
+            args.pop("pillow_images", None)
 
     def _store_experiment_parameters_and_results(
         self,
@@ -193,8 +226,13 @@ class GCPExperimentHandler(ExperimentHandler):
         ensure_table_exists(table_ref, bigquery_input, self.bigquery_client)
 
         # Insert the row into BigQuery
-        self.bigquery_client.insert_rows_json(table_ref, [bigquery_input])
-        print(f"Inserted row into table {table_ref}.")
+        errors = self.bigquery_client.insert_rows_json(table_ref, [bigquery_input])
+
+        # Check for errors and display warnings to UI
+        if errors == []:
+            print(f"Inserted row into table {table_ref}.")
+        else:
+            raise RuntimeError(f"Failed to insert row into table {table_ref}: {errors}")
 
     def _store_generated_images(
         self,
@@ -255,10 +293,18 @@ class GCPExperimentHandler(ExperimentHandler):
         # prevent that args["experiment_run_name"] will overwrite unique experiment_run_name
         args["experiment_run_name"] = self.experiment_run_name
 
-        self._validate_args(args)
+        self._validate_args(args=args)
 
-        self._store_generated_images(image_name_pairs)
-        self._store_experiment_parameters_and_results(args, metric_values)
+        # store images that were generated by the generator AND additional input images from args
+        self._prepare_additional_pillow_images_upload(
+            args=args, image_name_pairs=image_name_pairs
+        )
+        self._store_generated_images(image_name_pairs=image_name_pairs)
+
+        # upload all content of metric_values and args to bigquery and bucket if applicable
+        self._store_experiment_parameters_and_results(
+            metric_values=metric_values, args=args
+        )
 
     def load_projects_and_datasets(self) -> dict:
         """

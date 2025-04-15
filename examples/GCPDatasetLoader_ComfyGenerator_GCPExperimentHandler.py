@@ -2,7 +2,6 @@ from PIL import Image
 from pixaris.data_loaders.gcp import GCPDatasetLoader
 from pixaris.experiment_handlers.gcp import GCPExperimentHandler
 from pixaris.generation.comfyui import ComfyGenerator
-from pixaris.metrics.llm import LLMMetric
 from pixaris.orchestration.base import generate_images_based_on_dataset
 import os
 import yaml
@@ -34,14 +33,6 @@ experiment_handler = GCPExperimentHandler(
     gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
 )
 
-object_dir = "test/test_project/mock/input/"
-object_images = [Image.open(object_dir + image) for image in os.listdir(object_dir)]
-style_images = [Image.open("test/assets/test_inspo_image.jpg")] * len(object_images)
-llm_metric = LLMMetric(
-    object_images=object_images,
-    style_images=style_images,
-)
-
 args = {
     "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
     "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
@@ -62,7 +53,7 @@ out = generate_images_based_on_dataset(
     data_loader=data_loader,
     image_generator=generator,
     experiment_handler=experiment_handler,
-    metrics=[llm_metric],
+    metrics=[],
     args=args,
 )
 
