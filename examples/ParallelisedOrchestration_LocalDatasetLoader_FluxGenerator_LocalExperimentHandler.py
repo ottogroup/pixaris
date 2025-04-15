@@ -5,8 +5,8 @@ from pixaris.orchestration.base import generate_images_based_on_dataset
 import os
 import yaml
 
-PROJECT = "dummy_project"
-DATASET = "dummy_dataset"
+PROJECT = "test_project"
+DATASET = "mock"
 PROMPT = "A beautiful woman on a beach"
 EXPERIMENT_RUN_NAME = "example-flux"
 
