@@ -23,16 +23,16 @@ def dict_mean(input_dict_list: Iterable[dict]) -> dict:
     return means_dict
 
 
-def normalize_image(image: Image.Image, max_size=(1024, 1024)) -> Image.Image:
+def normalize_image(image: Image, max_size=(1024, 1024)) -> Image:
     """
     Normalize the given image by placing it on a white background, scaling it while preserving aspect ratio,
     and returning the resulting image.
 
-    :param image: The image to normalize.
+    :param image: The input image to be normalized.
     :type image: PIL.Image.Image
-    :param max_size: The maximum size of the resulting image. Defaults to (1024, 1024).
+    :param max_size: The maximum size of the output image, defaults to (1024, 1024).
     :type max_size: tuple[int, int], optional
-    :return: The normalized image.
+    :return: The normalized image with a white background.
     :rtype: PIL.Image.Image
     """
     # place on white background
@@ -40,7 +40,7 @@ def normalize_image(image: Image.Image, max_size=(1024, 1024)) -> Image.Image:
         image = image.convert("RGBA")
 
     # Scale image while preserving aspect ratio
-    image.thumbnail(max_size)
+    image.thumbnail(max_size, resample=Image.LANCZOS)
 
     # Create white background
     white_base = Image.new("RGB", max_size, (255, 255, 255))
