@@ -58,9 +58,7 @@ def render_feedback_tab(
             # initialise hidden feedback iterations and button
             feedback_iterations = gr.Dropdown(visible=False)
 
-            def update_feedback_iteration_choices(
-                project_name, feedback_iterations
-            ):
+            def update_feedback_iteration_choices(project_name, feedback_iterations):
                 """Update choices of feedback iterations for selected project and display reload button."""
                 feedback_handler.load_all_feedback_iterations_for_project(project_name)
                 feedback_iteration_choices = feedback_handler.feedback_iteration_choices

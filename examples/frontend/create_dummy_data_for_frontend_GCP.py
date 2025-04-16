@@ -1,5 +1,5 @@
 # %% [markdown]
-# ## Create Dummy Data for Pixaris Frontend: Local Data Handling
+# ## Create Dummy Data for Pixaris Frontend: Google Cloud Platform (GCP) Data Handling
 
 # %%
 import json
@@ -7,10 +7,14 @@ import random
 import shutil
 import os
 from PIL import Image, ImageDraw
+import yaml
 
+print(os.getcwd())
 
 if False:  # set to True if executing from notebook
     os.chdir("../../")
+
+config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 
 
 # %%
@@ -79,11 +83,15 @@ WORKFLOW_PILLOW_IMAGE = Image.open(
 EXPERIMENT_RUN_NAME = "dummy-run"
 
 # %%
-from pixaris.experiment_handlers.local import LocalExperimentHandler
+from pixaris.experiment_handlers.gcp import GCPExperimentHandler
 
 # Here, we simulate the case that we generated a bunch of images and want to track this experiment.
 
-experiment_handler = LocalExperimentHandler()
+experiment_handler = GCPExperimentHandler(
+    gcp_project_id=config["gcp_project_id"],
+    gcp_bq_experiment_dataset=config["gcp_bq_experiment_dataset"],
+    gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
+)
 
 dummy_image_name_pairs = [
     (create_tiger_image(random.randint(0, 10_000_000)), f"tiger_{i + 1}.png")
@@ -110,7 +118,7 @@ experiment_handler.store_results(
 # ### Create Dummy Data for Feedback Tracking
 
 # %%
-from pixaris.feedback_handlers.local import LocalFeedbackHandler
+from pixaris.feedback_handlers.gcp import GCPFeedbackHandler
 
 # Here, we pretend we already have a directory where we stored images, that we want to from into a feedback iteration.
 
@@ -127,7 +135,11 @@ local_image_directory = (
 
 
 # ### Create Feedback Iteration
-feedback_handler = LocalFeedbackHandler()
+feedback_handler = GCPFeedbackHandler(
+    gcp_project_id=config["gcp_project_id"],
+    gcp_bq_feedback_table=config["gcp_bq_feedback_table"],
+    gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
+)
 PROJECT = "dummy_project"
 FEEDBACK_ITERATION = "dummy_feedback_iteration"
 
@@ -140,5 +152,3 @@ feedback_handler.create_feedback_iteration(
 )
 
 shutil.rmtree(temp_directory)  # remove the temp directory
-
-# %%

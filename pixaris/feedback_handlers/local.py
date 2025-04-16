@@ -99,7 +99,9 @@ class LocalFeedbackHandler(FeedbackHandler):
             feedback["project"],
         )
         os.makedirs(project_dir, exist_ok=True)
-        feedback_file_path = os.path.join(project_dir, "feedback_iterations", self.project_feedback_file)
+        feedback_file_path = os.path.join(
+            project_dir, "feedback_iterations", self.project_feedback_file
+        )
 
         # Write feedback to the file
         with open(feedback_file_path, "a") as feedback_file:

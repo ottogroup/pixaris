@@ -150,7 +150,7 @@ class LocalExperimentHandler(ExperimentHandler):
         :return: The results of the experiment as a DataFrame.
         :rtype: pd.DataFrame
         """
-        if not project or not dataset: # can happen in UI, does not need action
+        if not project or not dataset:  # can happen in UI, does not need action
             return pd.DataFrame()
 
         results_file = os.path.join(
@@ -164,12 +164,15 @@ class LocalExperimentHandler(ExperimentHandler):
             try:
                 return pd.read_json(results_file, lines=True)
             except ValueError:
-                print(f"Error reading {results_file}. File might be empty or corrupted.")
+                print(
+                    f"Error reading {results_file}. File might be empty or corrupted."
+                )
 
     def load_images_for_experiment(
-            self,
-            project: str,
-            dataset: str,
-            experiment_run_name: str,
-            results_directory: str):
+        self,
+        project: str,
+        dataset: str,
+        experiment_run_name: str,
+        results_directory: str,
+    ):
         pass  # todo
