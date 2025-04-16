@@ -1,38 +1,24 @@
+# %% [markdown]
+# ## Create Dummy Data for Pixaris Frontend: Local Data Handling
+
+# %%
 import json
 import random
-from datetime import datetime, timedelta
+import shutil
 import os
 from PIL import Image, ImageDraw
 
 
-num_entries = 2  # Define the number of dummy data entries you want to create
-current_directory = os.getcwd()
-local_results_folder = "local_results"
-project_name = "dummy_project"
-dataset_name = "dummy_dataset"
-base_experiment_run_name = "dummy_experiment_run_"
-file_name = "experiment_results.jsonl"
-base_output_directory = os.path.join(
-    current_directory, local_results_folder, project_name, dataset_name
-)
+if False: # if executing from notebook
+    os.chdir("../../")
 
 
-def random_date():
-    start_date = datetime(2025, 1, 1)
-    return (start_date + timedelta(days=random.randint(0, 1000))).strftime("%Y-%m-%d")
+# %%
+# define some functions to setup the dummy data
 
-
-def random_timestamp():
-    start_date = datetime(2025, 1, 1)
-    random_datetime = start_date + timedelta(
-        days=random.randint(0, 1000), seconds=random.randint(0, 86400)
-    )
-    return random_datetime.isoformat()
-
-
-def create_tiger_image():
+def create_tiger_image(background_color_int: int):
     # Create a blank 64x64 pixel image
-    img = Image.new("RGB", (64, 64), "white")
+    img = Image.new("RGB", (64, 64), background_color_int)
     draw = ImageDraw.Draw(img)
 
     # Define colors
@@ -65,91 +51,89 @@ def create_tiger_image():
     draw.arc([30, 42, 34, 46], start=0, end=180, fill=black, width=1)
     draw.arc([32, 42, 36, 46], start=0, end=180, fill=black, width=1)
 
+    img = img.resize((200, 200))
     return img
 
+img = create_tiger_image(random.randint(0, 10_000_000))
+img
 
-def create_dummy_data_entries(
-    base_output_directory, num_entries, base_experiment_run_name
-):
-    # Create the base output directory
-    os.makedirs(base_output_directory, exist_ok=True)
+# %% [markdown]
+# ### Create Dummy Data for Experiment Tracking
 
-    dummy_experiment_data = []
-    dummy_feedback_data = []
-    for i in range(num_entries):
-        experiment_run_name = f"{base_experiment_run_name}{i + 1}"
-
-        experiment_directory = os.path.join(base_output_directory, experiment_run_name)
-        os.makedirs(experiment_directory, exist_ok=True)
-
-        # create experiment output image
-        image_name = f"{experiment_run_name}.jpg"
-
-        image_path = os.path.join(experiment_directory, image_name)
-        img = create_tiger_image()
-        img.save(image_path)
-
-        experiment_entry = {
-            "timestamp": random_timestamp(),
-            "initials": f"AB{i + 1}",
-            "experiment_name": experiment_run_name,
-            "experiment_folder_name": experiment_run_name,
-            "execution_time_per_image": round(random.uniform(0, 5), 2),
-            "llm_reality": round(random.uniform(0, 1), 2),
-            "llm_similarity": round(random.uniform(0, 1), 2),
-            "llm_errors": round(random.uniform(0, 1), 2),
-            "llm_todeloy": round(random.uniform(0, 1), 2),
-        }
-        dummy_experiment_data.append(experiment_entry)
-
-        feedback_entry = {
-            "project": project_name,
-            "feedback_iteration": "dummy_iteration",
-            "dataset": "",
-            "image_name": image_name,
-            "experiment_name": experiment_run_name,
-            "date": random_date(),
-            "comment": "dummy_comment",
-            "likes": random.randint(0, 100),
-            "dislikes": random.randint(0, 100),
-        }
-        dummy_feedback_data.append(feedback_entry)
-        feedback_iteration_path = os.path.join(
-            current_directory,
-            local_results_folder,
-            project_name,
-            "feedback_iterations",
-            "dummy_iteration",
-        )
-        # save dummy images in feedback iteration
-        os.makedirs(feedback_iteration_path, exist_ok=True)
-        img.save(os.path.join(feedback_iteration_path, "dummy_experiment_run_1.jpg"))
-        img.save(os.path.join(feedback_iteration_path, "dummy_experiment_run_2.jpg"))
-
-    return dummy_experiment_data, dummy_feedback_data
+# %%
+num_entries_per_experiment = 5  # Define the number of dummy data entries you want to create
 
 
-def create_dummy_files(base_output_directory, num_entries, base_experiment_run_name):
-    dummy_experiment_data, dummy_feedback_data = create_dummy_data_entries(
-        base_output_directory, num_entries, base_experiment_run_name
-    )
-    output_path = os.path.join(base_output_directory, "experiment_results.jsonl")
-    with open(output_path, "w") as f:
-        for item in dummy_experiment_data:
-            f.write(json.dumps(item) + "\n")
+# Some dummy data
+PROJECT = "dummy_project"
+DATASET = "dummy_dataset"
+with open(os.getcwd() + "/test/assets/test-background-generation.json", "r") as file:
+    WORKFLOW_APIFORMAT_JSON = json.load(file)
+WORKFLOW_PILLOW_IMAGE = Image.open(
+    os.getcwd() + "/test/assets/test-background-generation.png"
+)
+EXPERIMENT_RUN_NAME = "dummy-run"
 
-    feedback_tracking_path = os.path.join(
-        current_directory,
-        local_results_folder,
-        project_name,
-        "feedback_tracking.jsonl",
-    )
-    with open(feedback_tracking_path, "w") as f:
-        for item in dummy_feedback_data:
-            f.write(json.dumps(item) + "\n")
+# %%
+from pixaris.experiment_handlers.local import LocalExperimentHandler
 
-    print(f"dummy data and images created in '{base_output_directory}'")
+# Here, we simulate the case that we generated a bunch of images and want to track this experiment.
+
+experiment_handler = LocalExperimentHandler()
+
+dummy_image_name_pairs = [
+    (create_tiger_image(random.randint(0, 10_000_000)), f"tiger_{i+1}.png")
+    for i in range(num_entries_per_experiment)
+    ]
+dummy_args = {
+    "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
+    "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
+    "project": PROJECT,
+    "dataset": DATASET,
+    "experiment_run_name": EXPERIMENT_RUN_NAME,
+}
+
+experiment_handler.store_results(
+    project=PROJECT,
+    dataset=DATASET,
+    experiment_run_name=EXPERIMENT_RUN_NAME,
+    image_name_pairs=dummy_image_name_pairs,
+    metric_values=[],
+    args=dummy_args,
+)
+
+# %% [markdown]
+# ### Create Dummy Data for Feedback Tracking
+
+# %%
+from pixaris.feedback_handlers.local import LocalFeedbackHandler
+
+# Here, we pretend we already have a directory where we stored images, that we want to from into a feedback iteration.
+
+num_entries_per_feedback_iteration = 8
+
+temp_directory =  "temp_feedback_directory"
+os.makedirs("temp_feedback_directory", exist_ok=True)
+for i in range(num_entries_per_feedback_iteration):
+    img = create_tiger_image(random.randint(0, 10_000_000))
+    img.save(f"{temp_directory}/tiger_{i+1}.png")
+local_image_directory = temp_directory # if you actually have a directory with images, you can use it here
 
 
-if __name__ == "__main__":
-    create_dummy_files(base_output_directory, num_entries, base_experiment_run_name)
+
+# ### Create Feedback Iteration
+feedback_handler = LocalFeedbackHandler()
+PROJECT = "dummy_project"
+FEEDBACK_ITERATION = "dummy_feedback_iteration"
+
+feedback_handler.create_feedback_iteration(
+    local_image_directory=local_image_directory,
+    project=PROJECT,
+    feedback_iteration=FEEDBACK_ITERATION,
+    dataset=None,  # optional
+    experiment_name=None,  # optional
+)
+
+shutil.rmtree(temp_directory) # remove the temp directory
+
+# %%

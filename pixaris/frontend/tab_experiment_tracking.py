@@ -16,7 +16,6 @@ def render_experiment_tracking_tab(
 
             project_name = gr.Dropdown(
                 choices=PROJECTS,
-                value="",
                 label="Project",
                 filterable=True,
             )
@@ -24,8 +23,6 @@ def render_experiment_tracking_tab(
             # initialise hidden feedback iterations and button
             dataset = gr.Dropdown(
                 visible=False,
-                value="",
-                choices=[""],
             )
 
             def update_dataset_choices(project_name, dataset):
@@ -75,7 +72,6 @@ def render_experiment_tracking_tab(
                 experiment_choices.sort()
                 experiments = gr.Dropdown(
                     choices=experiment_choices,
-                    value=experiment_choices[-1],
                     label="Experiments",
                     filterable=True,
                     multiselect=True,
