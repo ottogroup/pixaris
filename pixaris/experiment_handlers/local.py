@@ -129,7 +129,10 @@ class LocalExperimentHandler(ExperimentHandler):
         for project in projects:
             project_path = os.path.join(self.local_results_folder, project)
             if os.path.isdir(project_path):
-                project_dict[project] = os.listdir(project_path)
+                # list datasets, excluding feedback_iterations folder and feedback_tracking.jsonl
+                datasets = os.listdir(project_path)
+                datasets = [folder for folder in datasets if "feedback" not in folder]
+                project_dict[project] = datasets
         return project_dict
 
     def load_experiment_results_for_dataset(
@@ -151,7 +154,7 @@ class LocalExperimentHandler(ExperimentHandler):
             self.local_results_folder,
             project,
             dataset,
-            "experiment_results.jsonl",
+            "experiment_tracking.jsonl",
         )
 
         if os.path.exists(results_file) and os.stat(results_file).st_size > 0:
@@ -161,5 +164,10 @@ class LocalExperimentHandler(ExperimentHandler):
                 pass
         return pd.DataFrame()
 
-    def load_images_for_experiment(self):
+    def load_images_for_experiment(
+            self,
+            project: str,
+            dataset: str,
+            experiment_run_name: str,
+            results_directory: str):
         pass  # todo
