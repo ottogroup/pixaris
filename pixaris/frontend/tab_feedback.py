@@ -6,7 +6,7 @@ def render_feedback_tab(
     feedback_handler: FeedbackHandler,
 ):
     # initially load all projects
-    PROJECTS = feedback_handler.load_projects_list()
+    PROJECTS = [""] + feedback_handler.load_projects_list()
 
     feedback_details = (
         gr.State(  # is adjusted from inside a gr.render decorated function. See below.
@@ -50,14 +50,9 @@ def render_feedback_tab(
             )
         with gr.Row(scale=8):
             project_name = gr.Dropdown(
-                value=PROJECTS[0],
                 choices=PROJECTS,
                 label="Project",
                 filterable=True,
-            )
-            project_info_button = gr.Button(
-                "Show Feedback Iterations for Project",
-                size="sm",
             )
 
             # initialise hidden feedback iterations and button
@@ -81,7 +76,7 @@ def render_feedback_tab(
                 )
                 return feedback_iterations
 
-            project_info_button.click(
+            project_name.change(
                 fn=update_feedback_iteration_choices,
                 inputs=[
                     project_name,

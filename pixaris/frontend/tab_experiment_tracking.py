@@ -21,9 +21,7 @@ def render_experiment_tracking_tab(
             )
 
             # initialise hidden feedback iterations and button
-            dataset = gr.Dropdown(
-                visible=False,
-            )
+            dataset = gr.Dropdown(visible=False)
 
             def update_dataset_choices(project_name, dataset):
                 """Update choices of feedback iterations for selected project and display reload button."""
@@ -117,22 +115,22 @@ def render_experiment_tracking_tab(
                 gr.Markdown("No experiment chosen.")
             else:
                 for experiment_name in experiments:
-                    experiment_images = experiment_handler.load_images_for_experiment(
-                        project=project_name,
-                        dataset=dataset,
-                        experiment_run_name=experiment_name,
-                        results_directory=results_directory,
-                    )
-                    gr.Gallery(
-                        value=experiment_images,
-                        label=experiment_name,
-                        columns=columns,
-                        rows=1,
-                        show_download_button=True,
-                        show_fullscreen_button=True,
-                        height=gallery_height,
-                        object_fit="fill",
-                    )
+                    with gr.Accordion(label=f"Experiment {experiment_name}"):
+                        experiment_images = experiment_handler.load_images_for_experiment(
+                            project=project_name,
+                            dataset=dataset,
+                            experiment_run_name=experiment_name,
+                            results_directory=results_directory,
+                        )
+                        gr.Gallery(
+                            value=experiment_images,
+                            columns=columns,
+                            rows=1,
+                            show_download_button=True,
+                            show_fullscreen_button=True,
+                            height=gallery_height,
+                            object_fit="fill",
+                        )
 
     with gr.Tab("Table"):
 
