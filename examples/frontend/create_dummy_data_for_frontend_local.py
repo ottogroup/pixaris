@@ -7,6 +7,8 @@ import random
 import shutil
 import os
 from PIL import Image, ImageDraw
+from pixaris.feedback_handlers.local import LocalFeedbackHandler
+from pixaris.experiment_handlers.local import LocalExperimentHandler
 
 
 if False:  # set to True if executing from notebook
@@ -79,7 +81,6 @@ WORKFLOW_PILLOW_IMAGE = Image.open(
 EXPERIMENT_RUN_NAME = "dummy-run"
 
 # %%
-from pixaris.experiment_handlers.local import LocalExperimentHandler
 
 # Here, we simulate the case that we generated a bunch of images and want to track this experiment.
 
@@ -110,7 +111,6 @@ experiment_handler.store_results(
 # ### Create Dummy Data for Feedback Tracking
 
 # %%
-from pixaris.feedback_handlers.local import LocalFeedbackHandler
 
 # Here, we pretend we already have a directory where we stored images, that we want to from into a feedback iteration.
 

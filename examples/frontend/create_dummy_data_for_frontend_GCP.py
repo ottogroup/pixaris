@@ -8,6 +8,8 @@ import shutil
 import os
 from PIL import Image, ImageDraw
 import yaml
+from pixaris.experiment_handlers.gcp import GCPExperimentHandler
+from pixaris.feedback_handlers.gcp import GCPFeedbackHandler
 
 print(os.getcwd())
 
@@ -83,7 +85,6 @@ WORKFLOW_PILLOW_IMAGE = Image.open(
 EXPERIMENT_RUN_NAME = "dummy-run"
 
 # %%
-from pixaris.experiment_handlers.gcp import GCPExperimentHandler
 
 # Here, we simulate the case that we generated a bunch of images and want to track this experiment.
 
@@ -118,7 +119,6 @@ experiment_handler.store_results(
 # ### Create Dummy Data for Feedback Tracking
 
 # %%
-from pixaris.feedback_handlers.gcp import GCPFeedbackHandler
 
 # Here, we pretend we already have a directory where we stored images, that we want to from into a feedback iteration.
 
