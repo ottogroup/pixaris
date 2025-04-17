@@ -10,7 +10,7 @@ Keeping track of experiments and optimizing complex workflows for image generati
 
 Inspired by the MLOps mindset, we aim to cultivate an ImageOps approach. With Pixaris, you can track, compare, and evaluate your experiments with advanced orchestration capabilities and comprehensive metrics.
 
-![ExperimentTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/pixaris_screenshot_explanations.png)
+![ExperimentTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/pixaris_experiment_screenshot_explanations.png)
 
 **Key Features**
 
@@ -195,7 +195,7 @@ docker pull ghcr.io/ottogroup/pixaris:latest
 ## Pixaris UI: Viewing Results and Giving Feedback
 You can directly use the GUI to inspect your experiment results and provide feedback on them. For this, you need to define an `ExperimentHandler` and `FeedbackHandler` to call `launch_ui`. They will handle loading experiments and managing feedback. Both experiment handling and feedback handling have an organising level `project` at the top. This allows you to sort your experiments and feedbacks per use case, topic, time, or whatever you like.
 
-![Overview of Classes for UI](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/UI_overview.png)
+<img src="https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/UI_overview.png" alt="Overview of Classes for UI" width="400">
 
 Using local components:
 ```python
@@ -207,14 +207,15 @@ launch_ui(feedback_handler, experiment_handler)
 ```
 The UI is then available at `http://localhost:8080`.
 
+Find code to setup dummy data and deploy the frontend in [this folder](examples/frontend/).
 ### Viewing the Experiment Results
 In the Experiment Tab, you can see the generated images as well as the results of metrics in tabular form.
-![ExperimentTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/pixaris_screenshot_explanations.png)
+![ExperimentTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/pixaris_experiment_screenshot_explanations.png)
 
 ### Giving Feedback on Generated Images
-When reviewing your generated images, Pixaris UI lets you rate which images are good and which aren't. To do this either alone or with your team, you can use Feedback tab in the UI. `feedback_iteration`s are independent from experiment datasets. You could e.g. have a feedback_iteration that consists of your favorite experiment runs, or you could freely generate a bunch of images and form them into a `feedback_iteration`. It is completely up to you.
+When reviewing your generated images, Pixaris UI lets you rate which images are good and which aren't. To do this either alone or with your team, you can use Feedback tab in the UI. `feedback_iteration`s are independent from experiment datasets. You could e.g. have a feedback_iteration that consists of your favorite experiment runs, or you could freely generate a bunch of images and form them into a `feedback_iteration`. It is completely up to you. Here you can see some cute chinchillas and how the author would rate the images.
 
-WORK IN PROGRESS TODO: add feedback view.
+![FeedbackTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/pixaris_feedback_screenshot_explanations.png)
 
 
 ## Naming Conventions
