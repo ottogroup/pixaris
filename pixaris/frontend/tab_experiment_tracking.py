@@ -16,17 +16,12 @@ def render_experiment_tracking_tab(
 
             project_name = gr.Dropdown(
                 choices=PROJECTS,
-                value="",
                 label="Project",
                 filterable=True,
             )
 
             # initialise hidden feedback iterations and button
-            dataset = gr.Dropdown(
-                visible=False,
-                value="",
-                choices=[""],
-            )
+            dataset = gr.Dropdown(visible=False)
 
             def update_dataset_choices(project_name, dataset):
                 """Update choices of feedback iterations for selected project and display reload button."""
@@ -75,7 +70,6 @@ def render_experiment_tracking_tab(
                 experiment_choices.sort()
                 experiments = gr.Dropdown(
                     choices=experiment_choices,
-                    value=experiment_choices[-1],
                     label="Experiments",
                     filterable=True,
                     multiselect=True,
@@ -118,9 +112,10 @@ def render_experiment_tracking_tab(
         def show_gallery(project_name, dataset, experiments, columns, gallery_height):
             """Renders one gallery per experiment. Render decorator enables listening to experiments checkbox group."""
             if not experiments:
-                gr.Markdown("No experiment chosen.")
-            else:
-                for experiment_name in experiments:
+                gr.Markdown("No experiment selected.")
+                return
+            for experiment_name in experiments:
+                with gr.Accordion(label=f"Experiment {experiment_name}"):
                     experiment_images = experiment_handler.load_images_for_experiment(
                         project=project_name,
                         dataset=dataset,
@@ -129,7 +124,6 @@ def render_experiment_tracking_tab(
                     )
                     gr.Gallery(
                         value=experiment_images,
-                        label=experiment_name,
                         columns=columns,
                         rows=1,
                         show_download_button=True,

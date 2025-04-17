@@ -4,7 +4,7 @@ from pixaris.experiment_handlers.gcp import GCPExperimentHandler
 import yaml
 
 
-# To create dummy data for the frontend: examples/frontend/create_dummy_data_for_frontend.py
+# To create dummy data for the frontend: examples/frontend/create_dummy_data_for_frontend_GCP.py
 
 config = yaml.safe_load(open("pixaris/config.yaml"))
 

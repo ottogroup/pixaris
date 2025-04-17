@@ -110,6 +110,9 @@ class GCPFeedbackHandler(FeedbackHandler):
                 f"Errors occurred while inserting row: {errors[0]['errors']}",
                 duration=10,
             )
+            raise ValueError(
+                f"Errors occurred while inserting row: {errors[0]['errors']}"
+            )
 
     def _initialise_feedback_iteration_in_table(
         self,
@@ -225,18 +228,19 @@ class GCPFeedbackHandler(FeedbackHandler):
             date_suffix = datetime.now().strftime("%y%m%d")
         feedback_iteration = f"{date_suffix}_{feedback_iteration}"
 
-        self._save_images_to_feedback_iteration_folder(
-            local_image_directory=local_image_directory,
-            project=project,
-            feedback_iteration=feedback_iteration,
-            image_names=image_names,
-        )
         self._initialise_feedback_iteration_in_table(
             project=project,
             feedback_iteration=feedback_iteration,
             image_names=image_names,
             dataset=dataset,
             experiment_name=experiment_name,
+        )
+
+        self._save_images_to_feedback_iteration_folder(
+            local_image_directory=local_image_directory,
+            project=project,
+            feedback_iteration=feedback_iteration,
+            image_names=image_names,
         )
 
     def load_projects_list(self) -> list[str]:
@@ -363,7 +367,9 @@ class GCPFeedbackHandler(FeedbackHandler):
                 self._download_image(image_path_bucket, image_path_local)
 
         print("Done.")
-        return iteration_df["image_path_local"].tolist()
+        image_paths_local = iteration_df["image_path_local"].tolist()
+        image_paths_local.sort()
+        return image_paths_local
 
     def _download_image(
         self,

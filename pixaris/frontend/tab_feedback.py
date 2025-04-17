@@ -6,7 +6,7 @@ def render_feedback_tab(
     feedback_handler: FeedbackHandler,
 ):
     # initially load all projects
-    PROJECTS = feedback_handler.load_projects_list()
+    PROJECTS = [""] + feedback_handler.load_projects_list()
 
     feedback_details = (
         gr.State(  # is adjusted from inside a gr.render decorated function. See below.
@@ -50,23 +50,15 @@ def render_feedback_tab(
             )
         with gr.Row(scale=8):
             project_name = gr.Dropdown(
-                value=PROJECTS[0],
                 choices=PROJECTS,
                 label="Project",
                 filterable=True,
             )
-            project_info_button = gr.Button(
-                "Show Feedback Iterations for Project",
-                size="sm",
-            )
 
             # initialise hidden feedback iterations and button
             feedback_iterations = gr.Dropdown(visible=False)
-            feedback_iteration_results_button = gr.Button(visible=False)
 
-            def update_feedback_iteration_choices(
-                project_name, feedback_iterations, feedback_iteration_results_button
-            ):
+            def update_feedback_iteration_choices(project_name, feedback_iterations):
                 """Update choices of feedback iterations for selected project and display reload button."""
                 feedback_handler.load_all_feedback_iterations_for_project(project_name)
                 feedback_iteration_choices = feedback_handler.feedback_iteration_choices
@@ -80,21 +72,15 @@ def render_feedback_tab(
                     max_choices=100,
                     interactive=True,
                 )
-                feedback_iteration_results_button = gr.Button(
-                    "Reload Images",
-                    size="sm",
-                    visible=True,
-                )
-                return feedback_iterations, feedback_iteration_results_button
+                return feedback_iterations
 
-            project_info_button.click(
+            project_name.change(
                 fn=update_feedback_iteration_choices,
                 inputs=[
                     project_name,
                     feedback_iterations,
-                    feedback_iteration_results_button,
                 ],
-                outputs=[feedback_iterations, feedback_iteration_results_button],
+                outputs=[feedback_iterations],
             )
 
     @gr.render(inputs=[feedback_iterations, columns])
@@ -106,6 +92,9 @@ def render_feedback_tab(
         - each accordion contains rows of images with the number of columns specified by the user
         - each image is associated with feedback functionality
         """
+        if not feedback_iterations:
+            gr.Markdown("No feedback iteration selected.")
+            return
         for feedback_iteration in feedback_iterations:
             # load the images corresponding to this feedback iteration
             feedback_iteration_images = (
