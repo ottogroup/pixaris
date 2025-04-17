@@ -16,7 +16,7 @@ if False:  # set to True if executing from notebook
 
 
 # %%
-# define some functions to setup the dummy data
+# define a function to setup the dummy images
 
 
 def create_tiger_image(background_color_int: int):
@@ -65,12 +65,11 @@ img
 # ### Create Dummy Data for Experiment Tracking
 
 # %%
-num_entries_per_experiment = (
-    5  # Define the number of dummy data entries you want to create
-)
+# Define some dummy data for experiment
 
+# Define the number of dummy data entries you want to create
+num_entries_per_experiment = 5
 
-# Some dummy data
 PROJECT = "dummy_project"
 DATASET = "dummy_dataset"
 with open(os.getcwd() + "/test/assets/test-background-generation.json", "r") as file:
@@ -91,6 +90,7 @@ dummy_image_name_pairs = [
     (create_tiger_image(random.randint(0, 10_000_000)), f"tiger_{i + 1}.png")
     for i in range(num_entries_per_experiment)
 ]
+# args are relevant for the generator mainly, but are expected in an ExperimentHandler as well.
 dummy_args = {
     "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
     "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
@@ -112,11 +112,10 @@ experiment_handler.store_results(
 # ### Create Dummy Data for Feedback Tracking
 
 # %%
-
-# Here, we pretend we already have a directory where we stored images, that we want to from into a feedback iteration.
-
+# Define some dummy data for feedback
 num_entries_per_feedback_iteration = 8
 
+# Here, we pretend we already have a directory where we stored images, that we want to form into a feedback iteration.
 temp_directory = "temp_feedback_directory"
 os.makedirs("temp_feedback_directory", exist_ok=True)
 for i in range(num_entries_per_feedback_iteration):
@@ -140,6 +139,4 @@ feedback_handler.create_feedback_iteration(
     experiment_name=None,  # optional
 )
 
-shutil.rmtree(temp_directory)  # remove the temp directory
-
-# %%
+shutil.rmtree(temp_directory)  # cleanup the temp directory
