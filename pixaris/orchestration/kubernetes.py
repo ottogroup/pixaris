@@ -193,7 +193,7 @@ def pixaris_orchestration_kubernetes_locally(
                     "containers": [
                         {
                             "name": "main",
-                            "image": f"europe-west4-docker.pkg.dev/{args['gcp_project_id']}/docker-registry/pixaris_image:latest",
+                            "image": "ghcr.io/ottogroup/pixaris:latest",
                             "command": [
                                 "pixaris-orchestration-kubernetes",
                                 "cli-kubernetes-generate-images-based-on-eval-set-execute-remotely",
