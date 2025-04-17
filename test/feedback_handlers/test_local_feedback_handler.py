@@ -48,7 +48,9 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         local_feedback_handler.write_single_feedback(feedback)
 
         # check if the feedback was written to the correct file
-        feedback_file_path = "temp_test_files/test_project/feedback_tracking.jsonl"
+        feedback_file_path = (
+            "temp_test_files/test_project/feedback_iterations/feedback_tracking.jsonl"
+        )
         self.assertTrue(os.path.exists(feedback_file_path))
 
         # check if the feedback was written correctly
