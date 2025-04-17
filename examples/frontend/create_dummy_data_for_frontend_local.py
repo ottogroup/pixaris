@@ -86,6 +86,7 @@ EXPERIMENT_RUN_NAME = "dummy-run"
 
 experiment_handler = LocalExperimentHandler()
 
+# these are the images that would come from a Generator.
 dummy_image_name_pairs = [
     (create_tiger_image(random.randint(0, 10_000_000)), f"tiger_{i + 1}.png")
     for i in range(num_entries_per_experiment)
@@ -125,8 +126,8 @@ local_image_directory = (
     temp_directory  # if you actually have a directory with images, you can use it here
 )
 
-
-# ### Create Feedback Iteration
+# %%
+# Create Feedback Iteration
 feedback_handler = LocalFeedbackHandler()
 PROJECT = "dummy_project"
 FEEDBACK_ITERATION = "dummy_feedback_iteration"

@@ -94,6 +94,7 @@ experiment_handler = GCPExperimentHandler(
     gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
 )
 
+# these are the images that would come from a Generator.
 dummy_image_name_pairs = [
     (create_tiger_image(random.randint(0, 10_000_000)), f"tiger_{i + 1}.png")
     for i in range(num_entries_per_experiment)
@@ -133,8 +134,8 @@ local_image_directory = (
     temp_directory  # if you actually have a directory with images, you can use it here
 )
 
-
-# ### Create Feedback Iteration
+# %%
+# Create Feedback Iteration
 feedback_handler = GCPFeedbackHandler(
     gcp_project_id=config["gcp_project_id"],
     gcp_bq_feedback_table=config["gcp_bq_feedback_table"],
