@@ -93,6 +93,7 @@ def render_feedback_tab(
         - each image is associated with feedback functionality
         """
         if not feedback_iterations:
+            gr.Markdown("No feedback iteration selected.")
             return
         for feedback_iteration in feedback_iterations:
             # load the images corresponding to this feedback iteration

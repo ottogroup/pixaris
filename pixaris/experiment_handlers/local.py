@@ -131,7 +131,7 @@ class LocalExperimentHandler(ExperimentHandler):
             if os.path.isdir(project_path):
                 # list datasets, excluding feedback_iterations folder and feedback_tracking.jsonl
                 datasets = os.listdir(project_path)
-                datasets = [folder for folder in datasets if "feedback" not in folder]
+                datasets = [folder for folder in datasets if folder != "feedback_iterations"]
                 project_dict[project] = datasets
         return project_dict
 
