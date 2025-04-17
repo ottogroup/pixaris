@@ -116,13 +116,11 @@ def render_experiment_tracking_tab(
                 return
             for experiment_name in experiments:
                 with gr.Accordion(label=f"Experiment {experiment_name}"):
-                    experiment_images = (
-                        experiment_handler.load_images_for_experiment(
-                            project=project_name,
-                            dataset=dataset,
-                            experiment_run_name=experiment_name,
-                            results_directory=results_directory,
-                        )
+                    experiment_images = experiment_handler.load_images_for_experiment(
+                        project=project_name,
+                        dataset=dataset,
+                        experiment_run_name=experiment_name,
+                        results_directory=results_directory,
                     )
                     gr.Gallery(
                         value=experiment_images,
