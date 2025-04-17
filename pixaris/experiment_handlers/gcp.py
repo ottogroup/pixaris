@@ -223,7 +223,11 @@ class GCPExperimentHandler(ExperimentHandler):
         table_ref = f"{self.gcp_bq_experiment_dataset}.{self.project}_{self.dataset}_experiment_results"
 
         # Ensure table exists with correct schema
-        ensure_table_exists(table_ref, bigquery_input, self.bigquery_client)
+        ensure_table_exists(
+            table_ref=table_ref,
+            bigquery_input=bigquery_input,
+            bigquery_client=self.bigquery_client,
+        )
 
         # Insert the row into BigQuery
         errors = self.bigquery_client.insert_rows_json(table_ref, [bigquery_input])
@@ -299,12 +303,13 @@ class GCPExperimentHandler(ExperimentHandler):
         self._prepare_additional_pillow_images_upload(
             args=args, image_name_pairs=image_name_pairs
         )
-        self._store_generated_images(image_name_pairs=image_name_pairs)
 
         # upload all content of metric_values and args to bigquery and bucket if applicable
         self._store_experiment_parameters_and_results(
             metric_values=metric_values, args=args
         )
+
+        self._store_generated_images(image_name_pairs=image_name_pairs)
 
     def load_projects_and_datasets(self) -> dict:
         """
@@ -414,4 +419,5 @@ class GCPExperimentHandler(ExperimentHandler):
                 blob.download_to_filename(image_path_local)
 
         print("Done.")
+        local_image_paths.sort()
         return local_image_paths

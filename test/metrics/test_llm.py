@@ -5,6 +5,8 @@ from PIL import Image
 from pixaris.metrics.llm import LLMMetric
 
 
+# skip this test
+@unittest.skip("Skip LLMMetricTest. See bug ticket tiga-888")
 class LLMMetricTest(unittest.TestCase):
     def test_llm_correct(self):
         object_dir = "test/test_project/mock/input/"

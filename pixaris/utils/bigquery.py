@@ -22,7 +22,7 @@ def python_type_to_bq_type(python_type):
     )  # Default to STRING if type is unknown, such as datetime
 
 
-def create_schema_from_dict(data_dict):
+def create_schema_from_dict(data_dict) -> list[bigquery.SchemaField]:
     """
     Creates a BigQuery schema from a dictionary of data.
 
@@ -41,15 +41,18 @@ def create_schema_from_dict(data_dict):
 
 
 def ensure_table_exists(
-    table_ref: str, bigquery_input: dict, bigquery_client: bigquery.Client
+    table_ref: str,
+    bigquery_input: dict,
+    bigquery_client: bigquery.Client,
 ):
     """
     Ensures that the BigQuery table exists with the correct schema.
-
     :param table_ref: The reference to the BigQuery table.
     :type table_ref: str
     :param bigquery_input: The dictionary used to generate the schema.
     :type bigquery_input: dict
+    :param bigquery_client: The BigQuery client.
+    :type bigquery_client: bigquery.Client
     """
     schema = create_schema_from_dict(bigquery_input)
 
@@ -59,6 +62,7 @@ def ensure_table_exists(
         if "Not found: Table" in str(e):
             table = bigquery.Table(table_ref, schema=schema)
             bigquery_client.create_table(table)
+            table = bigquery_client.get_table(table_ref)
             print(f"Created table {table_ref}.")
         else:
             raise e
