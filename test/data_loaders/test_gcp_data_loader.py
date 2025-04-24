@@ -10,7 +10,7 @@ def copy_test_project():
     # Copy the test project to a temporary location
     test_project_path = os.path.join(os.getcwd(), "test", "test_project")
     temp_test_project_path = os.path.join(
-        os.getcwd(), "temp_test_projects", "test_project"
+        os.getcwd(), "temp_test_files", "test_project"
     )
 
     if os.path.exists(temp_test_project_path):
@@ -21,9 +21,7 @@ def copy_test_project():
 
 def tearDown():
     # Remove the temporary directory after each test
-    temp_test_project_path = os.path.join(
-        os.getcwd(), "temp_test_projects", "test_project"
-    )
+    temp_test_project_path = os.path.join(os.getcwd(), "temp_test_files")
     if os.path.exists(temp_test_project_path):
         shutil.rmtree(temp_test_project_path)
 
@@ -42,7 +40,7 @@ class TestLocalDataset(unittest.TestCase):
             gcp_pixaris_bucket_name="test_bucket_name",
             project="test_project",
             dataset="mock",
-            eval_dir_local="temp_test_projects",
+            eval_dir_local="temp_test_files",
         )
         dataset = loader.load_dataset()
         print(dataset)
@@ -66,7 +64,7 @@ class TestLocalDataset(unittest.TestCase):
             gcp_pixaris_bucket_name="test_bucket_name",
             project="test_project",
             dataset="mock",
-            eval_dir_local="temp_test_projects",
+            eval_dir_local="temp_test_files",
             force_download=True,
         )
         self.assertTrue(loader._decide_if_download_needed())
@@ -83,7 +81,7 @@ class TestLocalDataset(unittest.TestCase):
             gcp_pixaris_bucket_name="test_bucket_name",
             project="test_project",
             dataset="empty",
-            eval_dir_local="temp_test_projects",
+            eval_dir_local="temp_test_files",
             force_download=False,
         )
         self.assertTrue(loader._decide_if_download_needed())
@@ -100,7 +98,7 @@ class TestLocalDataset(unittest.TestCase):
             gcp_pixaris_bucket_name="test_bucket_name",
             project="test_project",
             dataset="mock",
-            eval_dir_local="temp_test_projects",
+            eval_dir_local="temp_test_files",
             force_download=False,
         )
         self.assertFalse(loader._decide_if_download_needed())
@@ -117,7 +115,7 @@ class TestLocalDataset(unittest.TestCase):
             gcp_pixaris_bucket_name="test_bucket_name",
             project="test_project",
             dataset="mock",
-            eval_dir_local="temp_test_projects",
+            eval_dir_local="temp_test_files",
         )
         loader.image_dirs = ["input", "mask"]
         image_names = loader._retrieve_and_check_dataset_image_names()
@@ -138,7 +136,7 @@ class TestLocalDataset(unittest.TestCase):
             gcp_pixaris_bucket_name="test_bucket_name",
             project="test_project",
             dataset="faulty_names",
-            eval_dir_local="temp_test_projects",
+            eval_dir_local="temp_test_files",
         )
         loader.image_dirs = ["input", "mask"]
         with self.assertRaisesRegex(

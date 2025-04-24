@@ -7,6 +7,7 @@ import os
 
 TEMP_TEST_FILES_DIR = os.path.join(os.path.dirname(__file__), "../../temp_test_files")
 
+
 def copy_test_results():
     source_dir = os.path.join(os.path.dirname(__file__), "../test_results/")
     destination_dir = TEMP_TEST_FILES_DIR
@@ -15,6 +16,7 @@ def copy_test_results():
         os.makedirs(destination_dir)
 
     shutil.copytree(source_dir, destination_dir, dirs_exist_ok=True)
+
 
 def copy_test_project():
     source_dir = os.path.join(os.path.dirname(__file__), "../test_project/")
@@ -60,7 +62,7 @@ class TestLocalFeedbackHandler(unittest.TestCase):
 
         # check if the feedback was written to the correct file
         feedback_file_path = (
-            f"temp_test_files/test_project/feedback_iterations/feedback_tracking.jsonl"
+            "temp_test_files/test_project/feedback_iterations/feedback_tracking.jsonl"
         )
         self.assertTrue(os.path.exists(feedback_file_path))
 
@@ -80,22 +82,22 @@ class TestLocalFeedbackHandler(unittest.TestCase):
             self.assertEqual(last_line["comment"], feedback["comment"])
 
         tearDown()
-    
+
     def test_save_images_to_feedback_iteration_folder(self):
         copy_test_project()
-        
+
         local_feedback_handler = LocalFeedbackHandler(
             project_feedback_dir="feedback_iterations",
             project_feedback_file="feedback_tracking.jsonl",
             local_feedback_directory=TEMP_TEST_FILES_DIR,
         )
-        
+
         local_feedback_handler._save_images_to_feedback_iteration_folder(
             local_image_directory="temp_test_files/test_project/mock/input",
             project="test_project",
             feedback_iteration="test_iteration",
         )
-        
+
         # Check if the images were saved correctly
         feedback_iteration_dir = os.path.join(
             TEMP_TEST_FILES_DIR,
@@ -105,22 +107,24 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         )
         self.assertTrue(os.path.exists(feedback_iteration_dir))
         self.assertTrue(
-            os.path.exists(
-                os.path.join(
-                    feedback_iteration_dir, "chinchilla.png"
-                )
-            )
+            os.path.exists(os.path.join(feedback_iteration_dir, "chinchilla.png"))
         )
         self.assertTrue(
-            os.path.exists(
-                os.path.join(
-                    feedback_iteration_dir, "sillygoose.png"
-                )
+            os.path.exists(os.path.join(feedback_iteration_dir, "sillygoose.png"))
+        )
+        tearDown()
+
+    def test_initialise_feedback_iteration_in_table(self):
+        copy_test_results()
+        os.remove(
+            os.path.join(
+                TEMP_TEST_FILES_DIR,
+                "test_project",
+                "feedback_iterations",
+                "feedback_tracking.jsonl",
             )
         )
-        # tearDown()
 
-    def test_load_projects_list(self):
         # Create a mock feedback handler
         local_feedback_handler = LocalFeedbackHandler(
             project_feedback_dir="feedback_iterations",
@@ -128,7 +132,68 @@ class TestLocalFeedbackHandler(unittest.TestCase):
             local_feedback_directory=TEMP_TEST_FILES_DIR,
         )
 
-        copy_test_results()
+        # Call the method to test
+        local_feedback_handler._initialise_feedback_iteration_in_table(
+            "test_project",
+            "test_iteration",
+            ["cat.png", "chinchilla.png", "doggo.png", "sillygoose.png"],
+        )
+
+        # Check if the feedback iteration was initialized correctly
+        feedback_file_path = (
+            "temp_test_files/test_project/feedback_iterations/feedback_tracking.jsonl"
+        )
+        self.assertTrue(os.path.exists(feedback_file_path))
+
+        # Check if the feedback iteration was initialized correctly
+        with open(feedback_file_path, "r") as f:
+            lines = f.readlines()
+            self.assertEqual(len(lines), 4)
+
+        tearDown()
+
+    def test_create_feedback_iteration(self):
+        copy_test_project()
+
+        # Create a mock feedback handler
+        local_feedback_handler = LocalFeedbackHandler(
+            project_feedback_dir="feedback_iterations",
+            project_feedback_file="feedback_tracking.jsonl",
+            local_feedback_directory=TEMP_TEST_FILES_DIR,
+        )
+
+        # Call the method to test
+        local_feedback_handler.create_feedback_iteration(
+            local_image_directory="temp_test_files/test_project/mock/input",
+            project="test_project",
+            feedback_iteration="test_iteration",
+            date_suffix="010101",
+        )
+
+        # Check if the feedback iteration was created correctly
+        feedback_file_path = (
+            "temp_test_files/test_project/feedback_iterations/feedback_tracking.jsonl"
+        )
+        self.assertTrue(os.path.exists(feedback_file_path))
+
+        # Check if the feedback iteration was created correctly
+        with open(feedback_file_path, "r") as f:
+            lines = f.readlines()
+            self.assertEqual(len(lines), 4)
+            self.assertIn("test_project", lines[0])
+            self.assertIn("010101_test_iteration", lines[0])
+
+        tearDown()
+
+    def test_load_projects_list(self):
+        copy_test_project()
+
+        # Create a mock feedback handler
+        local_feedback_handler = LocalFeedbackHandler(
+            project_feedback_dir="feedback_iterations",
+            project_feedback_file="feedback_tracking.jsonl",
+            local_feedback_directory=TEMP_TEST_FILES_DIR,
+        )
 
         # Call the method to test
         projects = local_feedback_handler.load_projects_list()
@@ -139,14 +204,14 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         tearDown()
 
     def test_load_all_feedback_iterations_for_project(self):
+        copy_test_results()
+
         # Create a mock feedback handler
         local_feedback_handler = LocalFeedbackHandler(
             project_feedback_dir="feedback_iterations",
             project_feedback_file="feedback_tracking.jsonl",
             local_feedback_directory=TEMP_TEST_FILES_DIR,
         )
-
-        copy_test_results()
 
         # Call the method to test
         local_feedback_handler.load_all_feedback_iterations_for_project("test_project")
@@ -159,14 +224,14 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         tearDown()
 
     def test_load_images_for_feedback_iteration(self):
+        copy_test_results()
+
         # Create a mock feedback handler
         local_feedback_handler = LocalFeedbackHandler(
             project_feedback_dir="feedback_iterations",
             project_feedback_file="feedback_tracking.jsonl",
             local_feedback_directory=TEMP_TEST_FILES_DIR,
         )
-
-        copy_test_results()
 
         # load the project into df
         local_feedback_handler.load_all_feedback_iterations_for_project("test_project")
@@ -190,4 +255,3 @@ class TestLocalFeedbackHandler(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-    # TestLocalFeedbackHandler().test_save_images_to_feedback_iteration_folder()
