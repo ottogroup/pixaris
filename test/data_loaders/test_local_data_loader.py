@@ -31,7 +31,7 @@ class TestLocalDataset(unittest.TestCase):
 
     def test_retrieve_and_check_dataset_image_faulty_names(self):
         loader = LocalDatasetLoader(
-            project="test_project", dataset="mock", eval_dir_local="test"
+            project="test_project", dataset="faulty_names", eval_dir_local="test"
         )
         loader.image_dirs = ["input", "mask"]
         with self.assertRaisesRegex(
