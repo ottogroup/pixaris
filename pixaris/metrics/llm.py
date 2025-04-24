@@ -8,6 +8,7 @@ from vertexai.generative_models import GenerativeModel, Image as GenAIImage, Par
 import yaml
 from pixaris.metrics.base import BaseMetric
 from pixaris.metrics.utils import dict_mean
+from pixaris.utils.retry import retry
 
 
 class LLMMetric(BaseMetric):
@@ -25,6 +26,7 @@ class LLMMetric(BaseMetric):
         self.object_images = object_images
         self.style_images = style_images
 
+    @retry(exceptions=Exception, tries=3, delay=0.5, max_delay=2, backoff=2)
     def _PIL_image_to_vertex_image(self, image: Image) -> GenAIImage:
         """
         Converts a PIL image to a vertex image.
@@ -129,7 +131,7 @@ class LLMMetric(BaseMetric):
 
         vertexai.init(project=config["gcp_project_id"], location=config["gcp_location"])
 
-        model = GenerativeModel("gemini-1.5-flash-preview-0514")
+        model = GenerativeModel("gemini-2.0-flash")
 
         responses = model.generate_content(prompt, stream=False)
 
