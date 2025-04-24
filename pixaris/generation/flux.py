@@ -53,7 +53,9 @@ class FluxFillGenerator(ImageGenerator):
         :rtype: str
         """
         buffered = BytesIO()
-        pillow_image.save(buffered, format=pillow_image.format)
+        # assigning Image format or JPEG as default
+        format = pillow_image.format or "JPEG"
+        pillow_image.save(buffered, format=format)
         image_data = buffered.getvalue()
         base64_encoded_string = base64.b64encode(image_data).decode("utf-8")
         return base64_encoded_string
