@@ -4,11 +4,9 @@ from pixaris.generation.comfyui import ComfyGenerator
 from pixaris.metrics.llm import LLMMetric
 from pixaris.orchestration.base import generate_images_based_on_dataset
 import os
-import yaml
 import json
 from PIL import Image
 
-config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 PROJECT = "test_project"
 DATASET = "mock"
 with open(os.getcwd() + "/test/assets/test-background-generation.json", "r") as file:
@@ -18,7 +16,6 @@ WORKFLOW_PILLOW_IMAGE = Image.open(
 )
 EXPERIMENT_RUN_NAME = "example-run"
 
-# +
 data_loader = LocalDatasetLoader(
     project=PROJECT,
     dataset=DATASET,
@@ -45,7 +42,6 @@ args = {
     "dataset": DATASET,
     "experiment_run_name": EXPERIMENT_RUN_NAME,
 }
-# -
 
 # execute
 out = generate_images_based_on_dataset(
