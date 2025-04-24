@@ -5,10 +5,21 @@ from pixaris.feedback_handlers.local import LocalFeedbackHandler
 import shutil
 import os
 
+TEMP_TEST_FILES_DIR = os.path.join(os.path.dirname(__file__), "../../temp_test_files")
+
+def copy_test_results():
+    source_dir = os.path.join(os.path.dirname(__file__), "../test_results/")
+    destination_dir = TEMP_TEST_FILES_DIR
+
+    if not os.path.exists(destination_dir):
+        os.makedirs(destination_dir)
+
+    shutil.copytree(source_dir, destination_dir, dirs_exist_ok=True)
 
 def copy_test_project():
-    source_dir = os.path.join(os.path.dirname(__file__), "../test_results/")
-    destination_dir = os.path.join("temp_test_files")
+    source_dir = os.path.join(os.path.dirname(__file__), "../test_project/")
+    destination_dir = TEMP_TEST_FILES_DIR
+    destination_dir = os.path.join(TEMP_TEST_FILES_DIR, "test_project")
 
     if not os.path.exists(destination_dir):
         os.makedirs(destination_dir)
@@ -18,8 +29,8 @@ def copy_test_project():
 
 def tearDown():
     # Remove the temporary directory after each test
-    if os.path.exists("temp_test_files"):
-        shutil.rmtree("temp_test_files")
+    if os.path.exists(TEMP_TEST_FILES_DIR):
+        shutil.rmtree(TEMP_TEST_FILES_DIR)
 
 
 class TestLocalFeedbackHandler(unittest.TestCase):
@@ -28,10 +39,10 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         local_feedback_handler = LocalFeedbackHandler(
             project_feedback_dir="feedback_iterations",
             project_feedback_file="feedback_tracking.jsonl",
-            local_feedback_directory="temp_test_files",
+            local_feedback_directory=TEMP_TEST_FILES_DIR,
         )
 
-        copy_test_project()
+        copy_test_results()
 
         # Create a mock feedback dictionary
         feedback = {
@@ -49,7 +60,7 @@ class TestLocalFeedbackHandler(unittest.TestCase):
 
         # check if the feedback was written to the correct file
         feedback_file_path = (
-            "temp_test_files/test_project/feedback_iterations/feedback_tracking.jsonl"
+            f"temp_test_files/test_project/feedback_iterations/feedback_tracking.jsonl"
         )
         self.assertTrue(os.path.exists(feedback_file_path))
 
@@ -69,16 +80,55 @@ class TestLocalFeedbackHandler(unittest.TestCase):
             self.assertEqual(last_line["comment"], feedback["comment"])
 
         tearDown()
+    
+    def test_save_images_to_feedback_iteration_folder(self):
+        copy_test_project()
+        
+        local_feedback_handler = LocalFeedbackHandler(
+            project_feedback_dir="feedback_iterations",
+            project_feedback_file="feedback_tracking.jsonl",
+            local_feedback_directory=TEMP_TEST_FILES_DIR,
+        )
+        
+        local_feedback_handler._save_images_to_feedback_iteration_folder(
+            local_image_directory="temp_test_files/test_project/mock/input",
+            project="test_project",
+            feedback_iteration="test_iteration",
+        )
+        
+        # Check if the images were saved correctly
+        feedback_iteration_dir = os.path.join(
+            TEMP_TEST_FILES_DIR,
+            "test_project",
+            "feedback_iterations",
+            "test_iteration",
+        )
+        self.assertTrue(os.path.exists(feedback_iteration_dir))
+        self.assertTrue(
+            os.path.exists(
+                os.path.join(
+                    feedback_iteration_dir, "chinchilla.png"
+                )
+            )
+        )
+        self.assertTrue(
+            os.path.exists(
+                os.path.join(
+                    feedback_iteration_dir, "sillygoose.png"
+                )
+            )
+        )
+        # tearDown()
 
     def test_load_projects_list(self):
         # Create a mock feedback handler
         local_feedback_handler = LocalFeedbackHandler(
             project_feedback_dir="feedback_iterations",
             project_feedback_file="feedback_tracking.jsonl",
-            local_feedback_directory="temp_test_files",
+            local_feedback_directory=TEMP_TEST_FILES_DIR,
         )
 
-        copy_test_project()
+        copy_test_results()
 
         # Call the method to test
         projects = local_feedback_handler.load_projects_list()
@@ -93,10 +143,10 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         local_feedback_handler = LocalFeedbackHandler(
             project_feedback_dir="feedback_iterations",
             project_feedback_file="feedback_tracking.jsonl",
-            local_feedback_directory="temp_test_files",
+            local_feedback_directory=TEMP_TEST_FILES_DIR,
         )
 
-        copy_test_project()
+        copy_test_results()
 
         # Call the method to test
         local_feedback_handler.load_all_feedback_iterations_for_project("test_project")
@@ -113,10 +163,10 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         local_feedback_handler = LocalFeedbackHandler(
             project_feedback_dir="feedback_iterations",
             project_feedback_file="feedback_tracking.jsonl",
-            local_feedback_directory="temp_test_files",
+            local_feedback_directory=TEMP_TEST_FILES_DIR,
         )
 
-        copy_test_project()
+        copy_test_results()
 
         # load the project into df
         local_feedback_handler.load_all_feedback_iterations_for_project("test_project")
@@ -130,8 +180,8 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         self.assertEqual(
             image_names,
             [
-                "temp_test_files/test_project/feedback_iterations/test_iteration/chinchilla.jpg",
-                "temp_test_files/test_project/feedback_iterations/test_iteration/sillygoose.jpg",
+                f"{TEMP_TEST_FILES_DIR}/test_project/feedback_iterations/test_iteration/chinchilla.jpg",
+                f"{TEMP_TEST_FILES_DIR}/test_project/feedback_iterations/test_iteration/sillygoose.jpg",
             ],
         )
 
@@ -140,3 +190,4 @@ class TestLocalFeedbackHandler(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+    # TestLocalFeedbackHandler().test_save_images_to_feedback_iteration_folder()
