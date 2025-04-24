@@ -53,7 +53,9 @@ class FluxFillGenerator(ImageGenerator):
         :rtype: str
         """
         buffered = BytesIO()
-        pillow_image.save(buffered, format="JPEG")  # Adjust format as needed
+        # assigning Image format or JPEG as default
+        format = pillow_image.format or "JPEG"
+        pillow_image.save(buffered, format=format)
         image_data = buffered.getvalue()
         base64_encoded_string = base64.b64encode(image_data).decode("utf-8")
         return base64_encoded_string
@@ -73,8 +75,8 @@ class FluxFillGenerator(ImageGenerator):
         :return: The generated image.
         :rtype: PIL.Image.Image
         """
-        input_image = pillow_images[0]["pillow_image"]
-        mask_image = pillow_images[1]["pillow_image"]
+        input_image = pillow_images[1]["pillow_image"]
+        mask_image = pillow_images[0]["pillow_image"]
 
         api_key = os.environ.get("BFL_API_KEY")
 
