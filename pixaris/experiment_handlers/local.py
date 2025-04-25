@@ -177,4 +177,12 @@ class LocalExperimentHandler(ExperimentHandler):
         experiment_run_name: str,
         results_directory: str,
     ):
+        """
+        Returns list of local image paths that belong to the experiment_run_name.
+
+        :param experiment_run_name: Name of the experiment run.
+        :type experiment_run_name: str
+        :return: List of local image paths.
+        :rtype: list[str]
+        """
         pass  # todo

@@ -382,11 +382,10 @@ class GCPExperimentHandler(ExperimentHandler):
         Downloads images for a experiment_run_name from GCP bucket to local directory.
         Returns list of local image paths that belong to the experiment_run_name.
 
-        Args:
-            experiment_run_name: str - Name of the experiment run.
-
-        Returns:
-            List of local image paths.
+        :param experiment_run_name: Name of the experiment run.
+        :type experiment_run_name: str
+        :return: List of local image paths.
+        :rtype: list[str]
         """
         self.storage_client = storage.Client(project=self.gcp_project_id)
         self.pixaris_bucket = self.storage_client.bucket(self.gcp_pixaris_bucket_name)
