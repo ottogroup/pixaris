@@ -76,7 +76,7 @@ Pixaris provides several pre-built components to choose from, such as the `GCPDa
 
 ![Overview of Classes for Orchestration](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/overview.png)
 
-For example usages, check the [examples](examples) directory. To set up GCP components, such as `GCPDatasetLoader`, you'll need a configuration file. An [example_config.yaml](examples/example_config.yaml) is provided; adjust it and save a local version in the `pixaris` folder.
+For example usages, check the [examples](examples) directory. To set up GCP components, such as `GCPDatasetLoader`, we use a configuration file. An [example_config.yaml](examples/example_config.yaml) is provided; just adjust it and save a local version.
 
 #### Load the examples as a notebook
 If you prefer working with Notebooks, install [jupytext](https://github.com/mwouts/jupytext) and you can convert our py files to ipynb.
@@ -92,27 +92,6 @@ jupytext --to py notebook.ipynb
 # convert notebook.py to an .ipynb file with no outputs
 jupytext --to notebook notebook.py
 ```
-
-### Set up your data set
-A Dataset used to store and provide all nessecary input information for an experiment run.
-the structure should look like this:
-  ```
-  eval_data_directory
-  └───project_name
-      └───dataset_name
-          ├───Input
-          │   ├───image_01.jpg
-          │   └───...
-          ├───Mask
-          │   ├───image_01.jpg
-          │   └───...
-          └───...
-  ```
-  In this instance, we want to use a ComfyxWorkflow to generate images using an Input image and a Mask. In the workflow will be corresonding nodes "Load Input Image" and "Load Mask Image". 
-  You can adapt the structure to your needs, expand it with arguments or use more kind of input images.
-  Make sure the images in the different folders have the same names.
-
-  for setting up your own dataset there is a helpful script [here](examples/helpful_scripts/setup_local_experiment_inputs_dummy.py) with directions on how to do it:
 
 ### Loading your data set
 First step: load your dataset using a `DatasetLoader`. If you have your data in a Google Cloud bucket, you can use the `GCPDatasetLoader`.
