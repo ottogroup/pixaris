@@ -93,10 +93,12 @@ class LocalExperimentHandler(ExperimentHandler):
         # build experiment tracking info json
         tracking_info = {
             "timestamp": timestamp,
-            "experiment_run_name": experiment_run_name,
         }
         tracking_info.update(args_with_files_as_paths)
         tracking_info.update(metric_values)
+
+        # manually update experiment_run_name to include timestamp
+        tracking_info["experiment_run_name"] = timestamp + "_" + experiment_run_name
 
         # Save the results as JSON files in the experiment subfolder
         with open(os.path.join(save_dir, "args.json"), "w") as f:
