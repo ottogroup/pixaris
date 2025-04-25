@@ -93,10 +93,12 @@ class LocalExperimentHandler(ExperimentHandler):
         # build experiment tracking info json
         tracking_info = {
             "timestamp": timestamp,
-            "experiment_run_name": experiment_run_name,
         }
         tracking_info.update(args_with_files_as_paths)
         tracking_info.update(metric_values)
+
+        # manually update experiment_run_name to include timestamp
+        tracking_info["experiment_run_name"] = timestamp + "_" + experiment_run_name
 
         # Save the results as JSON files in the experiment subfolder
         with open(os.path.join(save_dir, "args.json"), "w") as f:
@@ -175,6 +177,25 @@ class LocalExperimentHandler(ExperimentHandler):
         project: str,
         dataset: str,
         experiment_run_name: str,
-        results_directory: str,
+        local_results_directory: str,
     ):
-        pass  # todo
+        """
+        Returns list of local image paths that belong to the experiment_run_name.
+
+        :param experiment_run_name: Name of the experiment run.
+        :type experiment_run_name: str
+        :return: List of local image paths.
+        :rtype: list[str]
+        """
+        results_dir = os.path.join(
+            local_results_directory,
+            project,
+            dataset,
+            experiment_run_name,
+            "generated_images",
+        )
+        return [
+            os.path.join(results_dir, image_name)
+            for image_name in os.listdir(results_dir)
+            if image_name.endswith((".png", ".jpg", ".jpeg"))
+        ]
