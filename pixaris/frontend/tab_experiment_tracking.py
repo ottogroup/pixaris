@@ -120,7 +120,7 @@ def render_experiment_tracking_tab(
                         project=project_name,
                         dataset=dataset,
                         experiment_run_name=experiment_name,
-                        results_directory=results_directory,
+                        local_results_directory=results_directory,
                     )
                     gr.Gallery(
                         value=experiment_images,

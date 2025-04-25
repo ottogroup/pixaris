@@ -175,7 +175,7 @@ class LocalExperimentHandler(ExperimentHandler):
         project: str,
         dataset: str,
         experiment_run_name: str,
-        results_directory: str,
+        local_results_directory: str,
     ):
         """
         Returns list of local image paths that belong to the experiment_run_name.
@@ -185,4 +185,15 @@ class LocalExperimentHandler(ExperimentHandler):
         :return: List of local image paths.
         :rtype: list[str]
         """
-        pass  # todo
+        results_dir = os.path.join(
+            local_results_directory,
+            project,
+            dataset,
+            experiment_run_name,
+            "generated_images",
+        )
+        return [
+            os.path.join(results_dir, image_name)
+            for image_name in os.listdir(results_dir)
+            if image_name.endswith((".png", ".jpg", ".jpeg"))
+        ]
