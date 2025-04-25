@@ -21,21 +21,21 @@
 # %%
 import json
 import os
-from pathlib import Path
 from PIL import Image
 import yaml
-from google.cloud.storage import Client
 from pixaris.generation.comfyui import ComfyGenerator
 from pixaris.metrics.utils import normalize_image
 
-if False: # only set to True if you are running this code from a notebook
-    os.chdir("../../") # adjust working directory to pixaris root
+if False:  # only set to True if you are running this code from a notebook
+    os.chdir("../../")  # adjust working directory to pixaris root
 
 config = yaml.safe_load(open("pixaris/config.yaml"))
 
 PROJECT_NAME = "dummy_project"  # adjust here
 DATASET_NAME = "dummy_dataset"  # adjust here
-EVAL_DATA_DIR = "local_experiment_inputs"  # default location for the evaluation datasets
+EVAL_DATA_DIR = (
+    "local_experiment_inputs"  # default location for the evaluation datasets
+)
 
 
 # %%
@@ -74,6 +74,7 @@ def setup_eval_data_directory(
     )
     os.makedirs(mask_image_dir, exist_ok=True)
 
+
 def standardise_images_and_save_to_target_directory(
     source_directory="directory_with_input_images",
     target_directory="directory_to_save_standardised_images",
@@ -104,6 +105,7 @@ def standardise_images_and_save_to_target_directory(
         )  # if you switch to JPEG, use quality=95 as input! Otherwise, expect square artifacts
 
     return img_names
+
 
 def generate_masks(
     img_names,
@@ -160,7 +162,7 @@ if not os.path.exists(os.path.join(EVAL_DATA_DIR, PROJECT_NAME, DATASET_NAME)):
         dataset_name=DATASET_NAME,
     )
     img_names = standardise_images_and_save_to_target_directory(
-        source_directory="test/test_project/mock/input", # adjust here for your own images
+        source_directory="test/test_project/mock/input",  # adjust here for your own images
         target_directory=os.path.join(
             EVAL_DATA_DIR, PROJECT_NAME, DATASET_NAME, "input"
         ),
@@ -173,4 +175,3 @@ if not os.path.exists(os.path.join(EVAL_DATA_DIR, PROJECT_NAME, DATASET_NAME)):
             EVAL_DATA_DIR, PROJECT_NAME, DATASET_NAME, "mask"
         ),
     )
-
