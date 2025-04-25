@@ -49,10 +49,13 @@ class LocalDatasetLoader(DatasetLoader):
                 self.eval_dir_local, self.project, self.dataset, self.image_dirs[0]
             )
         )
+        basis_names = [name for name in basis_names if name != ".DS_Store"]
         for image_dir in self.image_dirs:
             image_names = os.listdir(
                 os.path.join(self.eval_dir_local, self.project, self.dataset, image_dir)
             )
+            image_names = [name for name in image_names if name != ".DS_Store"]
+
             if basis_names != image_names:
                 raise ValueError(
                     "The names of the images in each image directory should be the same. {} does not match {}.".format(
