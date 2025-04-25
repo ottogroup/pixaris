@@ -76,7 +76,7 @@ Pixaris provides several pre-built components to choose from, such as the `GCPDa
 
 ![Overview of Classes for Orchestration](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/overview.png)
 
-For example usages, check the [examples](examples) directory. To set up GCP components, such as `GCPDatasetLoader`, you'll need a configuration file. An [example_config.yaml](examples/example_config.yaml) is provided; adjust it and save a local version in the `pixaris` folder.
+For example usages, check the [examples](examples) directory. To set up GCP components, such as `GCPDatasetLoader`, we use a configuration file. An [example_config.yaml](examples/example_config.yaml) is provided; just adjust it and save a local version.
 
 #### Load the examples as a notebook
 If you prefer working with Notebooks, install [jupytext](https://github.com/mwouts/jupytext) and you can convert our py files to ipynb.
