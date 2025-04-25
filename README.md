@@ -93,6 +93,27 @@ jupytext --to py notebook.ipynb
 jupytext --to notebook notebook.py
 ```
 
+### Set up your data set
+A Dataset used to store and provide all nessecary input information for an experiment run.
+the structure should look like this:
+  ```
+  eval_data_directory
+  └───project_name
+      └───dataset_name
+          ├───Input
+          │   ├───image_01.jpg
+          │   └───...
+          ├───Mask
+          │   ├───image_01.jpg
+          │   └───...
+          └───...
+  ```
+  In this instance, we want to use a ComfyxWorkflow to generate images using an Input image and a Mask. In the workflow will be corresonding nodes "Load Input Image" and "Load Mask Image". 
+  You can adapt the structure to your needs, expand it with arguments or use more kind of input images.
+  Make sure the images in the different folders have the same names.
+
+  for setting up your own dataset there is a helpful script [here](examples/helpful_scripts/setup_local_experiment_inputs_dummy.py) with directions on how to do it:
+
 ### Loading your data set
 First step: load your dataset using a `DatasetLoader`. If you have your data in a Google Cloud bucket, you can use the `GCPDatasetLoader`.
 
