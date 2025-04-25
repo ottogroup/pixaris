@@ -9,6 +9,9 @@ TEMP_TEST_FILES_DIR = os.path.join(os.path.dirname(__file__), "../../temp_test_f
 
 
 def copy_test_results():
+    """
+    Copy the test results to a temporary location for testing.
+    """
     source_dir = os.path.join(os.path.dirname(__file__), "../test_results/")
     destination_dir = TEMP_TEST_FILES_DIR
 
@@ -19,6 +22,9 @@ def copy_test_results():
 
 
 def copy_test_project():
+    """
+    Copy the test project to a temporary location for testing.
+    """
     source_dir = os.path.join(os.path.dirname(__file__), "../test_project/")
     destination_dir = TEMP_TEST_FILES_DIR
     destination_dir = os.path.join(TEMP_TEST_FILES_DIR, "test_project")
@@ -30,6 +36,9 @@ def copy_test_project():
 
 
 def tearDown():
+    """
+    Remove the temporary directory after each test.
+    """
     # Remove the temporary directory after each test
     if os.path.exists(TEMP_TEST_FILES_DIR):
         shutil.rmtree(TEMP_TEST_FILES_DIR)
@@ -37,6 +46,10 @@ def tearDown():
 
 class TestLocalFeedbackHandler(unittest.TestCase):
     def test_write_single_feedback(self):
+        """
+        tests the write_single_feedback method of the LocalFeedbackHandler class
+        checks if the feedback was written correctly.
+        """
         # Create a mock feedback handler
         local_feedback_handler = LocalFeedbackHandler(
             project_feedback_dir="feedback_iterations",
@@ -84,6 +97,10 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         tearDown()
 
     def test_save_images_to_feedback_iteration_folder(self):
+        """
+        tests the _save_images_to_feedback_iteration_folder method of the LocalFeedbackHandler class
+        checks if the images are at the correct location.
+        """
         copy_test_project()
 
         local_feedback_handler = LocalFeedbackHandler(
@@ -115,6 +132,10 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         tearDown()
 
     def test_initialise_feedback_iteration_in_table(self):
+        """
+        tests the _initialise_feedback_iteration_in_table method of the LocalFeedbackHandler class
+        checks if the feedback iteration table was initialized correctly.
+        """
         copy_test_results()
         os.remove(
             os.path.join(
@@ -153,6 +174,13 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         tearDown()
 
     def test_create_feedback_iteration(self):
+        """
+        tests the create_feedback_iteration method of the LocalFeedbackHandler class
+        checks if images are copied correctly and if the feedback iteration table was created correctly.
+
+        combined functionality from _save_images_to_feedback_iteration_folder and
+        _initialise_feedback_iteration_in_table
+        """
         copy_test_project()
 
         # Create a mock feedback handler
@@ -183,9 +211,23 @@ class TestLocalFeedbackHandler(unittest.TestCase):
             self.assertIn("test_project", lines[0])
             self.assertIn("010101_test_iteration", lines[0])
 
+        feedback_iteration_dir = (
+            "temp_test_files/test_project/feedback_iterations/010101_test_iteration"
+        )
+        self.assertTrue(
+            os.path.exists(os.path.join(feedback_iteration_dir, "sillygoose.png"))
+        )
+        self.assertTrue(
+            os.path.exists(os.path.join(feedback_iteration_dir, "doggo.png"))
+        )
+
         tearDown()
 
     def test_load_projects_list(self):
+        """
+        tests the load_projects_list method of the LocalFeedbackHandler class
+        checks if the projects list is correct.
+        """
         copy_test_project()
 
         # Create a mock feedback handler
@@ -204,6 +246,10 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         tearDown()
 
     def test_load_all_feedback_iterations_for_project(self):
+        """
+        tests the load_all_feedback_iterations_for_project method of the LocalFeedbackHandler class
+        checks if the feedback iterations list is correct.
+        """
         copy_test_results()
 
         # Create a mock feedback handler
@@ -224,6 +270,11 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         tearDown()
 
     def test_load_images_for_feedback_iteration(self):
+        """
+        tests the load_images_for_feedback_iteration method of the LocalFeedbackHandler class
+        checks if the images list is correct.
+        There are only 2 images in the feedback iteration file, even though there are 4 in the dir.
+        """
         copy_test_results()
 
         # Create a mock feedback handler
