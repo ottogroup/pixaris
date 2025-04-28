@@ -194,8 +194,10 @@ class LocalExperimentHandler(ExperimentHandler):
             experiment_run_name,
             "generated_images",
         )
-        return [
+        local_image_paths = [
             os.path.join(results_dir, image_name)
             for image_name in os.listdir(results_dir)
             if image_name.endswith((".png", ".jpg", ".jpeg"))
         ]
+        local_image_paths.sort()
+        return local_image_paths
