@@ -33,19 +33,21 @@ class SaturationComparisonByMaskMetric(BaseMetric):
         binary_mask = np.array(mask.convert("L").point(lambda p: p > 125 and 255)) / 255
         inverted_mask = 1 - binary_mask
 
-        hue, saturation, brightness = image.convert("HSV").split()
-        mean_masked_saturation = np.mean(np.array(saturation) * binary_mask)
-        mean_inverted_saturation = np.mean(np.array(saturation) * inverted_mask)
-        return 1 - abs(
-            mean_masked_saturation - mean_inverted_saturation
+        _, saturation, _ = image.convert("HSV").split()
+        mean_masked_saturation = np.average(np.array(saturation), weights=binary_mask)
+        mean_inverted_saturation = np.average(
+            np.array(saturation), weights=inverted_mask
+        )
+        return (
+            abs(mean_masked_saturation - mean_inverted_saturation) / 255
         )  # natural a number between 0 and 1
 
     def calculate(self, generated_images: Iterable[Image]) -> dict:
         """
         Calculate the saturation score of a list of generated images.
         For each image we calculate the average saturation of the masked part and the unmasked part,
-        and return the absolute difference between them. Saturation is a number between 0 and 1, so
-        the result is also a number between 0 and 1. We invert them to make 1 the best score and 0 the worst.
+        and return the absolute difference between them.
+        Will be normed to 0-1.
 
         :param generated_images: A list of generated images.
         :type generated_images: Iterable[Image]
@@ -67,19 +69,19 @@ class SaturationComparisonByMaskMetric(BaseMetric):
 class SaturationWithoutMaskMetric(BaseMetric):
     """
     Calculates mean and variance of the saturation of the image.
-    provides the mean, variance, min, max and difference of the saturation of the image.
     """
 
     def _saturation(self, image: Image) -> float:
         """
-        Calculate the mean and variance of the saturation of the image.
+        Calculate the mean and variance of the saturation of the image. Normed to 0-1.
 
         :param image: The input image.
         :type image: Image.Image
         :return: mean and variance of the saturation
         :rtype: tuple[float, float]
         """
-        hue, saturation, brightness = image.convert("HSV").split()
+        _, saturation, _ = image.convert("HSV").split()
+        saturation = np.array(saturation) / 255
         mean = np.mean(np.array(saturation))
         var = np.var(np.array(saturation))
         return (mean, var)
@@ -100,5 +102,5 @@ class SaturationWithoutMaskMetric(BaseMetric):
             brightness_difference = self._saturation(gen)
             saturation_scores.append(brightness_difference)
 
-        mean_values = np.mean(saturation_scores)
+        mean_values = np.mean(saturation_scores, axis=0)
         return {"saturation_mean": mean_values[0], "saturation_var": mean_values[1]}
