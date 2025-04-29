@@ -5,7 +5,14 @@ from pixaris.metrics.base import BaseMetric
 from PIL.Image import Image
 
 
-class SaturationMetric(BaseMetric):
+class SaturationComparisonByMaskMetric(BaseMetric):
+    """
+    Calculate the saturation difference between the masked part and the unmasked part of an image.
+    The metric is calculated as the absolute difference between the average saturation of the masked part
+    and the unmasked part of the image.
+    The result is a number between 0 and 1 with 1 being the best possible score and 0 being the worst score.
+    """
+
     def __init__(self, mask_images: Iterable[Image]):
         super().__init__()
         self.mask_images = mask_images
@@ -13,6 +20,7 @@ class SaturationMetric(BaseMetric):
     def _saturation_difference(self, image: Image, mask: Image) -> float:
         """
         Calculate the differences of saturation in the masked part and the unmasked part of the image.
+        a number close to 1 means the saturation is close, a number close to 0 means the saturation is very different.
 
         :param image: The input image.
         :type image: Image.Image
@@ -28,17 +36,20 @@ class SaturationMetric(BaseMetric):
         hue, saturation, brightness = image.convert("HSV").split()
         mean_masked_saturation = np.mean(np.array(saturation) * binary_mask)
         mean_inverted_saturation = np.mean(np.array(saturation) * inverted_mask)
-        return abs(
+        return 1 - abs(
             mean_masked_saturation - mean_inverted_saturation
         )  # natural a number between 0 and 1
 
     def calculate(self, generated_images: Iterable[Image]) -> dict:
         """
-        Calculate the brightness of a list of generated images.
+        Calculate the saturation score of a list of generated images.
+        For each image we calculate the average saturation of the masked part and the unmasked part,
+        and return the absolute difference between them. Saturation is a number between 0 and 1, so
+        the result is also a number between 0 and 1. We invert them to make 1 the best score and 0 the worst.
 
         :param generated_images: A list of generated images.
         :type generated_images: Iterable[Image]
-        :return: A dictionary containing a single entry: "brightness": the average brightness score.
+        :return: A dictionary containing a single entry: "saturation_difference": the average saturation_difference score.
         :rtype: dict
         """
         saturation_scores = []
