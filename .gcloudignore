@@ -17,3 +17,9 @@
 __pycache__/
 # Ignored by the build system
 /setup.cfg
+
+# folders that should not be uploaded to app engine
+local_results/
+local_experiment_results/
+test/
+.venv/

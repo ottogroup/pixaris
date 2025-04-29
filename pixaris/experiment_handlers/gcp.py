@@ -376,7 +376,7 @@ class GCPExperimentHandler(ExperimentHandler):
         project: str,
         dataset: str,
         experiment_run_name: str,
-        results_directory: str,
+        local_results_directory: str,
     ) -> list[str]:
         """
         Downloads images for a experiment_run_name from GCP bucket to local directory.
@@ -388,8 +388,8 @@ class GCPExperimentHandler(ExperimentHandler):
         :type dataset: str
         :param experiment_run_name: Name of the experiment run.
         :type experiment_run_name: str
-        :param results_directory: The local directory to store the downloaded images.
-        :type results_directory: str
+        :param local_results_directory: The local directory to store the downloaded images.
+        :type local_results_directory: str
         :return: List of local image paths.
         :rtype: list[str]
         """
@@ -411,7 +411,7 @@ class GCPExperimentHandler(ExperimentHandler):
             if blob.name.endswith("/"):
                 continue  # directory, skip.
             image_path_local = os.path.join(
-                results_directory, blob.name.replace("results/", "")
+                local_results_directory, blob.name.replace("results/", "")
             )
             local_image_paths.append(image_path_local)
 

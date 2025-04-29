@@ -11,6 +11,7 @@ def render_experiment_tracking_tab(
     with gr.Sidebar(open=True, position="right"):
         gr.Markdown("Experiments")
         with gr.Row(scale=8):
+            # load all projects and corresponding datasets at the beginning
             PROJECTS_DICT = experiment_handler.load_projects_and_datasets()
             PROJECTS = [""] + list(PROJECTS_DICT.keys())
 
@@ -20,7 +21,7 @@ def render_experiment_tracking_tab(
                 filterable=True,
             )
 
-            # initialise hidden feedback iterations and button
+            # initialise hidden dataset and define updating function
             dataset = gr.Dropdown(visible=False)
 
             def update_dataset_choices(project_name, dataset):
@@ -37,6 +38,7 @@ def render_experiment_tracking_tab(
                 )
                 return dataset
 
+            # change dataset choices upon project change
             project_name.change(
                 fn=update_dataset_choices,
                 inputs=[
@@ -46,13 +48,10 @@ def render_experiment_tracking_tab(
                 outputs=[dataset],
             )
 
-            experiments = gr.Dropdown(
-                visible=False,
-                value="",
-                choices=[""],
-            )
+            # initialise hidden experiments and define updating function
+            experiments = gr.Dropdown(visible=False)
 
-            def update_experiments_choices(
+            def update_experiments_choices_and_load_table(
                 project_name, dataset, experiments, dataset_experiment_tracking_results
             ):
                 """Update choices of feedback iterations for selected project and display reload button."""
@@ -78,8 +77,9 @@ def render_experiment_tracking_tab(
                 )
                 return experiments, dataset_experiment_tracking_results
 
+            # change experiments choices and load table upon dataset change
             dataset.change(
-                fn=update_experiments_choices,
+                fn=update_experiments_choices_and_load_table,
                 inputs=[
                     project_name,
                     dataset,
@@ -89,6 +89,7 @@ def render_experiment_tracking_tab(
                 outputs=[experiments, dataset_experiment_tracking_results],
             )
 
+        # columns and gallery height sliders
         with gr.Row(scale=1):
             columns = gr.Slider(
                 minimum=1,
@@ -101,16 +102,21 @@ def render_experiment_tracking_tab(
             gallery_height = gr.Slider(
                 minimum=100,
                 maximum=1000,
-                value=360,
+                value=200,
                 label="Gallery height",
                 step=10,
             )
 
     with gr.Tab("Images"):
+        # Display images in a gallery
 
         @gr.render(inputs=[project_name, dataset, experiments, columns, gallery_height])
-        def show_gallery(project_name, dataset, experiments, columns, gallery_height):
-            """Renders one gallery per experiment. Render decorator enables listening to experiments checkbox group."""
+        def render_images_per_experiment(
+            project_name, dataset, experiments, columns, gallery_height
+        ):
+            """
+            Renders one accordion with a gallery per experiment. Render decorator enables listening to experiments checkbox group.
+            """
             if not experiments:
                 gr.Markdown("No experiment selected.")
                 return
@@ -133,16 +139,26 @@ def render_experiment_tracking_tab(
                     )
 
     with gr.Tab("Table"):
+        # Display experiment results in a table
 
-        @gr.render(inputs=[project_name, dataset])
-        def show_experiment_results_table(project_name, dataset):
-            if dataset != "":
-                gr.DataFrame(
-                    experiment_handler.load_experiment_results_for_dataset(
-                        project=project_name,
-                        dataset=dataset,
-                    ),
-                    label="Experiment Results",
-                    wrap=True,
-                    show_search="filter",
+        @gr.render(inputs=[experiments, dataset_experiment_tracking_results])
+        def render_experiment_results_table(
+            experiments, dataset_experiment_tracking_results
+        ):
+            if not experiments:
+                gr.Markdown("No experiment selected.")
+                return
+
+            table_data = dataset_experiment_tracking_results.copy()
+            table_data = table_data.loc[
+                dataset_experiment_tracking_results["experiment_run_name"].isin(
+                    experiments
                 )
+            ]
+            gr.DataFrame(
+                table_data,
+                label="Experiment Results",
+                wrap=True,
+                show_search="filter",
+                max_height=1000,
+            )
