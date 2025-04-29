@@ -66,7 +66,7 @@ class SaturationComparisonByMaskMetric(BaseMetric):
 
 class SaturationWithoutMaskMetric(BaseMetric):
     """
-    Calculates some statistics of the saturation of the image.
+    Calculates mean and variance of the saturation of the image.
     provides the mean, variance, min, max and difference of the saturation of the image.
     """
 
