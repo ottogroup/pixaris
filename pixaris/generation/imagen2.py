@@ -70,7 +70,7 @@ class Imagen2ImageGenerator(ImageGenerator):
         self, pillow_images: List[dict], generation_params: List[dict]
     ) -> Image.Image:
         """
-        Generates images using the Flux API and checks the status until the image is ready.
+        Generates images using Imagen 2.
 
         :param pillow_images: A list of dictionaries containing pillow images and mask images.
           Example:: [{'node_name': 'Load Input Image', 'pillow_image': <PIL.Image>}, {'node_name': 'Load Mask Image', 'pillow_image': <PIL.Image>}]
