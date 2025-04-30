@@ -1,10 +1,14 @@
+<p align="center">
+  <img src="test/assets/pixaris_logo.png" alt="Pixaris Logo" width="160">
+</p>
+
 # Pixaris: An Evaluation Framework for Image Generation
 
 [![PyPI Version](https://img.shields.io/pypi/v/pixaris)](https://pypi.org/project/pixaris/)
 [![License](https://img.shields.io/github/license/ottogroup/pixaris)](https://github.com/ottogroup/pixaris/blob/main/LICENSE)
 [![Python Versions](https://img.shields.io/pypi/pyversions/pixaris)](https://pypi.org/project/pixaris/)
 [![GitHub Issues](https://img.shields.io/github/issues/ottogroup/pixaris)](https://github.com/ottogroup/pixaris/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/pulls/ottogroup/pixaris)](https://github.com/ottogroup/pixaris/pulls)
+
 
 Pixaris is an open-source Python framework designed to streamline the evaluation and experimentation of image generation workflows. Whether you're a data scientist, AI engineer, or creative professional, Pixaris provides the tools you need to efficiently track, compare, and optimize your image generation projects, with built-in support for tools like ComfyUI and Flux. By tracking metrics, orchestrating experiments, and providing a user-friendly interface for feedback, Pixaris helps you achieve the highest quality results in your image generation endeavors.
 
