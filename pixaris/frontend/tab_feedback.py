@@ -71,6 +71,7 @@ def render_feedback_tab(
 
                 feedback_iterations = gr.Dropdown(
                     label="Feedback Iterations",
+                    value=None,
                     choices=feedback_iteration_choices,
                     visible=True,
                     filterable=True,

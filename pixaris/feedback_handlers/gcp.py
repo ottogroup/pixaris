@@ -4,6 +4,7 @@ import gradio as gr
 from datetime import datetime
 import os
 from PIL import Image
+import pandas as pd
 
 from pixaris.utils.bigquery import ensure_table_exists
 
@@ -267,6 +268,87 @@ class GCPFeedbackHandler(FeedbackHandler):
         print(f"Done. Found projects: {projects}")
         return projects
 
+    def _convert_feedback_df_to_dict(self, df: pd.DataFrame) -> dict:
+        """
+        Converts feedback dataframe to a dictionary with feedback information for each image.
+
+        :param df: DataFrame containing feedback data
+        :type df: pd.DataFrame
+        :return: Dictionary with feedback information for each image.
+        :rtype: dict
+        """
+        df = df.drop(columns=["project", "dataset", "image_path_bucket", "image_path_local"], axis=1, inplace=False)
+        # get likes and dislikes for each image
+        df_grouped_likes = df.groupby(["feedback_iteration", "image_name"])[["likes", "dislikes"]].agg("sum")
+
+        # get comments for each image
+        df_grouped_comments = df.drop(["likes", "dislikes"], axis=1, inplace=False)
+        df_grouped_comments = df_grouped_comments.set_index(
+            ["feedback_iteration", "image_name"]
+        )
+        df_grouped_comments["comments_liked"] = df_grouped_comments["comments_liked"].apply(lambda x: x.split(",") if x else [])
+        df_grouped_comments["comments_liked"] = df_grouped_comments["comments_liked"].apply(
+            lambda x: [element for element in x if element != ""]
+        )
+        df_grouped_comments["comments_disliked"] = df_grouped_comments["comments_disliked"].apply(lambda x: x.split(",") if x else [])
+        df_grouped_comments["comments_liked"] = df_grouped_comments["comments_liked"].apply(
+            lambda x: [element for element in x if element != ""]
+        )
+
+        # convert feedback info to dict
+        feedback_per_image = {}
+        for iteration, image in df_grouped_likes.index:
+            if iteration not in feedback_per_image:
+                feedback_per_image[iteration] = {}
+            if image not in feedback_per_image[iteration]:
+                feedback_per_image[iteration][image] = {"likes": 0, "dislikes": 0, "comments_liked": [], "comments_disliked": []}
+
+            # add feedback info to dict
+            feedback_per_image[iteration][image]["likes"] = int(
+                df_grouped_likes.loc[(iteration, image), "likes"]
+            )
+            feedback_per_image[iteration][image]["dislikes"] = int(
+                df_grouped_likes.loc[(iteration, image), "dislikes"]
+            )
+
+            # add comments to dict
+            if (iteration, image) in df_grouped_likes.index:
+                feedback_per_image[iteration][image]["comments_liked"] = (
+                    df_grouped_comments.loc[iteration, image][
+                        "comments_liked"
+                    ].to_list()[0]
+                )
+                feedback_per_image[iteration][image]["comments_disliked"] = (
+                    df_grouped_comments.loc[iteration, image][
+                        "comments_disliked"
+                    ].to_list()[0]
+                )
+            else:
+                feedback_per_image[iteration][image]["comments_liked"] = []
+                feedback_per_image[iteration][image]["comments_disliked"] = []
+        return feedback_per_image
+
+    def get_feedback_per_image(self, feedback_iteration, image_name) -> dict:
+        """
+        Get feedback for specific image.
+        :param feedback_iteration: Name of the feedback iteration
+        :type feedback_iteration: str
+        :param image_name: Name of the image
+        :type image_name: str
+        :return: Dictionary with feedback information for the image. {"likes": int, "dislikes": int}
+        :rtype: dict
+        """
+        if (
+            image_name == "None"
+        ):  # happens because of "batchin" of image to display all images the same size
+            return {
+                "likes": 0,
+                "dislikes": 0,
+                "comments_liked": [],
+                "comments_disliked": [],
+            }
+        return self.feedback_per_image_dict[feedback_iteration][image_name]
+
     def load_all_feedback_iterations_for_project(self, project: str) -> None:
         """
         Retrieves feedback data for a project from BigQuery table. Adds paths for location of images in
@@ -288,8 +370,8 @@ class GCPFeedbackHandler(FeedbackHandler):
                 feedback_iteration,
                 dataset,
                 image_name,
-                SUM(likes) AS likes_count,
-                SUM(dislikes) AS dislikes_count,
+                SUM(likes) AS likes,
+                SUM(dislikes) AS dislikes,
                 STRING_AGG(IF(likes > 0 AND comment <> "upload", comment, NULL), ', ') AS comments_liked,
                 STRING_AGG(IF(dislikes > 0 AND comment <> "upload", comment, NULL), ', ') AS comments_disliked
             FROM
@@ -330,7 +412,9 @@ class GCPFeedbackHandler(FeedbackHandler):
 
         self.feedback_iteration_choices = choices
         self.feedback_df = df
-
+        self.feedback_per_image_dict = self._convert_feedback_df_to_dict(
+             self.feedback_df
+        )
         print(f"Done. Found feedback iterations: {choices}")
 
     def load_images_for_feedback_iteration(
