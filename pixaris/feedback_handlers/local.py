@@ -240,6 +240,95 @@ class LocalFeedbackHandler(FeedbackHandler):
         print(f"Found projects: {projects}")
         return projects
 
+    def _convert_feedback_df_to_dict(self, df: pd.DataFrame) -> dict:
+        """
+        Converts feedback dataframe to a dictionary with feedback information for each image.
+
+        :param df: DataFrame containing feedback data
+        :type df: pd.DataFrame
+        :return: Dictionary with feedback information for each image.
+        :rtype: dict
+        """
+        # get likes and dislikes for each image
+        df_grouped_likes = df.groupby(["feedback_iteration", "image_name"])[
+            ["likes", "dislikes"]
+        ].agg("sum")
+
+        # get comments for each image if applicable
+        df_grouped_comments = (
+            df.loc[df["comment"] != "upload"]
+            .groupby(["feedback_iteration", "image_name", "likes", "dislikes"])
+            .agg(comment=("comment", list))
+        )
+        # extract comments
+        df_grouped_comments["comment"] = df_grouped_comments["comment"].apply(
+            lambda x: [element for element in x if element != ""]
+        )
+        df_grouped_comments = df_grouped_comments.reset_index(
+            level=["likes", "dislikes"]
+        )
+        df_grouped_comments["comments_liked"] = df_grouped_comments.apply(
+            lambda row: row["comment"] if row["likes"] > 0 else [], axis=1
+        )
+        df_grouped_comments["comments_disliked"] = df_grouped_comments.apply(
+            lambda row: row["comment"] if row["dislikes"] > 0 else [], axis=1
+        )
+        df_grouped_comments.drop(columns=["likes", "dislikes", "comment"], inplace=True)
+
+        # convert feedback info to dict
+        feedback_per_image = {}
+        for iteration, image in df_grouped_likes.index:
+            if iteration not in feedback_per_image:
+                feedback_per_image[iteration] = {}
+            if image not in feedback_per_image[iteration]:
+                feedback_per_image[iteration][image] = {"likes": 0, "dislikes": 0}
+
+            # add feedback info to dict
+            feedback_per_image[iteration][image]["likes"] = int(
+                df_grouped_likes.loc[(iteration, image), "likes"]
+            )
+            feedback_per_image[iteration][image]["dislikes"] = int(
+                df_grouped_likes.loc[(iteration, image), "dislikes"]
+            )
+
+            # add comments to dict
+            if (iteration, image) in df_grouped_comments.index:
+                feedback_per_image[iteration][image]["comments_liked"] = (
+                    df_grouped_comments.loc[iteration, image][
+                        "comments_liked"
+                    ].to_list()[0]
+                )
+                feedback_per_image[iteration][image]["comments_disliked"] = (
+                    df_grouped_comments.loc[iteration, image][
+                        "comments_disliked"
+                    ].to_list()[0]
+                )
+            else:
+                feedback_per_image[iteration][image]["comments_liked"] = []
+                feedback_per_image[iteration][image]["comments_disliked"] = []
+        return feedback_per_image
+
+    def get_feedback_per_image(self, feedback_iteration, image_name) -> dict:
+        """
+        Get feedback for specific image.
+        :param feedback_iteration: Name of the feedback iteration
+        :type feedback_iteration: str
+        :param image_name: Name of the image
+        :type image_name: str
+        :return: Dictionary with feedback information for the image. {"likes": int, "dislikes": int}
+        :rtype: dict
+        """
+        if (
+            image_name == "None"
+        ):  # happens because of "batchin" of image to display all images the same size
+            return {
+                "likes": 0,
+                "dislikes": 0,
+                "comments_liked": [],
+                "comments_disliked": [],
+            }
+        return self.feedback_per_image_dict[feedback_iteration][image_name]
+
     def load_all_feedback_iterations_for_project(self, project: str) -> None:
         """
         Retrieves feedback data for a project from local storage. Adds paths for location of images in
@@ -290,6 +379,10 @@ class LocalFeedbackHandler(FeedbackHandler):
         self.feedback_iteration_choices = choices
         self.feedback_df = df
 
+        self.feedback_per_image_dict = self._convert_feedback_df_to_dict(
+            self.feedback_df
+        )
+
         print(f"Done. Found feedback iterations: {choices}")
 
     def load_images_for_feedback_iteration(
@@ -304,11 +397,15 @@ class LocalFeedbackHandler(FeedbackHandler):
         :return: List of local image paths
         :rtype: list[str]
         """
-        print(f"Downloading images for feedback iteration {feedback_iteration}...")
+        print(f"Loading images for feedback iteration {feedback_iteration}...")
 
         # get relevant data for this feedback iteration
         iteration_df = self.feedback_df.loc[
+            # only this feedback iteration
             self.feedback_df["feedback_iteration"] == feedback_iteration
         ].copy()
 
-        return iteration_df["image_path_local"].tolist()
+        # deduplicate image paths
+        image_paths_local = iteration_df["image_path_local"].unique().tolist()
+        image_paths_local.sort()
+        return image_paths_local
