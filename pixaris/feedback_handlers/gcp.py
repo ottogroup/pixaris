@@ -248,8 +248,8 @@ class GCPFeedbackHandler(FeedbackHandler):
         """
         Retrieves list of projects from BigQuery table.
 
-        Returns:
-            List of project names.
+        :return: List of projects
+        :rtype: list[str]
         """
         print("Querying BigQuery for list of projects...")
         bigquery_client = bigquery.Client(project=self.gcp_project_id)
@@ -368,11 +368,9 @@ class GCPFeedbackHandler(FeedbackHandler):
         GCP bucket and local directory to the dataframe. Saves the resulting df to self.feedback_df.
         Saves the list of feedback iterations to self.feedback_iteration_choices.
 
-        Args:
-            project: str Name of the project
+        :param project: Name of the project
+        :type project: str
 
-        Returns:
-            None
         """
         print(f"Querying BigQuery for feedback data for project {project}...")
         bigquery_client = bigquery.Client(project=self.gcp_project_id)
@@ -432,16 +430,18 @@ class GCPFeedbackHandler(FeedbackHandler):
     def load_images_for_feedback_iteration(
         self,
         feedback_iteration: str,
+        sorting: str = "image_name",
     ) -> list[str]:
         """
         Downloads images for a feedback iteration from GCP bucket to local directory.
         Returns list of local image paths that belong to the feedback iteration.
 
-        Args:
-            feedback_iteration: str Name of the feedback iteration
-
-        Returns:
-            List of local image paths.
+        :param feedback_iteration: Name of the feedback iteration
+        :type feedback_iteration: str
+        :param sorting: Sorting option for the images. Can be "image_name", "likes", or "dislikes". Default is "image_name".
+        :type sorting: str
+        :return: List of local image paths that belong to the feedback iteration.
+        :rtype: list[str]
         """
         print(f"Downloading images for feedback iteration {feedback_iteration}...")
 
@@ -461,9 +461,18 @@ class GCPFeedbackHandler(FeedbackHandler):
                 self._download_image(image_path_bucket, image_path_local)
 
         print("Done.")
+        if sorting=="image_name":
+            iteration_df = iteration_df.sort_values("image_name")
+        elif sorting=="likes":
+            iteration_df = iteration_df.sort_values("likes", ascending=False)
+        elif sorting=="dislikes":
+            iteration_df = iteration_df.sort_values("dislikes", ascending=False)
+        else:
+            raise ValueError(
+                "Invalid sorting option. Must be 'alphabetical', 'likes', or 'dislikes'"
+            )
         # deduplicate image paths
         image_paths_local = iteration_df["image_path_local"].unique().tolist()
-        image_paths_local.sort()
         return image_paths_local
 
     def _download_image(
@@ -471,6 +480,14 @@ class GCPFeedbackHandler(FeedbackHandler):
         image_path_bucket: str,
         image_path_local: str,
     ) -> None:
+        """
+        Downloads image from GCP bucket to local directory. If the image cannot be downloaded,
+        a white placeholder image is created and saved instead.
+        :param image_path_bucket: Path to the image in GCP bucket
+        :type image_path_bucket: str
+        :param image_path_local: Path to the local directory where the image will be saved
+        :type image_path_local: str
+        """
         storage_client = storage.Client(project=self.gcp_project_id)
         bucket = storage_client.bucket(self.gcp_pixaris_bucket_name)
 
