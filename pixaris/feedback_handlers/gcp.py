@@ -280,12 +280,14 @@ class GCPFeedbackHandler(FeedbackHandler):
         df = df.drop(columns=["project", "dataset", "image_path_bucket", "image_path_local"], axis=1, inplace=False)
         # get likes and dislikes for each image
         df_grouped_likes = df.groupby(["feedback_iteration", "image_name"])[["likes", "dislikes"]].agg("sum")
+        df_grouped_likes.sort_index(inplace=True) # avoid warning of inefficient sorting
 
         # get comments for each image
         df_grouped_comments = df.drop(["likes", "dislikes"], axis=1, inplace=False)
         df_grouped_comments = df_grouped_comments.set_index(
             ["feedback_iteration", "image_name"]
         )
+        df_grouped_comments.sort_index(inplace=True) # avoid warning of inefficient sorting
         df_grouped_comments["comments_liked"] = df_grouped_comments["comments_liked"].apply(lambda x: x.split(",") if x else [])
         df_grouped_comments["comments_liked"] = df_grouped_comments["comments_liked"].apply(
             lambda x: [element for element in x if element != ""]
@@ -314,18 +316,11 @@ class GCPFeedbackHandler(FeedbackHandler):
             # add comments to dict
             if (iteration, image) in df_grouped_likes.index:
                 feedback_per_image[iteration][image]["comments_liked"] = (
-                    df_grouped_comments.loc[iteration, image][
-                        "comments_liked"
-                    ].to_list()[0]
+                    df_grouped_comments.loc[iteration, image]["comments_liked"]
                 )
                 feedback_per_image[iteration][image]["comments_disliked"] = (
-                    df_grouped_comments.loc[iteration, image][
-                        "comments_disliked"
-                    ].to_list()[0]
+                    df_grouped_comments.loc[iteration, image]["comments_disliked"]
                 )
-            else:
-                feedback_per_image[iteration][image]["comments_liked"] = []
-                feedback_per_image[iteration][image]["comments_disliked"] = []
         return feedback_per_image
 
     def get_feedback_per_image(self, feedback_iteration, image_name) -> dict:
@@ -368,7 +363,7 @@ class GCPFeedbackHandler(FeedbackHandler):
             SELECT
                 `project`,
                 feedback_iteration,
-                dataset,
+                STRING_AGG(dataset) AS dataset,
                 image_name,
                 SUM(likes) AS likes,
                 SUM(dislikes) AS dislikes,
@@ -381,7 +376,6 @@ class GCPFeedbackHandler(FeedbackHandler):
                 `project` = "{project}"
             GROUP BY
                 `project`,
-                dataset,
                 feedback_iteration,
                 image_name;
         """
