@@ -115,6 +115,36 @@ class GCPFeedbackHandler(FeedbackHandler):
                 f"Errors occurred while inserting row: {errors[0]['errors']}"
             )
 
+    def _save_images_to_feedback_iteration_folder(
+        self,
+        local_image_directory: str,
+        project: str,
+        feedback_iteration: str,
+        image_names: list[str],
+    ):
+        """
+        Upload images to GCP bucket.
+
+        :param project: Name of the project
+        :type project: str
+        :param feedback_iteration: Name of the feedback iteration
+        :type feedback_iteration: str
+        :param image_names: List of image names to upload
+        :type image_names: list[str]
+        :param images_directory: Path to local directory containing images to upload
+        :type images_directory: str
+        """
+        storage_client = storage.Client(project=self.gcp_project_id)
+        bucket = storage_client.bucket(self.gcp_pixaris_bucket_name)
+
+        for filename in image_names:
+            if filename.endswith((".jpg", ".jpeg", ".png", ".tif")):
+                blob = bucket.blob(
+                    f"results/{project}/feedback_iterations/{feedback_iteration}/{filename}"
+                )
+                blob.upload_from_filename(os.path.join(local_image_directory, filename))
+                print(f"Uploaded {filename} to {feedback_iteration}")
+
     def _initialise_feedback_iteration_in_table(
         self,
         project: str,
@@ -166,36 +196,6 @@ class GCPFeedbackHandler(FeedbackHandler):
                 "comment": "upload",
             }
             self.write_single_feedback(feedback)
-
-    def _save_images_to_feedback_iteration_folder(
-        self,
-        local_image_directory: str,
-        project: str,
-        feedback_iteration: str,
-        image_names: list[str],
-    ):
-        """
-        Upload images to GCP bucket.
-
-        :param project: Name of the project
-        :type project: str
-        :param feedback_iteration: Name of the feedback iteration
-        :type feedback_iteration: str
-        :param image_names: List of image names to upload
-        :type image_names: list[str]
-        :param images_directory: Path to local directory containing images to upload
-        :type images_directory: str
-        """
-        storage_client = storage.Client(project=self.gcp_project_id)
-        bucket = storage_client.bucket(self.gcp_pixaris_bucket_name)
-
-        for filename in image_names:
-            if filename.endswith((".jpg", ".jpeg", ".png", ".tif")):
-                blob = bucket.blob(
-                    f"results/{project}/feedback_iterations/{feedback_iteration}/{filename}"
-                )
-                blob.upload_from_filename(os.path.join(local_image_directory, filename))
-                print(f"Uploaded {filename} to {feedback_iteration}")
 
     def create_feedback_iteration(
         self,
@@ -461,11 +461,11 @@ class GCPFeedbackHandler(FeedbackHandler):
                 self._download_image(image_path_bucket, image_path_local)
 
         print("Done.")
-        if sorting=="image_name":
+        if sorting == "image_name":
             iteration_df = iteration_df.sort_values("image_name")
-        elif sorting=="likes":
+        elif sorting == "likes":
             iteration_df = iteration_df.sort_values("likes", ascending=False)
-        elif sorting=="dislikes":
+        elif sorting == "dislikes":
             iteration_df = iteration_df.sort_values("dislikes", ascending=False)
         else:
             raise ValueError(
