@@ -1,45 +1,23 @@
-from typing import Iterable, Union, Callable
+from typing import Iterable
 
 import numpy as np
 from pixaris.metrics.base import BaseMetric
 from PIL.Image import Image
 
 
-def _luminescence(image: Image, luminescence_definition) -> np.array:
+def _luminescence(image: Image) -> np.array:
     """
     calculates the luminescence values for an image
+    definition luminance: https://www.101computing.net/colour-luminance-and-contrast-ratio/
 
     :param image: input Image
     :type image: Image
-    :return: luminescence values per pixel
+    :return: luminescence values per pixel, normed between 0 and 1
     :rtype: np.array
     """
-    match luminescence_definition:
-        case "1":
-
-            def luminescence(x):
-                # L = (0.2126*R + 0.7152*G + 0.0722*B)
-                return 0.2126 * x[:, :, 0] + 0.7152 * x[:, :, 1] + 0.0722 * x[:, :, 2]
-
-            image = np.asarray(image)
-            return luminescence(image)
-        case "2":
-            # L = (0.299*R + 0.587*G + 0.114*B)
-            return np.asarray(image.convert("L"))
-        case "3":
-
-            def luminescence(x):
-                # L = sqrt( 0.299*R^2 + 0.587*G^2 + 0.114*B^2 )
-                return np.sqrt(
-                    0.299 * x[:, :, 0] ** 2
-                    + 0.587 * x[:, :, 1] ** 2
-                    + 0.114 * x[:, :, 2] ** 2
-                )
-
-            image = np.asarray(image)
-            return luminescence(image)
-        case _ if callable(luminescence_definition):
-            return np.asarray(luminescence_definition(image))
+    image = np.asarray(image) / 255
+    image = np.where(image <= 0.03928, image / 12.92, ((image + 0.055) / 1.055) ** 2.4)
+    return 0.2126 * image[:, :, 0] + 0.7152 * image[:, :, 1] + 0.0722 * image[:, :, 2]
 
 
 class LuminescenceComparisonByMaskMetric(BaseMetric):
@@ -53,14 +31,9 @@ class LuminescenceComparisonByMaskMetric(BaseMetric):
     def __init__(
         self,
         mask_images: Iterable[Image],
-        luminescence_definition: Union[str, Callable] = "2",
     ):
         super().__init__()
         self.mask_images = mask_images
-        assert luminescence_definition in ["1", "2", "3"] or callable(
-            luminescence_definition
-        )
-        self.luminescence_definition = luminescence_definition
 
     def _luminescence_difference(self, image: Image, mask: Image) -> float:
         """
@@ -77,11 +50,11 @@ class LuminescenceComparisonByMaskMetric(BaseMetric):
         binary_mask = np.array(mask.convert("L").point(lambda p: p > 125 and 255)) / 255
         inverted_mask = 1 - binary_mask
 
-        luminescence = _luminescence(image, self.luminescence_definition)
+        luminescence = _luminescence(image)
         mean_masked_luminescence = np.average(luminescence, weights=binary_mask)
         mean_inverted_luminescence = np.average(luminescence, weights=inverted_mask)
-        return (
-            abs(mean_masked_luminescence - mean_inverted_luminescence) / 255
+        return 1 - abs(
+            mean_masked_luminescence - mean_inverted_luminescence
         )  # natural a number between 0 and 1
 
     def calculate(self, generated_images: Iterable[Image]) -> dict:
@@ -113,13 +86,6 @@ class LuminescenceWithoutMaskMetric(BaseMetric):
     Calculates mean and variance of the luminescence of the image.
     """
 
-    def __init__(self, luminescence_definition: Union[str, Callable] = "2"):
-        super().__init__()
-        assert luminescence_definition in ["1", "2", "3"] or callable(
-            luminescence_definition
-        )
-        self.luminescence_definition = luminescence_definition
-
     def _luminescence_mean_and_var(self, image: Image) -> float:
         """
         Calculate the mean and variance of the luminescence of the image.
@@ -129,7 +95,7 @@ class LuminescenceWithoutMaskMetric(BaseMetric):
         :return: mean and variance of the luminescence
         :rtype: tuple[float, float]
         """
-        luminescence = _luminescence(image, self.luminescence_definition) / 255
+        luminescence = _luminescence(image)
         mean = np.mean(luminescence)
         var = np.var(luminescence)
         return [mean, var]

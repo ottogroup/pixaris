@@ -12,56 +12,17 @@ from pixaris.metrics.luminescence import (
 
 
 class TestLuminescenceComparisonByMaskMetric(unittest.TestCase):
-    def test_luminescence_1(self):
+    def test_luminescence(self):
         """
-        testing luminescence with definition 1
-        """
-        image_path = "test/test_project/mock/input/sillygoose.png"
-        image = Image.open(image_path)
-        luminescence = _luminescence(image, "1")
-
-        self.assertEqual(luminescence.shape, (image.size[1], image.size[0]))
-        self.assertIsInstance(luminescence, np.ndarray)
-        self.assertLessEqual(luminescence.max(), 255.0)
-        self.assertGreaterEqual(luminescence.min(), 0.0)
-
-    def test_luminescence_2(self):
-        """
-        testing luminescence with definition 2
+        testing luminescence function
         """
         image_path = "test/test_project/mock/input/sillygoose.png"
         image = Image.open(image_path)
-        luminescence = _luminescence(image, "2")
+        luminescence = _luminescence(image)
 
         self.assertEqual(luminescence.shape, (image.size[1], image.size[0]))
         self.assertIsInstance(luminescence, np.ndarray)
-        self.assertLessEqual(luminescence.max(), 255.0)
-        self.assertGreaterEqual(luminescence.min(), 0.0)
-
-    def test_luminescence_3(self):
-        """
-        testing luminescence with definition 3
-        """
-        image_path = "test/test_project/mock/input/sillygoose.png"
-        image = Image.open(image_path)
-        luminescence = _luminescence(image, "3")
-
-        self.assertEqual(luminescence.shape, (image.size[1], image.size[0]))
-        self.assertIsInstance(luminescence, np.ndarray)
-        self.assertLessEqual(luminescence.max(), 255.0)
-        self.assertGreaterEqual(luminescence.min(), 0.0)
-
-    def test_luminescence_callable(self):
-        """
-        testing luminescence with definition 1
-        """
-        image_path = "test/test_project/mock/input/sillygoose.png"
-        image = Image.open(image_path)
-        luminescence = _luminescence(image, lambda image: image.convert("L"))
-
-        self.assertEqual(luminescence.shape, (image.size[1], image.size[0]))
-        self.assertIsInstance(luminescence, np.ndarray)
-        self.assertLessEqual(luminescence.max(), 255.0)
+        self.assertLessEqual(luminescence.max(), 1.0)
         self.assertGreaterEqual(luminescence.min(), 0.0)
 
     def test_luminescence_difference(self):
@@ -93,6 +54,20 @@ class TestLuminescenceComparisonByMaskMetric(unittest.TestCase):
 
         metrics = metric.calculate(images)
 
+        self.assertEqual(metrics["luminescence_difference"], 0.0)
+
+    def test_luminescence_difference_best_case(self):
+        """
+        testing luminescence difference metric
+        """
+        mask_path = "test/test_project/mock/mask/"
+        masks = [Image.open(mask_path + name) for name in os.listdir(mask_path)]
+        images = [Image.new("RGB", mask.size, "white") for mask in masks]
+
+        metric = LuminescenceComparisonByMaskMetric(masks)
+
+        metrics = metric.calculate(images)
+
         self.assertEqual(metrics["luminescence_difference"], 1.0)
 
 
@@ -112,6 +87,32 @@ class TestLuminescenceComparisonNoMaskMetric(unittest.TestCase):
         self.assertGreaterEqual(metrics["luminescence_mean"], 0.0)
         self.assertLessEqual(metrics["luminescence_var"], 1.0)
         self.assertGreaterEqual(metrics["luminescence_var"], 0.0)
+
+    def test_high_luminescence(self):
+        """
+        testing luminescence yields 1 if all images are white
+        """
+        images = [Image.new("RGB", (100, 100), "white") for _ in range(4)]
+
+        metric = LuminescenceWithoutMaskMetric()
+
+        metrics = metric.calculate(images)
+
+        self.assertEqual(metrics["luminescence_mean"], 1.0)
+        self.assertEqual(metrics["luminescence_var"], 0.0)
+
+    def test_low_luminescence(self):
+        """
+        testing luminescence yields 0 if all images are black
+        """
+        images = [Image.new("RGB", (100, 100), "black") for _ in range(4)]
+
+        metric = LuminescenceWithoutMaskMetric()
+
+        metrics = metric.calculate(images)
+
+        self.assertEqual(metrics["luminescence_mean"], 0.0)
+        self.assertEqual(metrics["luminescence_var"], 0.0)
 
 
 if __name__ == "__main__":

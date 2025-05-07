@@ -39,7 +39,7 @@ class SaturationComparisonByMaskMetric(BaseMetric):
             np.array(saturation), weights=inverted_mask
         )
         return (
-            abs(mean_masked_saturation - mean_inverted_saturation) / 255
+            1 - abs(mean_masked_saturation - mean_inverted_saturation) / 255
         )  # natural a number between 0 and 1
 
     def calculate(self, generated_images: Iterable[Image]) -> dict:
@@ -47,7 +47,6 @@ class SaturationComparisonByMaskMetric(BaseMetric):
         Calculate the saturation score of a list of generated images.
         For each image we calculate the average saturation of the masked part and the unmasked part,
         and return the absolute difference between them.
-        Will be normed to 0-1.
 
         :param generated_images: A list of generated images.
         :type generated_images: Iterable[Image]
