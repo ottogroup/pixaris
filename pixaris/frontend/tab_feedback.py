@@ -122,7 +122,14 @@ def render_feedback_tab(
                 value="image_name",
             )
 
-    @gr.render(inputs=[feedback_iterations, columns, display_feedback_checkbox, sorting_of_images])
+    @gr.render(
+        inputs=[
+            feedback_iterations,
+            columns,
+            display_feedback_checkbox,
+            sorting_of_images,
+        ]
+    )
     def render_images_per_iteration(
         feedback_iterations, columns, display_feedback_checkbox, sorting_of_images
     ):
@@ -139,7 +146,9 @@ def render_feedback_tab(
         for feedback_iteration in feedback_iterations:
             # load the images corresponding to this feedback iteration
             feedback_iteration_images = (
-                feedback_handler.load_images_for_feedback_iteration(feedback_iteration, sorting_of_images)
+                feedback_handler.load_images_for_feedback_iteration(
+                    feedback_iteration, sorting_of_images
+                )
             )
 
             # split images into batches of number of columns

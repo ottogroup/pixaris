@@ -408,12 +408,11 @@ class LocalFeedbackHandler(FeedbackHandler):
             self.feedback_df["feedback_iteration"] == feedback_iteration
         ].copy()
 
-
-        if sorting=="image_name":
+        if sorting == "image_name":
             iteration_df = iteration_df.sort_values("image_name")
-        elif sorting=="likes":
+        elif sorting == "likes":
             iteration_df = iteration_df.sort_values("likes", ascending=False)
-        elif sorting=="dislikes":
+        elif sorting == "dislikes":
             iteration_df = iteration_df.sort_values("dislikes", ascending=False)
         else:
             raise ValueError(
