@@ -306,8 +306,8 @@ class GCPFeedbackHandler(FeedbackHandler):
         df_grouped_comments["comments_disliked"] = df_grouped_comments[
             "comments_disliked"
         ].apply(lambda x: x.split(",") if x else [])
-        df_grouped_comments["comments_liked"] = df_grouped_comments[
-            "comments_liked"
+        df_grouped_comments["comments_disliked"] = df_grouped_comments[
+            "comments_disliked"
         ].apply(lambda x: [element for element in x if element != ""])
 
         # convert feedback info to dict
@@ -331,7 +331,7 @@ class GCPFeedbackHandler(FeedbackHandler):
                 df_grouped_likes.loc[(iteration, image), "dislikes"]
             )
 
-            # add comments to dict
+            # add comments to dict if they exist
             if (iteration, image) in df_grouped_likes.index:
                 feedback_per_image[iteration][image]["comments_liked"] = (
                     df_grouped_comments.loc[iteration, image]["comments_liked"]

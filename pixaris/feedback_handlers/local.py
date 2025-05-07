@@ -253,6 +253,8 @@ class LocalFeedbackHandler(FeedbackHandler):
         df_grouped_likes = df.groupby(["feedback_iteration", "image_name"])[
             ["likes", "dislikes"]
         ].agg("sum")
+        # avoid warning of inefficient sorting
+        df_grouped_likes.sort_index(inplace=True)
 
         # get comments for each image if applicable
         df_grouped_comments = (
@@ -260,10 +262,14 @@ class LocalFeedbackHandler(FeedbackHandler):
             .groupby(["feedback_iteration", "image_name", "likes", "dislikes"])
             .agg(comment=("comment", list))
         )
-        # extract comments
+        # avoid warning of inefficient sorting
+        df_grouped_comments.sort_index(inplace=True)
+
+        # split comments into readable list and remove empty strings (feedback without comment)
         df_grouped_comments["comment"] = df_grouped_comments["comment"].apply(
             lambda x: [element for element in x if element != ""]
         )
+        # convert comments column to comments_liked and comments_disliked
         df_grouped_comments = df_grouped_comments.reset_index(
             level=["likes", "dislikes"]
         )
@@ -273,7 +279,17 @@ class LocalFeedbackHandler(FeedbackHandler):
         df_grouped_comments["comments_disliked"] = df_grouped_comments.apply(
             lambda row: row["comment"] if row["dislikes"] > 0 else [], axis=1
         )
+        # one more round to create one list of comments for liked and disliked
         df_grouped_comments.drop(columns=["likes", "dislikes", "comment"], inplace=True)
+        df_grouped_comments = df_grouped_comments.reset_index(
+            ["feedback_iteration", "image_name"]
+        )
+        df_grouped_comments = df_grouped_comments.groupby(
+            ["feedback_iteration", "image_name"]
+        )[["comments_liked", "comments_disliked"]].agg(
+            # unnest the list of list of comments
+            lambda x: [xss for xs in x for xss in xs]
+        )
 
         # convert feedback info to dict
         feedback_per_image = {}
@@ -281,7 +297,12 @@ class LocalFeedbackHandler(FeedbackHandler):
             if iteration not in feedback_per_image:
                 feedback_per_image[iteration] = {}
             if image not in feedback_per_image[iteration]:
-                feedback_per_image[iteration][image] = {"likes": 0, "dislikes": 0}
+                feedback_per_image[iteration][image] = {
+                    "likes": 0,
+                    "dislikes": 0,
+                    "comments_liked": [],
+                    "comments_disliked": [],
+                }
 
             # add feedback info to dict
             feedback_per_image[iteration][image]["likes"] = int(
@@ -291,21 +312,14 @@ class LocalFeedbackHandler(FeedbackHandler):
                 df_grouped_likes.loc[(iteration, image), "dislikes"]
             )
 
-            # add comments to dict
+            # add comments to dict if they exist
             if (iteration, image) in df_grouped_comments.index:
                 feedback_per_image[iteration][image]["comments_liked"] = (
-                    df_grouped_comments.loc[iteration, image][
-                        "comments_liked"
-                    ].to_list()[0]
+                    df_grouped_comments.loc[iteration, image]["comments_liked"]
                 )
                 feedback_per_image[iteration][image]["comments_disliked"] = (
-                    df_grouped_comments.loc[iteration, image][
-                        "comments_disliked"
-                    ].to_list()[0]
+                    df_grouped_comments.loc[iteration, image]["comments_disliked"]
                 )
-            else:
-                feedback_per_image[iteration][image]["comments_liked"] = []
-                feedback_per_image[iteration][image]["comments_disliked"] = []
         return feedback_per_image
 
     def get_feedback_per_image(self, feedback_iteration, image_name) -> dict:
