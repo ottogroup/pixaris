@@ -1,11 +1,14 @@
 import gradio as gr
 from pixaris.feedback_handlers.base import FeedbackHandler
 
+PROJECTS = []
+
 
 def render_feedback_tab(
     feedback_handler: FeedbackHandler,
 ):
     # initially load all projects
+    global PROJECTS
     PROJECTS = [""] + feedback_handler.load_projects_list()
 
     feedback_details = (
@@ -40,20 +43,6 @@ def render_feedback_tab(
         return previous_details
 
     with gr.Sidebar(open=True, position="right"):
-        with gr.Row(scale=1):
-            columns = gr.Slider(
-                minimum=1,
-                maximum=7,
-                value=5,
-                label="Number of images per row",
-                step=1,
-            )
-        with gr.Row(scale=1):
-            display_feedback_checkbox = gr.Checkbox(
-                value=False,
-                label="Show previous feedback",
-                interactive=True,
-            )
         with gr.Row(scale=8):
             project_name = gr.Dropdown(
                 choices=PROJECTS,
@@ -90,7 +79,43 @@ def render_feedback_tab(
                 ],
                 outputs=[feedback_iterations],
             )
+        with gr.Row(scale=1):
+            reload_projects_button = gr.Button(
+                "Reload projects",
+                variant="secondary",
+                interactive=True,
+                size="sm",
+            )
 
+            def reload_projects(project_name):
+                global PROJECTS
+                PROJECTS = feedback_handler.load_projects_list()
+                project_name = gr.Dropdown(
+                    choices=PROJECTS,
+                    label="Project",
+                    filterable=True,
+                )
+                return project_name
+
+            reload_projects_button.click(
+                fn=reload_projects,
+                inputs=[project_name],
+                outputs=[project_name],
+            )
+        with gr.Row(scale=1):
+            columns = gr.Slider(
+                minimum=1,
+                maximum=7,
+                value=5,
+                label="Number of images per row",
+                step=1,
+            )
+        with gr.Row(scale=1):
+            display_feedback_checkbox = gr.Checkbox(
+                value=False,
+                label="Show previous feedback",
+                interactive=True,
+            )
     @gr.render(inputs=[feedback_iterations, columns, display_feedback_checkbox])
     def render_images_per_iteration(
         feedback_iterations, columns, display_feedback_checkbox
@@ -172,7 +197,7 @@ def render_feedback_tab(
                                 )
 
                                 # feedback button is only clickable if feedback indicator is changed recently
-                                def change_button_interactivity(
+                                def change_feedback_button_interactivity(
                                     feedback_indicator,
                                     feedback_button,
                                 ):
@@ -184,7 +209,7 @@ def render_feedback_tab(
                                     return feedback_button
 
                                 feedback_indicator.change(
-                                    fn=change_button_interactivity,
+                                    fn=change_feedback_button_interactivity,
                                     inputs=[feedback_indicator, feedback_button],
                                     outputs=[feedback_button],
                                 )
