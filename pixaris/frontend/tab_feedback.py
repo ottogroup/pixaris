@@ -116,9 +116,15 @@ def render_feedback_tab(
                 label="Show previous feedback",
                 interactive=True,
             )
-    @gr.render(inputs=[feedback_iterations, columns, display_feedback_checkbox])
+            sorting_of_images = gr.Radio(
+                choices=["image_name", "likes", "dislikes"],
+                label="Sorting of images",
+                value="image_name",
+            )
+
+    @gr.render(inputs=[feedback_iterations, columns, display_feedback_checkbox, sorting_of_images])
     def render_images_per_iteration(
-        feedback_iterations, columns, display_feedback_checkbox
+        feedback_iterations, columns, display_feedback_checkbox, sorting_of_images
     ):
         """
         This function renders the images for each feedback iteration. It is decorated with gr.render
@@ -133,7 +139,7 @@ def render_feedback_tab(
         for feedback_iteration in feedback_iterations:
             # load the images corresponding to this feedback iteration
             feedback_iteration_images = (
-                feedback_handler.load_images_for_feedback_iteration(feedback_iteration)
+                feedback_handler.load_images_for_feedback_iteration(feedback_iteration, sorting_of_images)
             )
 
             # split images into batches of number of columns

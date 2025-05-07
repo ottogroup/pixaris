@@ -388,12 +388,15 @@ class LocalFeedbackHandler(FeedbackHandler):
     def load_images_for_feedback_iteration(
         self,
         feedback_iteration: str,
+        sorting: str = "image_name",
     ) -> list[str]:
         """
         Returns list of local image paths that belong to the feedback iteration.
 
         :param feedback_iteration: Name of the feedback iteration
         :type feedback_iteration: str
+        :param sorting: Sorting option for the images. Can be "image_name", "likes", or "dislikes". Default is "image_name".
+        :type sorting: str
         :return: List of local image paths
         :rtype: list[str]
         """
@@ -405,7 +408,17 @@ class LocalFeedbackHandler(FeedbackHandler):
             self.feedback_df["feedback_iteration"] == feedback_iteration
         ].copy()
 
+
+        if sorting=="image_name":
+            iteration_df = iteration_df.sort_values("image_name")
+        elif sorting=="likes":
+            iteration_df = iteration_df.sort_values("likes", ascending=False)
+        elif sorting=="dislikes":
+            iteration_df = iteration_df.sort_values("dislikes", ascending=False)
+        else:
+            raise ValueError(
+                "Invalid sorting option. Must be 'alphabetical', 'likes', or 'dislikes'"
+            )
         # deduplicate image paths
         image_paths_local = iteration_df["image_path_local"].unique().tolist()
-        image_paths_local.sort()
         return image_paths_local
