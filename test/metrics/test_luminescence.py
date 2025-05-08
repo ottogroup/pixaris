@@ -14,7 +14,8 @@ from pixaris.metrics.luminescence import (
 class TestLuminescenceComparisonByMaskMetric(unittest.TestCase):
     def test_luminescence(self):
         """
-        testing luminescence function
+        testing luminescence function. Should produce a numpy array with the same shape
+        as the input image and values between 0 and 1
         """
         image_path = "test/test_project/mock/input/sillygoose.png"
         image = Image.open(image_path)
@@ -27,7 +28,7 @@ class TestLuminescenceComparisonByMaskMetric(unittest.TestCase):
 
     def test_luminescence_difference(self):
         """
-        testing luminescence difference metric
+        testing luminescence difference metric. Should produce valued between 0 and 1
         """
         image_path = "test/test_project/mock/input/"
         images = [Image.open(image_path + name) for name in os.listdir(image_path)]
@@ -41,9 +42,10 @@ class TestLuminescenceComparisonByMaskMetric(unittest.TestCase):
         self.assertLessEqual(metrics["luminescence_difference"], 1.0)
         self.assertGreaterEqual(metrics["luminescence_difference"], 0.0)
 
-    def test_luminescence_difference_worst_case(self):
+    def test_luminescence_maximal_difference(self):
         """
-        testing luminescence difference metric
+        testing luminescence difference metric with maximal luminence difference inside and outside of mask
+        Should return 0 if luminescence is the difference is maximal
         """
         image_path = "test/test_project/mock/mask/"
         images = [Image.open(image_path + name) for name in os.listdir(image_path)]
@@ -56,9 +58,10 @@ class TestLuminescenceComparisonByMaskMetric(unittest.TestCase):
 
         self.assertEqual(metrics["luminescence_difference"], 0.0)
 
-    def test_luminescence_difference_best_case(self):
+    def test_luminescence_minimal_difference(self):
         """
-        testing luminescence difference metric
+        testing luminescence difference metric with minimal luminence difference inside and outside of mask
+        Should return 1 if luminescence is the same
         """
         mask_path = "test/test_project/mock/mask/"
         masks = [Image.open(mask_path + name) for name in os.listdir(mask_path)]
