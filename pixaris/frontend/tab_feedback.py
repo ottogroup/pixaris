@@ -55,7 +55,9 @@ def render_feedback_tab(
 
             def update_feedback_iteration_choices(project_name, feedback_iterations):
                 """Update choices of feedback iterations for selected project."""
-                feedback_handler.load_all_feedback_iterations_for_project(project_name)
+                feedback_handler.load_all_feedback_iteration_info_for_project(
+                    project_name
+                )
                 feedback_iteration_choices = feedback_handler.feedback_iteration_choices
 
                 feedback_iterations = gr.Dropdown(
@@ -130,7 +132,9 @@ def render_feedback_tab(
             reloaded_feedback_count = gr.State(value=1)
 
             def reload_feedback(project_name, reloaded_feedback_count):
-                feedback_handler.load_all_feedback_iterations_for_project(project_name)
+                feedback_handler.load_all_feedback_iteration_info_for_project(
+                    project_name
+                )
                 reloaded_feedback_count += 1
                 gr.Info("Reloaded feedback.", duration=2)
                 return reloaded_feedback_count

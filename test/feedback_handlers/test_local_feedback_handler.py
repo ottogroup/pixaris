@@ -245,9 +245,9 @@ class TestLocalFeedbackHandler(unittest.TestCase):
 
         tearDown()
 
-    def test_load_all_feedback_iterations_for_project(self):
+    def test_load_all_feedback_iteration_info_for_project(self):
         """
-        tests the load_all_feedback_iterations_for_project method of the LocalFeedbackHandler class
+        tests the load_all_feedback_iteration_info_for_project method of the LocalFeedbackHandler class
         checks if the feedback iterations list is correct.
         """
         copy_test_results()
@@ -260,7 +260,9 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         )
 
         # Call the method to test
-        local_feedback_handler.load_all_feedback_iterations_for_project("test_project")
+        local_feedback_handler.load_all_feedback_iteration_info_for_project(
+            "test_project"
+        )
 
         # Check if the iterations list is correct
         self.assertEqual(
@@ -285,7 +287,9 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         )
 
         # load the project into df
-        local_feedback_handler.load_all_feedback_iterations_for_project("test_project")
+        local_feedback_handler.load_all_feedback_iteration_info_for_project(
+            "test_project"
+        )
 
         # Call the method to test
         image_names = local_feedback_handler.load_images_for_feedback_iteration(
@@ -319,7 +323,9 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         )
 
         # load the project into df
-        local_feedback_handler.load_all_feedback_iterations_for_project("test_project")
+        local_feedback_handler.load_all_feedback_iteration_info_for_project(
+            "test_project"
+        )
 
         # Call the method to test
         image_names = local_feedback_handler.load_images_for_feedback_iteration(
@@ -353,7 +359,9 @@ class TestLocalFeedbackHandler(unittest.TestCase):
         )
 
         # load the project into df
-        local_feedback_handler.load_all_feedback_iterations_for_project("test_project")
+        local_feedback_handler.load_all_feedback_iteration_info_for_project(
+            "test_project"
+        )
 
         # Call the method to test
         feedback = local_feedback_handler.get_feedback_per_image(
