@@ -61,8 +61,8 @@ class LuminescenceComparisonByMaskMetric(BaseMetric):
         """
         Calculate the luminescence score of a list of generated images.
         For each image we calculate the average luminescence of the masked part and the unmasked part,
-        and return the absolute difference between them. luminescence is a number between 0 and 1, so
-        the result is also a number between 0 and 1. We invert them to make 1 the best score and 0 the worst.
+        and return the absolute difference between them. Luminescence is a number between 0 and 1, so
+        the result is also a number between 0 and 1. We invert them to make 1 the best score (minimal difference in luminescence of masked and unmasked part) and 0 the worst (maximal difference).
 
         :param generated_images: A list of generated images.
         :type generated_images: Iterable[Image]
