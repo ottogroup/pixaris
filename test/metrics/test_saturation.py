@@ -25,7 +25,7 @@ class TestSaturationComparisonByMaskMetric(unittest.TestCase):
         self.assertLessEqual(metrics["saturation_difference"], 1.0)
         self.assertGreaterEqual(metrics["saturation_difference"], 0.0)
 
-    def test_saturation_worst_case(self):
+    def test_saturation_maximal_difference(self):
         """
         testing saturation difference metric worst case. Should return 0 if saturation difference is maximal
         """
