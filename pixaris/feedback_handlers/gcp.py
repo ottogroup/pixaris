@@ -382,7 +382,7 @@ class GCPFeedbackHandler(FeedbackHandler):
         # download image if possible, otherwise fill with white placeholder image
         try:
             blob = bucket.blob(image_path_bucket)
-            blob.download_to_filename(image_path_local)
+            blob.download_to_filename(image_path_local, timeout=400)
         except Exception as e:
             print(f"Error downloading image '{image_path_bucket}': {e}")
             print("Filling with placeholder image")
