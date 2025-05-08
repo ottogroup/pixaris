@@ -1,2 +1,5 @@
-{"project": "test_project", "feedback_iteration": "test_iteration", "dataset": "", "image_name": "chinchilla.jpg", "experiment_name": "", "date": "2025-04-02T13:17:24.626176", "comment": "", "likes": 1, "dislikes": 0}
-{"project": "test_project", "feedback_iteration": "test_iteration", "dataset": "", "image_name": "sillygoose.jpg", "experiment_name": "", "date": "2025-04-02T13:17:25.135851", "comment": "", "likes": 0, "dislikes": 1}
+{"project": "test_project", "feedback_iteration": "test_iteration", "dataset": null, "image_name": "chinchilla.jpg", "experiment_name": null, "date": "2025-04-01T12:14:58.578905", "comment": "upload", "likes": 0, "dislikes": 0}
+{"project": "test_project", "feedback_iteration": "test_iteration", "dataset": null, "image_name": "sillygoose.jpg", "experiment_name": null, "date": "2025-04-01T12:14:59.578905", "comment": "upload", "likes": 0, "dislikes": 0}
+{"project": "test_project", "feedback_iteration": "test_iteration", "dataset": "", "image_name": "chinchilla.jpg", "experiment_name": "", "date": "2025-04-02T13:17:24.626176", "comment": "yes", "likes": 1, "dislikes": 0}
+{"project": "test_project", "feedback_iteration": "test_iteration", "dataset": "", "image_name": "sillygoose.jpg", "experiment_name": "", "date": "2025-04-02T13:17:25.135851", "comment": "no", "likes": 0, "dislikes": 1}
+{"project": "test_project", "feedback_iteration": "test_iteration", "dataset": "", "image_name": "chinchilla.jpg", "experiment_name": "", "date": "2025-04-02T13:17:26.626176", "comment": "yess", "likes": 1, "dislikes": 0}

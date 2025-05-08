@@ -423,15 +423,17 @@ class LocalFeedbackHandler(FeedbackHandler):
         ].copy()
 
         if sorting == "image_name":
-            iteration_df = iteration_df.sort_values("image_name")
+            sorted_df = iteration_df.sort_values("image_name")
         elif sorting == "likes":
-            iteration_df = iteration_df.sort_values("likes", ascending=False)
+            sorted_df =  iteration_df.groupby("image_path_local")[["likes", "dislikes"]].agg("sum")
+            sorted_df = sorted_df.sort_values("likes", ascending=False).reset_index()
         elif sorting == "dislikes":
-            iteration_df = iteration_df.sort_values("dislikes", ascending=False)
+            sorted_df =  iteration_df.groupby("image_path_local")[["likes", "dislikes"]].agg("sum")
+            sorted_df = sorted_df.sort_values("dislikes", ascending=False).reset_index()
         else:
             raise ValueError(
                 "Invalid sorting option. Must be 'alphabetical', 'likes', or 'dislikes'"
             )
         # deduplicate image paths
-        image_paths_local = iteration_df["image_path_local"].unique().tolist()
+        image_paths_local = sorted_df["image_path_local"].unique().tolist()
         return image_paths_local
