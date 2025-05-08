@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="test/assets/pixaris_logo.png" alt="Pixaris Logo" width="160">
+  <img src="https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/pixaris_logo.png" alt="Pixaris Logo" width="160">
 </p>
 
 # Pixaris: An Evaluation Framework for Image Generation
