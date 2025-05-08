@@ -46,7 +46,7 @@ class TestSaturationComparisonByMaskMetric(unittest.TestCase):
 
         self.assertEqual(metrics["saturation_difference"], 0.0)
 
-    def test_saturation_best_case(self):
+    def test_saturation_minimal_difference(self):
         """
         testing saturation difference metric best case. Should return 1 if saturation is the same
         """
