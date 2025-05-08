@@ -7,6 +7,11 @@ env_variables:
   GRADIO_SERVER_NAME: "0.0.0.0"
   GRADIO_SERVER_PORT: "8080"
 
+automatic_scaling:
+  target_cpu_utilization: 0.95
+  min_pending_latency: 3000ms
+  max_concurrent_requests: 200
+
 handlers:
   - url: /.*
     script: auto
