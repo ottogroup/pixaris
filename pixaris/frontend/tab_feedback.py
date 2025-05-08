@@ -127,7 +127,8 @@ def render_feedback_tab(
                 interactive=True,
                 size="sm",
             )
-            reloaded_feedback_count=gr.State(value=1)
+            reloaded_feedback_count = gr.State(value=1)
+
             def reload_feedback(project_name, reloaded_feedback_count):
                 feedback_handler.load_all_feedback_iterations_for_project(project_name)
                 reloaded_feedback_count += 1
@@ -150,7 +151,11 @@ def render_feedback_tab(
         ]
     )
     def render_images_per_iteration(
-        feedback_iterations, columns, display_feedback_checkbox, sorting_of_images, reloaded_feedback_count
+        feedback_iterations,
+        columns,
+        display_feedback_checkbox,
+        sorting_of_images,
+        reloaded_feedback_count,
     ):
         """
         This function renders the images for each feedback iteration. It is decorated with gr.render
@@ -272,7 +277,7 @@ def render_feedback_tab(
                                 gr.Markdown(
                                     label="Previous Feedback",
                                     value=f"Likes: {feedback['likes']} - Comments: {feedback['comments_liked']}"
-                                    if feedback and reloaded_feedback_count>0
+                                    if feedback and reloaded_feedback_count > 0
                                     else "",
                                     visible=display_feedback_checkbox
                                     and element_visible_bool,
@@ -280,9 +285,8 @@ def render_feedback_tab(
                                 gr.Markdown(
                                     label="Previous Feedback",
                                     value=f"Dislikes: {feedback['dislikes']} - Comments: {feedback['comments_disliked']}"
-                                    if feedback and reloaded_feedback_count>0
+                                    if feedback and reloaded_feedback_count > 0
                                     else "",
                                     visible=display_feedback_checkbox
                                     and element_visible_bool,
                                 )
-
