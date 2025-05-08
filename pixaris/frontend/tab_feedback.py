@@ -121,6 +121,24 @@ def render_feedback_tab(
                 label="Sorting of images",
                 value="image_name",
             )
+            reload_feedback_button = gr.Button(
+                "Reload feedback",
+                variant="secondary",
+                interactive=True,
+                size="sm",
+            )
+            reloaded_feedback_count=gr.State(value=1)
+            def reload_feedback(project_name, reloaded_feedback_count):
+                feedback_handler.load_all_feedback_iterations_for_project(project_name)
+                reloaded_feedback_count += 1
+                gr.Info("Reloaded feedback.", duration=2)
+                return reloaded_feedback_count
+
+            reload_feedback_button.click(
+                fn=reload_feedback,
+                inputs=[project_name, reloaded_feedback_count],
+                outputs=[reloaded_feedback_count],
+            )
 
     @gr.render(
         inputs=[
@@ -128,10 +146,11 @@ def render_feedback_tab(
             columns,
             display_feedback_checkbox,
             sorting_of_images,
+            reloaded_feedback_count,
         ]
     )
     def render_images_per_iteration(
-        feedback_iterations, columns, display_feedback_checkbox, sorting_of_images
+        feedback_iterations, columns, display_feedback_checkbox, sorting_of_images, reloaded_feedback_count
     ):
         """
         This function renders the images for each feedback iteration. It is decorated with gr.render
@@ -202,7 +221,7 @@ def render_feedback_tab(
                                     visible=element_visible_bool,
                                 )
                                 feedback_button = gr.Button(
-                                    "Send Feedback",
+                                    "Send feedback for this image",
                                     visible=element_visible_bool,
                                     size="sm",
                                     min_width=min_width_elements,
@@ -253,7 +272,7 @@ def render_feedback_tab(
                                 gr.Markdown(
                                     label="Previous Feedback",
                                     value=f"Likes: {feedback['likes']} - Comments: {feedback['comments_liked']}"
-                                    if feedback
+                                    if feedback and reloaded_feedback_count>0
                                     else "",
                                     visible=display_feedback_checkbox
                                     and element_visible_bool,
@@ -261,8 +280,9 @@ def render_feedback_tab(
                                 gr.Markdown(
                                     label="Previous Feedback",
                                     value=f"Dislikes: {feedback['dislikes']} - Comments: {feedback['comments_disliked']}"
-                                    if feedback
+                                    if feedback and reloaded_feedback_count>0
                                     else "",
                                     visible=display_feedback_checkbox
                                     and element_visible_bool,
                                 )
+
