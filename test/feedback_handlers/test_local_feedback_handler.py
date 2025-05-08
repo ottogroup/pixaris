@@ -269,10 +269,10 @@ class TestLocalFeedbackHandler(unittest.TestCase):
 
         tearDown()
 
-    def test_load_images_for_feedback_iteration(self):
+    def test_load_images_for_feedback_iteration_sorting_image_name(self):
         """
         tests the load_images_for_feedback_iteration method of the LocalFeedbackHandler class
-        checks if the images list is correct.
+        checks if the images list is correct for sorting after name.
         There are only 2 images in the feedback iteration file, even though there are 4 in the dir.
         """
         copy_test_results()
@@ -303,6 +303,70 @@ class TestLocalFeedbackHandler(unittest.TestCase):
 
         tearDown()
 
+    def test_load_images_for_feedback_iteration_sorting_dislikes(self):
+        """
+        tests the load_images_for_feedback_iteration method of the LocalFeedbackHandler class
+        checks if the images list is correct for sorting after dislikes. Sorting for likes is implemented
+        exactly the same way.
+        """
+        copy_test_results()
+
+        # Create a mock feedback handler
+        local_feedback_handler = LocalFeedbackHandler(
+            project_feedback_dir="feedback_iterations",
+            project_feedback_file="feedback_tracking.jsonl",
+            local_feedback_directory=TEMP_TEST_FILES_DIR,
+        )
+
+        # load the project into df
+        local_feedback_handler.load_all_feedback_iterations_for_project("test_project")
+
+        # Call the method to test
+        image_names = local_feedback_handler.load_images_for_feedback_iteration(
+            "test_iteration",
+            sorting="dislikes",
+        )
+
+        # Check if the images list is correct
+        self.assertEqual(
+            image_names,
+            [
+                f"{TEMP_TEST_FILES_DIR}/test_project/feedback_iterations/test_iteration/sillygoose.jpg",
+                f"{TEMP_TEST_FILES_DIR}/test_project/feedback_iterations/test_iteration/chinchilla.jpg",
+            ],
+        )
+
+        tearDown()
+
+    def test_load_feedback_per_image(self):
+        """
+        tests the load_feedback_per_image method of the LocalFeedbackHandler class
+        checks if the feedback per image is correct.
+        """
+        copy_test_results()
+
+        # Create a mock feedback handler
+        local_feedback_handler = LocalFeedbackHandler(
+            project_feedback_dir="feedback_iterations",
+            project_feedback_file="feedback_tracking.jsonl",
+            local_feedback_directory=TEMP_TEST_FILES_DIR,
+        )
+
+        # load the project into df
+        local_feedback_handler.load_all_feedback_iterations_for_project("test_project")
+
+        # Call the method to test
+        feedback = local_feedback_handler.get_feedback_per_image(
+            "test_iteration", "chinchilla.jpg"
+        )
+
+        # Check if the feedback is correct
+        self.assertEqual(feedback["likes"], 2)
+        self.assertEqual(feedback["dislikes"], 0)
+        self.assertEqual(feedback["comments_liked"], ["yes", "yess"])
+        self.assertEqual(feedback["comments_disliked"], [])
+
+        tearDown()
 
 if __name__ == "__main__":
     unittest.main()
