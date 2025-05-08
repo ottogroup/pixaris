@@ -25,7 +25,7 @@ class LuminescenceComparisonByMaskMetric(BaseMetric):
     Calculate the luminescence difference between the masked part and the unmasked part of an image.
     The metric is calculated as the absolute difference between the average luminescence of the masked part
     and the unmasked part of the image.
-    The result is a number between 0 and 1 with 1 being the best possible score and 0 being the worst score.
+    The result is a number between 0 and 1. 1 is the best possible score (minimal difference in luminescence of masked and unmasked part) and 0 is the worst score (maximal difference).
     """
 
     def __init__(
