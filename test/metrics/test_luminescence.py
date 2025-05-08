@@ -45,7 +45,7 @@ class TestLuminescenceComparisonByMaskMetric(unittest.TestCase):
     def test_luminescence_maximal_difference(self):
         """
         testing luminescence difference metric with maximal luminence difference inside and outside of mask
-        Should return 0 if luminescence is the difference is maximal
+        Should return 0 if the difference of luminescence is maximal
         """
         image_path = "test/test_project/mock/mask/"
         images = [Image.open(image_path + name) for name in os.listdir(image_path)]
