@@ -254,6 +254,11 @@ We encourage contributions to Pixaris!  If you'd like to contribute:
 
 For more detailed guidelines, see our [Contributing Guide](https://opensource.guide/how-to-contribute/).
 
+
+## Release
+1. Update the version in `pyproject.toml`.
+2. Run the `release_new_version.yaml` pipeline in GitHub.
+
 ## License
 
 Pixaris is released under the GPL-3.0 license License. See the [LICENSE](LICENSE) file for details.
