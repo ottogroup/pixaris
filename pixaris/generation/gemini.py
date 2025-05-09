@@ -251,7 +251,7 @@ class GeminiGenerator(ImageGenerator):
         Generates a single image based on the provided arguments.
 
         :param args: A dictionary containing the following keys:
-        * pillow_images (list[dict]): A list of dictionaries containing pillow images and mask images.
+        * pillow_images (list[dict]): A list of dictionaries containing pillow images images.
         * generation_params (list[dict]): A list of dictionaries containing generation params.
         :type args: dict[str, any]
 
