@@ -73,7 +73,9 @@ class Imagen2ImageGenerator(ImageGenerator):
         Generates images using the Imagen API and checks the status until the image is ready.
 
         :param pillow_images: A list of dictionaries containing pillow images and mask images.
-          Example:: [{'node_name': 'Load Input Image', 'pillow_image': <PIL.Image>}, {'node_name': 'Load Mask Image', 'pillow_image': <PIL.Image>}]
+          Example::
+
+          [{'node_name': 'Load Input Image', 'pillow_image': <PIL.Image>}, {'node_name': 'Load Mask Image', 'pillow_image': <PIL.Image>}]
         :type pillow_images: List[dict]
         :param generation_params: A list of dictionaries containing generation params.
         :type generation_params: list[dict]
