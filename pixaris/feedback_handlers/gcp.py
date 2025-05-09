@@ -231,13 +231,13 @@ class GCPFeedbackHandler(FeedbackHandler):
             date_suffix = datetime.now().strftime("%y%m%d")
         feedback_iteration = f"{date_suffix}_{feedback_iteration}"
 
-        # self._initialise_feedback_iteration_in_table(
-        #     project=project,
-        #     feedback_iteration=feedback_iteration,
-        #     image_names=image_names,
-        #     dataset=dataset,
-        #     experiment_name=experiment_name,
-        # )
+        self._initialise_feedback_iteration_in_table(
+            project=project,
+            feedback_iteration=feedback_iteration,
+            image_names=image_names,
+            dataset=dataset,
+            experiment_name=experiment_name,
+        )
 
         self._save_images_to_feedback_iteration_folder(
             local_image_directory=local_image_directory,
