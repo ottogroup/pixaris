@@ -94,6 +94,7 @@ class GeminiGenerator(ImageGenerator):
         genai_client = genai.Client(
             vertexai=True, project=self.gcp_project_id, location=self.gcp_location
         )
+        # if model is not given in generation_params, set to default
         model_name = next(
             (
                 param["value"]
