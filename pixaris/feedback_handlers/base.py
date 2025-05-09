@@ -69,18 +69,17 @@ class FeedbackHandler:
         # determine what to write to feedback columns
         feedback_indicator = feedback["feedback_indicator"]
 
+        row_to_insert["likes"] = 0
+        row_to_insert["dislikes"] = 0
+
         if feedback_indicator == "Like":
             row_to_insert["likes"] = 1
-            row_to_insert["dislikes"] = 0
         elif feedback_indicator == "Dislike":
-            row_to_insert["likes"] = 0
             row_to_insert["dislikes"] = 1
         elif (
-            feedback_indicator == "Neither"
-        ):  # Is used when uploading images (no feedback given)
-            row_to_insert["likes"] = 0
-            row_to_insert["dislikes"] = 0
-        else:
+            feedback_indicator
+            != "Neither"  # Neither is used when uploading images (no feedback given)
+        ):
             raise ValueError(
                 "Invalid feedback indicator. Must be 'Like', 'Dislike', or 'Neither'"
             )
