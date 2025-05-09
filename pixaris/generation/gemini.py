@@ -101,7 +101,7 @@ class GeminiGenerator(ImageGenerator):
                 for param in generation_params
                 if param["node_name"] == "model_name"
             ),
-            "gemini-2.0-flash-001",
+            self.model_name,
         )
         vertexai.init(project=self.gcp_project_id, location=self.gcp_location)
 
