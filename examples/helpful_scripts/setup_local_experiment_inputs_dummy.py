@@ -92,7 +92,7 @@ def standardise_images_and_save_to_target_directory(
     img_names = [
         img
         for img in os.listdir(source_directory)
-        if img.endswith((".jpg", ".jpeg", ".png", ".tif"))
+        if img.endswith((".jpg", ".jpeg", ".png"))
     ]
     print(img_names)
 
