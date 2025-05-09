@@ -54,48 +54,7 @@ class GCPFeedbackHandler(FeedbackHandler):
         * comment: string with feedback comment (optional)
         :type feedback: dict
         """
-        # assert non-nullable values are present
-        assert all(
-            key in feedback.keys()
-            for key in [
-                "project",
-                "feedback_iteration",
-                "image_name",
-                "feedback_indicator",
-            ]
-        ), (
-            "Missing required feedback keys. Must have 'project', 'feedback_iteration', 'image_name', 'feedback_indicator'."
-        )
-
-        # setup row to insert to table
-        row_to_insert = {
-            "project": feedback["project"],
-            "feedback_iteration": feedback["feedback_iteration"],
-            "dataset": feedback.get("dataset", ""),
-            "image_name": feedback["image_name"],
-            "experiment_name": feedback.get("experiment_name", ""),
-            "date": datetime.now().isoformat(),
-            "comment": feedback.get("comment", ""),
-        }
-
-        # determine what to write to feedback columns
-        feedback_indicator = feedback["feedback_indicator"]
-
-        if feedback_indicator == "Like":
-            row_to_insert["likes"] = 1
-            row_to_insert["dislikes"] = 0
-        elif feedback_indicator == "Dislike":
-            row_to_insert["likes"] = 0
-            row_to_insert["dislikes"] = 1
-        elif (
-            feedback_indicator == "Neither"
-        ):  # Is used when uploading images (no feedback given)
-            row_to_insert["likes"] = 0
-            row_to_insert["dislikes"] = 0
-        else:
-            raise ValueError(
-                "Invalid feedback indicator. Must be 'Like', 'Dislike', or 'Neither'"
-            )
+        row_to_insert = self._construct_feedback_row_to_insert(feedback)
 
         bigquery_client = bigquery.Client(project=self.gcp_project_id)
         errors = bigquery_client.insert_rows_json(
@@ -114,6 +73,36 @@ class GCPFeedbackHandler(FeedbackHandler):
                 f"Errors occurred while inserting row: {errors[0]['errors']}"
             )
 
+    def _save_images_to_feedback_iteration_folder(
+        self,
+        local_image_directory: str,
+        project: str,
+        feedback_iteration: str,
+        image_names: list[str],
+    ):
+        """
+        Upload images to GCP bucket.
+
+        :param project: Name of the project
+        :type project: str
+        :param feedback_iteration: Name of the feedback iteration
+        :type feedback_iteration: str
+        :param image_names: List of image names to upload
+        :type image_names: list[str]
+        :param images_directory: Path to local directory containing images to upload
+        :type images_directory: str
+        """
+        storage_client = storage.Client(project=self.gcp_project_id)
+        bucket = storage_client.bucket(self.gcp_pixaris_bucket_name)
+
+        for filename in image_names:
+            if filename.endswith((".jpg", ".jpeg", ".png", ".tif")):
+                blob = bucket.blob(
+                    f"results/{project}/feedback_iterations/{feedback_iteration}/{filename}"
+                )
+                blob.upload_from_filename(os.path.join(local_image_directory, filename))
+                print(f"Uploaded {filename} to {feedback_iteration}")
+
     def _initialise_feedback_iteration_in_table(
         self,
         project: str,
@@ -123,7 +112,7 @@ class GCPFeedbackHandler(FeedbackHandler):
         experiment_name: str = None,
     ):
         """
-        Initialise feedback iteration in BigQuery and upload images to GCP bucket.
+        Initialise feedback iteration in BigQuery.
 
         :param project: Name of the project
         :type project: str
@@ -165,36 +154,6 @@ class GCPFeedbackHandler(FeedbackHandler):
                 "comment": "upload",
             }
             self.write_single_feedback(feedback)
-
-    def _save_images_to_feedback_iteration_folder(
-        self,
-        local_image_directory: str,
-        project: str,
-        feedback_iteration: str,
-        image_names: list[str],
-    ):
-        """
-        Upload images to GCP bucket.
-
-        :param project: Name of the project
-        :type project: str
-        :param feedback_iteration: Name of the feedback iteration
-        :type feedback_iteration: str
-        :param image_names: List of image names to upload
-        :type image_names: list[str]
-        :param images_directory: Path to local directory containing images to upload
-        :type images_directory: str
-        """
-        storage_client = storage.Client(project=self.gcp_project_id)
-        bucket = storage_client.bucket(self.gcp_pixaris_bucket_name)
-
-        for filename in image_names:
-            if filename.endswith((".jpg", ".jpeg", ".png", ".tif")):
-                blob = bucket.blob(
-                    f"results/{project}/feedback_iterations/{feedback_iteration}/{filename}"
-                )
-                blob.upload_from_filename(os.path.join(local_image_directory, filename))
-                print(f"Uploaded {filename} to {feedback_iteration}")
 
     def create_feedback_iteration(
         self,
@@ -247,8 +206,8 @@ class GCPFeedbackHandler(FeedbackHandler):
         """
         Retrieves list of projects from BigQuery table.
 
-        Returns:
-            List of project names.
+        :return: List of projects
+        :rtype: list[str]
         """
         print("Querying BigQuery for list of projects...")
         bigquery_client = bigquery.Client(project=self.gcp_project_id)
@@ -267,17 +226,14 @@ class GCPFeedbackHandler(FeedbackHandler):
         print(f"Done. Found projects: {projects}")
         return projects
 
-    def load_all_feedback_iterations_for_project(self, project: str) -> None:
+    def _load_feedback_df(self, project: str):
         """
-        Retrieves feedback data for a project from BigQuery table. Adds paths for location of images in
-        GCP bucket and local directory to the dataframe. Saves the resulting df to self.feedback_df.
-        Saves the list of feedback iterations to self.feedback_iteration_choices.
+        Loads feedback data from BigQuery table for a specific project.
 
-        Args:
-            project: str Name of the project
-
-        Returns:
-            None
+        :param project: Name of the project
+        :type project: str
+        :return: DataFrame with feedback data
+        :rtype: pd.DataFrame
         """
         print(f"Querying BigQuery for feedback data for project {project}...")
         bigquery_client = bigquery.Client(project=self.gcp_project_id)
@@ -286,10 +242,10 @@ class GCPFeedbackHandler(FeedbackHandler):
             SELECT
                 `project`,
                 feedback_iteration,
-                dataset,
+                STRING_AGG(dataset) AS dataset,
                 image_name,
-                SUM(likes) AS likes_count,
-                SUM(dislikes) AS dislikes_count,
+                SUM(likes) AS likes,
+                SUM(dislikes) AS dislikes,
                 STRING_AGG(IF(likes > 0 AND comment <> "upload", comment, NULL), ', ') AS comments_liked,
                 STRING_AGG(IF(dislikes > 0 AND comment <> "upload", comment, NULL), ', ') AS comments_disliked
             FROM
@@ -299,62 +255,66 @@ class GCPFeedbackHandler(FeedbackHandler):
                 `project` = "{project}"
             GROUP BY
                 `project`,
-                dataset,
                 feedback_iteration,
                 image_name;
         """
         rows = bigquery_client.query_and_wait(query)
-        df = rows.to_dataframe()
+        feedback_df = rows.to_dataframe()
 
-        # add paths for images to df (local and GCS bucket)
-        df["image_path_bucket"] = (
+        # adjust feedback columns so that they are lists of strings
+        feedback_df["comments_liked"] = feedback_df["comments_liked"].apply(
+            lambda x: [e.strip() for e in x.split(",") if e not in ["", " "]]
+            if x
+            else []
+        )
+        feedback_df["comments_disliked"] = feedback_df["comments_disliked"].apply(
+            lambda x: [e.strip() for e in x.split(",") if e not in ["", " "]]
+            if x
+            else []
+        )
+
+        # add paths for images to feedback_df (local and GCS bucket)
+        feedback_df["image_path_bucket"] = (
             "results/"
-            + df["project"]
+            + feedback_df["project"]
             + "/feedback_iterations/"
-            + df["feedback_iteration"]
+            + feedback_df["feedback_iteration"]
             + "/"
-            + df["image_name"]
+            + feedback_df["image_name"]
         )
-        df["image_path_local"] = (
+        feedback_df["image_path_local"] = (
             f"{self.local_feedback_directory}/"
-            + df["project"]
+            + feedback_df["project"]
             + "/feedback_iterations/"
-            + df["feedback_iteration"]
+            + feedback_df["feedback_iteration"]
             + "/"
-            + df["image_name"]
+            + feedback_df["image_name"]
         )
 
-        # determine feedback iterations to choose from in this project
-        choices = df["feedback_iteration"].unique().tolist()
-        choices.sort()
-
-        self.feedback_iteration_choices = choices
-        self.feedback_df = df
-
-        print(f"Done. Found feedback iterations: {choices}")
+        return feedback_df
 
     def load_images_for_feedback_iteration(
         self,
         feedback_iteration: str,
+        sorting: str = "image_name",
     ) -> list[str]:
         """
         Downloads images for a feedback iteration from GCP bucket to local directory.
         Returns list of local image paths that belong to the feedback iteration.
 
-        Args:
-            feedback_iteration: str Name of the feedback iteration
-
-        Returns:
-            List of local image paths.
+        :param feedback_iteration: Name of the feedback iteration
+        :type feedback_iteration: str
+        :param sorting: Sorting option for the images. Can be "image_name", "likes", or "dislikes". Default is "image_name".
+        :type sorting: str
+        :return: List of local image paths that belong to the feedback iteration.
+        :rtype: list[str]
         """
         print(f"Downloading images for feedback iteration {feedback_iteration}...")
 
         # get relevant data for this feedback iteration
         iteration_df = self.feedback_df.loc[
-            (
-                self.feedback_df["feedback_iteration"] == feedback_iteration
-            )  # only this feedback iteration
-            & (self.feedback_df["dataset"] != "")  # only the entries of initialisation
+            # only this feedback iteration
+            self.feedback_df["feedback_iteration"] == feedback_iteration
         ].copy()
 
         # download images
@@ -365,10 +325,15 @@ class GCPFeedbackHandler(FeedbackHandler):
                 gr.Info(f"Downloading image '{image_path_bucket}'...", duration=1)
                 os.makedirs(os.path.dirname(image_path_local), exist_ok=True)
                 self._download_image(image_path_bucket, image_path_local)
+        print("Done with download.")
 
-        print("Done.")
-        image_paths_local = iteration_df["image_path_local"].tolist()
-        image_paths_local.sort()
+        # sort images according to user preference
+        sorted_df = self._sort_iteration_df(
+            iteration_df=iteration_df,
+            sorting=sorting,
+        )
+        # deduplicate image paths
+        image_paths_local = sorted_df["image_path_local"].unique().tolist()
         return image_paths_local
 
     def _download_image(
@@ -376,6 +341,15 @@ class GCPFeedbackHandler(FeedbackHandler):
         image_path_bucket: str,
         image_path_local: str,
     ) -> None:
+        """
+        Downloads image from GCP bucket to local directory. If the image cannot be downloaded,
+        a white placeholder image is created and saved instead.
+
+        :param image_path_bucket: Path to the image in GCP bucket
+        :type image_path_bucket: str
+        :param image_path_local: Path to the local directory where the image will be saved
+        :type image_path_local: str
+        """
         storage_client = storage.Client(project=self.gcp_project_id)
         bucket = storage_client.bucket(self.gcp_pixaris_bucket_name)
 
