@@ -182,7 +182,7 @@ class GCPFeedbackHandler(FeedbackHandler):
         image_names = [
             filename
             for filename in os.listdir(local_image_directory)
-            if filename.endswith((".jpg", ".jpeg", ".png", ".tif"))
+            if filename.endswith((".jpg", ".jpeg", ".png"))
         ]
 
         # add date for versioning if not provided
