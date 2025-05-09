@@ -257,7 +257,8 @@ For more detailed guidelines, see our [Contributing Guide](https://opensource.gu
 
 ## Release
 1. Update the version in `pyproject.toml`.
-2. Run the `release_new_version.yaml` pipeline in GitHub.
+2. Create a new release. Follow [GitHub Release Docu](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
+3. Validate that the github action `release_new_version.yaml` was successful. 
 
 ## License
 
