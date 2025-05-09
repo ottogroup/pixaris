@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/pixaris_logo.png" alt="Pixaris Logo" width="160">
+  <img src="https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/pixaris_logo.png" alt="Pixaris Logo" width="160">
 </p>
 
 # Pixaris: An Evaluation Framework for Image Generation
@@ -78,7 +78,7 @@ At a high level, using Pixaris involves defining a `DatasetLoader`, `ImageGenera
 
 Pixaris provides several pre-built components to choose from, such as the `GCPDatasetLoader` for accessing data in Google Cloud Storage and the `LocalDatasetLoader` for accessing local evaluation data. You can also implement your own custom components to tailor Pixaris to your specific needs.
 
-![Overview of Classes for Orchestration](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/overview.png)
+![Overview of Classes for Orchestration](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/overview.png)
 
 For example usages, check the [examples](examples) directory. To set up GCP components, such as `GCPDatasetLoader`, we use a configuration file. An [example_config.yaml](examples/example_config.yaml) is provided; just adjust it and save a local version.
 
@@ -120,7 +120,7 @@ We implemented a neat `ImageGenerator` that uses ComfyUI.
 from pixaris.generation.comfyui import ComfyGenerator
 comfy_generator = ComfyGenerator(workflow_apiformat_json=<WORKFLOW_APIFORMAT_JSON>)
 ```
-The workflow_apiformat_json should lead to a JSON file exported from ComfyUI. You can export your workflow in apiformat as shown [here][https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/export_apiformat.png].
+The workflow_apiformat_json should lead to a JSON file exported from ComfyUI. You can export your workflow in apiformat as shown [here][https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/export_apiformat.png].
 
 Pixaris also includes an implementation of `FluxFillGenerator`, that calls a Flux API for generation. You can implement your own `ImageGenerator` for image generation with different tools, an API, or whatever you like. Your class needs to inherit from `ImageGenerator` and should call any image generation pipeline. A generator parses a dataset into usable arguments for your generation. Override the function `generate_single_image` to call your generation.
 
@@ -211,7 +211,7 @@ docker pull ghcr.io/ottogroup/pixaris:latest
 ## Pixaris UI: Viewing Results and Giving Feedback
 You can directly use the GUI to inspect your experiment results and provide feedback on them. For this, you need to define an `ExperimentHandler` and `FeedbackHandler` to call `launch_ui`. They will handle loading experiments and managing feedback. Both experiment handling and feedback handling have an organising level `project` at the top. This allows you to sort your experiments and feedbacks per use case, topic, time, or whatever you like.
 
-<img src="https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/UI_overview.png" alt="Overview of Classes for UI" width="400">
+<img src="https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/UI_overview.png" alt="Overview of Classes for UI" width="400">
 
 Using local components:
 ```python
@@ -226,12 +226,12 @@ The UI is then available at `http://localhost:8080`.
 Find code to setup dummy data and deploy the frontend in [this folder](examples/frontend/).
 ### Viewing the Experiment Results
 In the Experiment Tab, you can see the generated images as well as the results of metrics in tabular form.
-![ExperimentTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/pixaris_experiment_screenshot_explanations.png)
+![ExperimentTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/pixaris_experiment_screenshot_explanations.png)
 
 ### Giving Feedback on Generated Images
 When reviewing your generated images, Pixaris UI lets you rate which images are good and which aren't. To do this either alone or with your team, you can use Feedback tab in the UI. `feedback_iteration`s are independent from experiment datasets. You could e.g. have a feedback_iteration that consists of your favorite experiment runs, or you could freely generate a bunch of images and form them into a `feedback_iteration`. It is completely up to you. Here you can see some cute chinchillas and how the author would rate the images.
 
-![FeedbackTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/test/assets/pixaris_feedback_screenshot_explanations.png)
+![FeedbackTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/pixaris_feedback_screenshot_explanations.png)
 
 
 ## Naming Conventions
