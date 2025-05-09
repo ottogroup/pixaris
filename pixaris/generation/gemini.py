@@ -5,8 +5,7 @@ from pixaris.generation.base import ImageGenerator
 from PIL import Image
 from io import BytesIO
 import vertexai
-from google import genai
-from google.genai import types
+from google.genai import Client, types
 from vertexai.generative_models import Image as VertexImage
 
 
@@ -20,14 +19,21 @@ class GeminiGenerator(ImageGenerator):
     :type gcp_location: str
     """
 
-    def __init__(self, gcp_project_id: str, gcp_location: str = "us-central1", verbose: bool = False):
+    def __init__(
+        self,
+        gcp_project_id: str,
+        gcp_location: str = "us-central1",
+        model_name: str = "gemini-2.0-flash-exp",
+        verbose: bool = False,
+    ):
         self.gcp_project_id = gcp_project_id
         # todo: once gemini is available in other regions, remove this check and the default value for gcp_location
         if gcp_location != "us-central1":
             print(
-                f"Warning: Currently, gemini is only supported in us-central1. Setting '{gcp_location}' can result in errors."
+                f"Warning: Currently, gemini is only supported in 'us-central1'. Setting '{gcp_location}' can result in errors."
             )
-            self.gcp_location = gcp_location
+        self.gcp_location = gcp_location
+        self.model_name = model_name
         self.verbose = verbose
 
     def validate_inputs_and_parameters(
@@ -38,7 +44,7 @@ class GeminiGenerator(ImageGenerator):
         """
         Validates the provided dataset and parameters for image generation.
 
-        :param dataset: A list of dicts containing image and mask information.
+        :param dataset: A list of dicts containing image information.
         :type dataset: List[dict[str, List[dict[str, Image.Image]]]
         :param parameters: A list of dictionaries containing generation parameters.
         :type parameters: list[dict[str, str, any]]
@@ -83,15 +89,17 @@ class GeminiGenerator(ImageGenerator):
         """
         Generates images using the Imagen API and checks the status until the image is ready.
 
-        :param pillow_images: A list of dictionaries containing pillow images and mask images.
-          Example:: [{'node_name': 'Load Input Image', 'pillow_image': <PIL.Image>}, {'node_name': 'Load Mask Image', 'pillow_image': <PIL.Image>}]
+        :param pillow_images: A list of dictionaries containing pillow images images.
+          Example::
+
+          [{'node_name': 'Load Input Image', 'pillow_image': <PIL.Image>}]
         :type pillow_images: List[dict]
         :param generation_params: A list of dictionaries containing generation params.
         :type generation_params: list[dict]
         :return: The generated image.
         :rtype: PIL.Image.Image
         """
-        genai_client = genai.Client(
+        genai_client = Client(
             vertexai=True, project=self.gcp_project_id, location=self.gcp_location
         )
         # if model is not given in generation_params, set to default

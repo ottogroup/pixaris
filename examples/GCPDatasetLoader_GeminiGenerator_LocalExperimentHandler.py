@@ -8,6 +8,7 @@ config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 PROJECT = "dummy_project"
 DATASET = "dummy_dataset"
 EXPERIMENT_RUN_NAME = "example-run"
+MODEL_NAME = "gemini-2.0-flash-exp"
 PROMPT = (
     "Generate a background for this woman. She should be standing on a beautiful beach."
 )
@@ -24,7 +25,8 @@ data_loader = GCPDatasetLoader(
 
 generator = GeminiGenerator(
     gcp_project_id=config["gcp_project_id"],
-    gcp_location=config["gcp_location"],
+    gcp_location="us-central1",  # seeting this as us-central1 for now, since model not currently available in europe
+    model_name=MODEL_NAME,
     verbose=True,
 )
 generation_params = [
@@ -32,11 +34,6 @@ generation_params = [
         "node_name": "prompt",
         "input": "",
         "value": PROMPT,
-    },
-    {  # optional, since there is this model as a default value
-        "node_name": "model_name",
-        "input": "",
-        "value": "gemini-2.0-flash-exp",
     },
 ]
 
@@ -46,6 +43,7 @@ args = {
     "workflow_apiformat_json": {},
     "workflow_pillow_image": {},
     "prompt": PROMPT,
+    "model_name": MODEL_NAME,
     "project": PROJECT,
     "dataset": DATASET,
     "experiment_run_name": EXPERIMENT_RUN_NAME,
