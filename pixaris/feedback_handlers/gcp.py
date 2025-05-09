@@ -188,13 +188,12 @@ class GCPFeedbackHandler(FeedbackHandler):
         storage_client = storage.Client(project=self.gcp_project_id)
         bucket = storage_client.bucket(self.gcp_pixaris_bucket_name)
 
-        for filename in image_names:
-            if filename.endswith((".jpg", ".jpeg", ".png", ".tif")):
-                blob = bucket.blob(
-                    f"results/{project}/feedback_iterations/{feedback_iteration}/{filename}"
-                )
-                blob.upload_from_filename(os.path.join(local_image_directory, filename))
-                print(f"Uploaded {filename} to {feedback_iteration}")
+        for image_name in image_names:
+            blob = bucket.blob(
+                f"results/{project}/feedback_iterations/{feedback_iteration}/{image_name}"
+            )
+            blob.upload_from_filename(os.path.join(local_image_directory, image_name))
+            print(f"Uploaded {image_name} to {feedback_iteration}")
 
     def create_feedback_iteration(
         self,
@@ -221,20 +220,24 @@ class GCPFeedbackHandler(FeedbackHandler):
         :param experiment_name: Name of the experiment (optional)
         :type experiment_name: str
         """
-        image_names = os.listdir(local_image_directory)
+        image_names = [
+            filename
+            for filename in os.listdir(local_image_directory)
+            if filename.endswith((".jpg", ".jpeg", ".png", ".tif"))
+        ]
 
         # add date for versioning if not provided
         if not date_suffix:
             date_suffix = datetime.now().strftime("%y%m%d")
         feedback_iteration = f"{date_suffix}_{feedback_iteration}"
 
-        self._initialise_feedback_iteration_in_table(
-            project=project,
-            feedback_iteration=feedback_iteration,
-            image_names=image_names,
-            dataset=dataset,
-            experiment_name=experiment_name,
-        )
+        # self._initialise_feedback_iteration_in_table(
+        #     project=project,
+        #     feedback_iteration=feedback_iteration,
+        #     image_names=image_names,
+        #     dataset=dataset,
+        #     experiment_name=experiment_name,
+        # )
 
         self._save_images_to_feedback_iteration_folder(
             local_image_directory=local_image_directory,
