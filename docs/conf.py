@@ -20,10 +20,15 @@ release = "0.1"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
+    "myst_parser",
     "sphinx.ext.todo",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
+]
+myst_enable_extensions = [
+    "colon_fence",  # Enable ::: for block-level elements
+    "deflist",  # Enable definition lists
 ]
 
 templates_path = ["_templates"]
