@@ -16,7 +16,7 @@ WORKFLOW_PILLOW_IMAGE = Image.open(
     os.getcwd() + "/test/assets/test-background-generation.png"
 )
 EXPERIMENT_RUN_NAME = "example-run"
-PROMPT = "A beautiful image of a moon"
+PROMPT = "Place the animal in front of a background of a nice lush green forest."
 
 # +
 data_loader = LocalDatasetLoader(
@@ -38,6 +38,7 @@ args = {
     "project": PROJECT,
     "dataset": DATASET,
     "experiment_run_name": EXPERIMENT_RUN_NAME,
+    "prompt": PROMPT,
 }
 # -
 
