@@ -38,7 +38,7 @@ class GeminiGenerator(ImageGenerator):
         """
         Validates the provided dataset and parameters for image generation.
 
-        :param dataset: A list of datasets containing image and mask information.
+        :param dataset: A list of dicts containing image and mask information.
         :type dataset: List[dict[str, List[dict[str, Image.Image]]]
         :param parameters: A list of dictionaries containing generation parameters.
         :type parameters: list[dict[str, str, any]]
