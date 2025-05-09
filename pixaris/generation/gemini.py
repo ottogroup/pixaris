@@ -20,9 +20,14 @@ class GeminiGenerator(ImageGenerator):
     :type gcp_location: str
     """
 
-    def __init__(self, gcp_project_id: str, gcp_location: str, verbose: bool = False):
+    def __init__(self, gcp_project_id: str, gcp_location: str = "us-central1", verbose: bool = False):
         self.gcp_project_id = gcp_project_id
-        self.gcp_location = "us-central1"  # For now since model only works there
+        # todo: once gemini is available in other regions, remove this check and the default value for gcp_location
+        if gcp_location != "us-central1":
+            print(
+                f"Warning: Currently, gemini is only supported in us-central1. Setting '{gcp_location}' can result in errors."
+            )
+            self.gcp_location = gcp_location
         self.verbose = verbose
 
     def validate_inputs_and_parameters(
