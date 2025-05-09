@@ -2,6 +2,8 @@ import gradio as gr
 from pixaris.experiment_handlers.base import ExperimentHandler
 import pandas as pd
 
+PROJECTS = []
+
 
 def render_experiment_tracking_tab(
     experiment_handler: ExperimentHandler,
@@ -13,6 +15,7 @@ def render_experiment_tracking_tab(
         with gr.Row(scale=8):
             # load all projects and corresponding datasets at the beginning
             PROJECTS_DICT = experiment_handler.load_projects_and_datasets()
+            global PROJECTS
             PROJECTS = [""] + list(PROJECTS_DICT.keys())
 
             project_name = gr.Dropdown(
@@ -88,7 +91,25 @@ def render_experiment_tracking_tab(
                 ],
                 outputs=[experiments, dataset_experiment_tracking_results],
             )
+        with gr.Row(scale=1):
+            reload_projects_button = gr.Button(
+                "Reload projects",
+                variant="secondary",
+                interactive=True,
+                size="sm",
+            )
 
+            def reload_projects(project_name):
+                PROJECTS_DICT = experiment_handler.load_projects_and_datasets()
+                global PROJECTS
+                PROJECTS = [""] + list(PROJECTS_DICT.keys())
+                return project_name
+
+            reload_projects_button.click(
+                fn=reload_projects,
+                inputs=[project_name],
+                outputs=[project_name],
+            )
         # columns and gallery height sliders
         with gr.Row(scale=1):
             columns = gr.Slider(
