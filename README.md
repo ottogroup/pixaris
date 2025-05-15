@@ -1,8 +1,10 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/pixaris_logo.png" alt="Pixaris Logo" width="160">
+  <a href="https://github.com/ottogroup/pixaris">
+    <img src="https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/pixaris_logo.png" alt="Pixaris Logo" width="160">
+  </a>
 </p>
 
-# Pixaris: An Evaluation Framework for Image Generation
+# [Pixaris](https://github.com/ottogroup/pixaris): An Evaluation Framework for Image Generation
 
 [![PyPI Version](https://img.shields.io/pypi/v/pixaris)](https://pypi.org/project/pixaris/)
 [![License](https://img.shields.io/github/license/ottogroup/pixaris)](https://github.com/ottogroup/pixaris/blob/main/LICENSE)
@@ -10,7 +12,7 @@
 [![GitHub Issues](https://img.shields.io/github/issues/ottogroup/pixaris)](https://github.com/ottogroup/pixaris/issues)
 
 
-Pixaris is an open-source Python framework designed to streamline the evaluation and experimentation of image generation workflows. Whether you're a data scientist, AI engineer, or creative professional, Pixaris provides the tools you need to efficiently track, compare, and optimize your image generation projects, with built-in support for tools like ComfyUI and Flux. By tracking metrics, orchestrating experiments, and providing a user-friendly interface for feedback, Pixaris helps you achieve the highest quality results in your image generation endeavors.
+[Pixaris](https://github.com/ottogroup/pixaris) is an open-source Python framework designed to streamline the evaluation and experimentation of image generation workflows. Whether you're a data scientist, AI engineer, or creative professional, Pixaris provides the tools you need to efficiently track, compare, and optimize your image generation projects, with built-in support for tools like ComfyUI and Flux. By tracking metrics, orchestrating experiments, and providing a user-friendly interface for feedback, Pixaris helps you achieve the highest quality results in your image generation endeavors.
 
 **Table of Contents**
 
@@ -54,6 +56,7 @@ pip install pixaris
 ```
 
 Online documentation is available [here](https://ottogroup.github.io/pixaris/modules.html).
+The open source repository is found [here](https://github.com/ottogroup/pixaris).
 ## Getting Started
 
 The following steps will guide you through setting up and running your first image generation experiment with Pixaris.
@@ -262,4 +265,4 @@ For more detailed guidelines, see our [Contributing Guide](https://opensource.gu
 
 ## License
 
-Pixaris is released under the GPL-3.0 license License. See the [LICENSE](LICENSE) file for details.
+Pixaris is released under the GPL-3.0 license License. See the [LICENSE](https://raw.githubusercontent.com/ottogroup/pixaris/blob/main/LICENSE) file for details.
