@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pixaris"
-version = "0.3.0"
+version = "0.4.0"
 description = "Evaluation framework for image generation"
 authors = ["Team TIGA"]
 readme = "README.md"
