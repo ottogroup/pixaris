@@ -29,13 +29,6 @@ generator = GeminiGenerator(
     model_name=MODEL_NAME,
     verbose=True,
 )
-generation_params = [
-    {
-        "node_name": "prompt",
-        "input": "",
-        "value": PROMPT,
-    },
-]
 
 experiment_handler = LocalExperimentHandler()
 
@@ -47,7 +40,6 @@ args = {
     "project": PROJECT,
     "dataset": DATASET,
     "experiment_run_name": EXPERIMENT_RUN_NAME,
-    "generation_params": generation_params,
     # how many parallel jobs to run. If you want to parallelize calls to the API, set this to a number > 1
     "max_parallel_jobs": 1,
 }
