@@ -156,7 +156,7 @@ def render_experiment_tracking_tab(
                         show_download_button=True,
                         show_fullscreen_button=True,
                         height=gallery_height,
-                        object_fit="fill",
+                        object_fit="contain",
                     )
 
     with gr.Tab("Table"):
