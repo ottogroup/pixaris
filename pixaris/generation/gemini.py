@@ -7,7 +7,10 @@ from io import BytesIO
 from google.genai import Client, types
 from vertexai.generative_models import Image as VertexImage
 
-from pixaris.generation.utils import extract_value_from_list_of_dicts
+from pixaris.generation.utils import (
+    encode_image_to_bytes,
+    extract_value_from_list_of_dicts,
+)
 
 
 class GeminiGenerator(ImageGenerator):
@@ -66,21 +69,6 @@ class GeminiGenerator(ImageGenerator):
                 if not isinstance(param, dict):
                     raise ValueError("Each parameter must be a dictionary.")
 
-    def _encode_image_to_bytes(self, pillow_image: Image.Image) -> bytes:
-        """
-        Encodes a PIL image to bytes.
-
-        :param pillow_image: The PIL image.
-        :type pillow_image: PIL.Image.Image
-
-        :return: Byte array representation of the image.
-        :rtype: bytes
-        """
-        imgByteArr = BytesIO()
-        pillow_image.save(imgByteArr, format=pillow_image.format)
-        imgByteArr = imgByteArr.getvalue()
-        return imgByteArr
-
     def _run_gemini(
         self,
         pillow_images: List[dict],
@@ -114,7 +102,7 @@ class GeminiGenerator(ImageGenerator):
 
         # turn prompt and image into vertex readable content
         input_image = types.Part.from_bytes(
-            data=self._encode_image_to_bytes(input_pillow_image),
+            data=encode_image_to_bytes(input_pillow_image),
             mime_type="image/jpeg",
         )
         msg1_text1 = types.Part.from_text(text=prompt)

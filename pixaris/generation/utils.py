@@ -1,3 +1,7 @@
+from io import BytesIO
+from PIL import Image
+
+
 def extract_value_from_list_of_dicts(
     dict_list,
     itentifying_key,
@@ -38,3 +42,19 @@ def extract_value_from_list_of_dicts(
             f"No dict with pair '{itentifying_key}': '{identifying_value}' and key '{return_key}' found."
         )
     return return_value
+
+
+def encode_image_to_bytes(pillow_image: Image.Image) -> bytes:
+    """
+    Encodes a PIL image to bytes.
+
+    :param pillow_image: The PIL image.
+    :type pillow_image: PIL.Image.Image
+
+    :return: Byte array representation of the image.
+    :rtype: bytes
+    """
+    imgByteArr = BytesIO()
+    pillow_image.save(imgByteArr, format=pillow_image.format)
+    imgByteArr = imgByteArr.getvalue()
+    return imgByteArr

@@ -1,6 +1,6 @@
 from pixaris.data_loaders.local import LocalDatasetLoader
 from pixaris.experiment_handlers.local import LocalExperimentHandler
-from pixaris.generation.imagen2 import Imagen2ImageGenerator
+from pixaris.generation.imagen2 import Imagen2Generator
 from pixaris.orchestration.base import generate_images_based_on_dataset
 import os
 import yaml
@@ -25,7 +25,7 @@ data_loader = LocalDatasetLoader(
     eval_dir_local="local_experiment_inputs",
 )
 
-generator = Imagen2ImageGenerator(
+generator = Imagen2Generator(
     gcp_project_id=config["gcp_project_id"],
     gcp_location=config["gcp_location"],
 )
