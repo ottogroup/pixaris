@@ -21,5 +21,9 @@ __pycache__/
 # folders that should not be uploaded to app engine
 local_results/
 local_experiment_results/
+local_experiment_inputs/
 test/
+.ruff_cache/
+.pytest_cache/
+.github/
 .venv/
