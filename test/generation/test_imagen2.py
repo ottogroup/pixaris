@@ -30,47 +30,42 @@ class TestImagen2Generator(unittest.TestCase):
             "prompt": "TEST",
         }
 
+    def test_validate_inputs_and_parameters_correct(self):
+        """
+        Test if the function does not raise an error if dataset is in the correct format.
+        """
+        pillow_images = self.args.get("pillow_images", [])
+        prompt = self.args.get("prompt", "")
+
+        self.assertIsNone(
+            self.generator.validate_inputs_and_parameters(pillow_images, prompt)
+        )
+
     def test_validate_inputs_and_parameters_wrong_dataset_format(self):
         """
         Test if the function raises an error if dataset is not in the correct format.
         """
-        dataset = ["wrong_format"]
-        generation_params = []
+        pillow_images = ["wrong_format"]
+        prompt = self.args.get("prompt", "")
 
         with self.assertRaises(
             ValueError,
             msg="Each entry in the dataset must be a dictionary.",
         ):
-            self.generator.validate_inputs_and_parameters(dataset, generation_params)
+            self.generator.validate_inputs_and_parameters(pillow_images, prompt)
 
-    def test_run_imagen_success(self):
+    def test_validate_inputs_and_parameters_wrong_prompt(self):
         """
-        Test if the _run_imagen method correctly generates an image.
+        Test if the function raises an error if prompt is not in the correct format.
         """
-        pillow_images = self.args["pillow_images"]
-        prompt = self.args["prompt"]
+        pillow_images = self.args.get("pillow_images", [])
+        prompt = []
 
-        # Mocking requests.post and requests.get to simulate API response
-        with (
-            unittest.mock.patch("requests.post") as mock_post,
-            unittest.mock.patch("requests.get") as mock_get,
+        with self.assertRaises(
+            ValueError,
+            msg="Prompt must be a string.",
         ):
-            mock_post.return_value.json.return_value = {"id": "request_id"}
-            mock_get.return_value.json.return_value = {
-                "status": "Ready",
-                "result": {"sample": "https://example.com/generated_image.jpeg"},
-            }
-
-            # return random bytes to simulate image content
-            mock_get.return_value.content = (
-                b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01"
-                b"\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89"
-                b"\x00\x00\x00\x0cIDAT\x08\xd7c\xf8\xff\xff?\x00\x05\xfe"
-                b"\x02\xfe\x00\x00\x00\x00IEND\xaeB`\x82"
-            )
-
-            generated_image = self.generator._run_imagen(pillow_images, prompt)
-            self.assertIsInstance(generated_image, Image.Image)
+            self.generator.validate_inputs_and_parameters(pillow_images, prompt)
 
     def test_generate_single_image(self):
         """
