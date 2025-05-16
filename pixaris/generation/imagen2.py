@@ -1,15 +1,17 @@
 from typing import List
 from pixaris.generation.base import ImageGenerator
 from PIL import Image
-from io import BytesIO
 import vertexai
 from vertexai.preview.vision_models import Image as GoogleImage
 from vertexai.preview.vision_models import ImageGenerationModel
 
-from pixaris.generation.utils import extract_value_from_list_of_dicts
+from pixaris.generation.utils import (
+    encode_image_to_bytes,
+    extract_value_from_list_of_dicts,
+)
 
 
-class Imagen2ImageGenerator(ImageGenerator):
+class Imagen2Generator(ImageGenerator):
     """
     ImagenGenerator is a class that generates images using the Google Gemini API.
 
@@ -50,22 +52,7 @@ class Imagen2ImageGenerator(ImageGenerator):
         if parameters:
             for param in parameters:
                 if not isinstance(param, dict):
-                    raise ValueError("Each parameter must be a dictionary.")  #
-
-    def _encode_image_to_bytes(self, pillow_image: Image.Image) -> bytes:
-        """
-        Encodes a PIL image to bytes.
-
-        :param pillow_image: The PIL image.
-        :type pillow_image: PIL.Image.Image
-
-        :return: Byte array representation of the image.
-        :rtype: bytes
-        """
-        imgByteArr = BytesIO()
-        pillow_image.save(imgByteArr, format=pillow_image.format)
-        imgByteArr = imgByteArr.getvalue()
-        return imgByteArr
+                    raise ValueError("Each parameter must be a dictionary.")
 
     def _run_imagen(self, pillow_images: List[dict], prompt: str) -> Image.Image:
         """
@@ -99,8 +86,8 @@ class Imagen2ImageGenerator(ImageGenerator):
         )
 
         model = ImageGenerationModel.from_pretrained("imagegeneration@006")
-        base_img = GoogleImage(self._encode_image_to_bytes(input_image))
-        mask_img = GoogleImage(self._encode_image_to_bytes(mask_image))
+        base_img = GoogleImage(encode_image_to_bytes(input_image))
+        mask_img = GoogleImage(encode_image_to_bytes(mask_image))
 
         images = model.edit_image(
             base_image=base_img,
