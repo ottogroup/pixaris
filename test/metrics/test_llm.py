@@ -19,9 +19,7 @@ class LLMMetricTest(unittest.TestCase):
             object_images=object_images,
             style_images=style_images,
         )
-        llm_metric._call_gemini = MagicMock(
-            return_value='{"base_llm_metric": 1.0}'
-        )
+        llm_metric._call_gemini = MagicMock(return_value='{"base_llm_metric": 1.0}')
 
         metrics = llm_metric.calculate(object_images)
 
@@ -31,6 +29,30 @@ class LLMMetricTest(unittest.TestCase):
             self.assertIsInstance(value, float)
 
         self.assertEqual(metrics["base_llm_metric"], 1.0)
+
+    def test_llm_wrong_images(self):
+        """
+        if the number of object images and style images are not the same, it should raise a ValueError
+        """
+        object_dir = "test/test_project/mock/input/"
+        object_images = [
+            Image.open(object_dir + image) for image in os.listdir(object_dir)
+        ]
+        style_images = [Image.open("test/assets/test_inspo_image.jpg")] * (
+            len(object_images) + 1
+        )
+        llm_metric = BaseLLMMetric(
+            prompt="test prompt",
+            object_images=object_images,
+            style_images=style_images,
+        )
+        llm_metric._call_gemini = MagicMock(return_value='{"base_llm_metric": 1.0}')
+
+        self.assertRaises(
+            ValueError,
+            llm_metric.calculate,
+            object_images,
+        )
 
 
 if __name__ == "__main__":

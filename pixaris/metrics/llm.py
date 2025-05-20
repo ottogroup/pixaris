@@ -10,6 +10,7 @@ from pixaris.metrics.base import BaseMetric
 from pixaris.metrics.utils import dict_mean
 from pixaris.utils.retry import retry
 
+
 class BaseLLMMetric(BaseMetric):
     """
     BaseLLMMetric is a base class for metrics that use a Gemini large language model (LLM) to evaluate images.
@@ -20,7 +21,9 @@ class BaseLLMMetric(BaseMetric):
     :type style_images: list[Image]
     """
 
-    def __init__(self, prompt: str, sample_size: int = 3, **reference_images: list[Image]):
+    def __init__(
+        self, prompt: str, sample_size: int = 3, **reference_images: list[Image]
+    ):
         """
         Initialize the BaseLLMMetric.
 
@@ -36,7 +39,7 @@ class BaseLLMMetric(BaseMetric):
         self.prompt = prompt
         self.sample_size = sample_size
         self.reference_images = reference_images
-    
+
     def _verify_input_images(self, input_images: list[Image]):
         """
         Verify that the input images are valid and that the number of input images matches the number of reference images.
@@ -45,9 +48,9 @@ class BaseLLMMetric(BaseMetric):
             raise ValueError("Input images must be a list.")
         if not all(isinstance(image, Image) for image in input_images):
             raise ValueError("All input images must be PIL Image objects.")
-        
+
         input_image_len = len(input_images)
-        
+
         for image_list in self.reference_images.values():
             if not isinstance(image_list, list):
                 raise ValueError("Reference images must be a list.")
@@ -79,7 +82,7 @@ class BaseLLMMetric(BaseMetric):
     ):
         """
         Generates a prompt for the LLM using the provided JSON prompt and images.
-        
+
         :param json_prompt: The JSON prompt string.
         :type json_prompt: str
         :param images: A list of images to include in the prompt.
@@ -89,9 +92,12 @@ class BaseLLMMetric(BaseMetric):
         """
         return [
             json_prompt,
-            *[Part.from_image(self._PIL_image_to_vertex_image(image)) for image in images],
+            *[
+                Part.from_image(self._PIL_image_to_vertex_image(image))
+                for image in images
+            ],
         ]
-        
+
     def _postprocess_response(self, response_text: str) -> str:
         """
         If there is some sort of JSON-like structure in the response text, extract it and return it.
