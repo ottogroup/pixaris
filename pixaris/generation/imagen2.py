@@ -101,7 +101,7 @@ class Imagen2Generator(ImageGenerator):
         Generates a single image based on the provided arguments.
 
         :param args: A dictionary containing the following keys:
-        * pillow_images (List[dict[str, List[dict[str, Image.Image]]]]): A list of dictionaries containing 
+        * pillow_images (List[dict[str, List[dict[str, Image.Image]]]]): A list of dictionaries containing
             pillow images and mask images.
         * prompt (str): The prompt that should be used for the generation.
         :type args: dict[str, any]
