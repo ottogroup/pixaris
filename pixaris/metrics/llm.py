@@ -20,7 +20,7 @@ class BaseLLMMetric(BaseMetric):
     :type style_images: list[Image]
     """
 
-    def __init__(self, prompt: str, **reference_images: list[Image]):
+    def __init__(self, prompt: str, sample_size: int = 3, **reference_images: list[Image]):
         """
         Initialize the BaseLLMMetric.
 
@@ -34,6 +34,7 @@ class BaseLLMMetric(BaseMetric):
         """
         super().__init__()
         self.prompt = prompt
+        self.sample_size = sample_size
         self.reference_images = reference_images
     
     def _verify_input_images(self, input_images: list[Image]):
@@ -57,6 +58,7 @@ class BaseLLMMetric(BaseMetric):
                     f"Number of reference images ({len(image_list)}) does not match number of input images ({input_image_len})."
                 )
 
+    @retry(exceptions=Exception, tries=3, delay=0.5, max_delay=2, backoff=2)
     def _PIL_image_to_vertex_image(self, image: Image) -> GenAIImage:
         """
         Converts a PIL image to a vertex image.
@@ -118,13 +120,8 @@ class BaseLLMMetric(BaseMetric):
         """
         parsed_text = self._postprocess_response(response_text)
         response_dict = json.loads(parsed_text)
-        response_dict = {key: float(value) for key, value in response_dict.items()}
+        # response_dict = {key: float(value) for key, value in response_dict.items()}
 
-        if not all(
-            metrics in response_dict
-            for metrics in ["llm_reality", "llm_similarity", "llm_errors", "llm_style"]
-        ):
-            raise ValueError("Response dictionary does not contain all required keys.")
         return response_dict
 
     def _call_gemini(self, prompt) -> str:
@@ -162,7 +159,8 @@ class BaseLLMMetric(BaseMetric):
         """
         for i in range(max_tries):
             try:
-                return self._response_to_dict(self._call_gemini(prompt))
+                ans = self._response_to_dict(self._call_gemini(prompt))
+                return ans
             except ValueError:
                 pass
 
@@ -180,7 +178,7 @@ class BaseLLMMetric(BaseMetric):
     def _llm_scores_per_image(
         self,
         evaluation_image: Image,
-        sample_size: int = 3,
+        *reference_images: list[Image],
     ) -> dict:
         """
         Calculates the LLM score for the generated image.
@@ -198,23 +196,13 @@ class BaseLLMMetric(BaseMetric):
         """
         scores = [
             self._successful_evaluation(
-                self._llm_prompt(evaluation_image, object_image, style_image)
+                self._llm_prompt(self.prompt, [evaluation_image, *reference_images]),
             )
-            for _ in range(sample_size)
+            for _ in range(self.sample_size)
         ]
 
         # Calculate the average score for each metric
         average_scores_per_metric = dict_mean(scores)
-
-        # Invert the error count to get a score
-        average_scores_per_metric["llm_errors"] = 1 / (
-            1 + average_scores_per_metric["llm_errors"]
-        )
-
-        # Calculate the llm_average score
-        average_scores_per_metric["llm_average"] = self._combined_score(
-            average_scores_per_metric
-        )
 
         return average_scores_per_metric
 
@@ -236,7 +224,7 @@ class BaseLLMMetric(BaseMetric):
                     executor.map(
                         self._llm_scores_per_image,
                         evaluation_images,
-                        *[image for image in self.reference_images.values()],
+                        *self.reference_images.values(),
                     )
                 )
             )

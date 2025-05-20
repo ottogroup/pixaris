@@ -20,7 +20,7 @@ class LLMMetricTest(unittest.TestCase):
             style_images=style_images,
         )
         llm_metric._call_gemini = MagicMock(
-            return_value='{"base_llm_metric: 1.0}'
+            return_value='{"base_llm_metric": 1.0}'
         )
 
         metrics = llm_metric.calculate(object_images)
