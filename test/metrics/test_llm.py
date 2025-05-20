@@ -1,8 +1,9 @@
 import os
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from PIL import Image
-from pixaris.metrics.llm import BaseLLMMetric
+from pixaris.metrics.llm import BaseLLMMetric, SimilarityLLMMetric
+import itertools
 
 
 class LLMMetricTest(unittest.TestCase):
@@ -53,6 +54,32 @@ class LLMMetricTest(unittest.TestCase):
             llm_metric.calculate,
             object_images,
         )
+
+    @patch("pixaris.metrics.llm.BaseLLMMetric._call_gemini")
+    def test_similarity_llm_metric(self, mock_call_gemini):
+        """
+        Test the SimilarityLLMMetric class to ensure it calculates the similarity metric correctly.
+        """
+        object_dir = "test/test_project/mock/input/"
+        object_images = [
+            Image.open(object_dir + image) for image in os.listdir(object_dir)
+        ]
+        llm_metric = SimilarityLLMMetric(
+            reference_images=object_images,
+        )
+        mock_call_gemini.side_effect = itertools.cycle(
+            ['{"similarity_llm_metric": 1.0}'] * (len(object_images) - 1)
+            + ['{"similarity_llm_metric": 0.0}']
+        )
+
+        metrics = llm_metric.calculate(object_images)
+
+        self.assertIsInstance(metrics, dict)
+        for name, value in metrics.items():
+            self.assertIsInstance(name, str)
+            self.assertIsInstance(value, float)
+
+        self.assertEqual(metrics["similarity_llm_metric"], 0.75)
 
 
 if __name__ == "__main__":

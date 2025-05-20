@@ -235,3 +235,38 @@ class BaseLLMMetric(BaseMetric):
                 )
             )
             return llm_metrics
+
+
+class SimilarityLLMMetric(BaseLLMMetric):
+    """
+    SimilarityLLMMetric is a subclass of BaseLLMMetric that uses a Gemini LLM to evaluate the similarity between images.
+
+    :param object_images: A list of object images to compare against.
+    :type object_images: list[Image]
+    :param style_images: A list of style images to compare against.
+    :type style_images: list[Image]
+    """
+
+    def __init__(self, reference_images: list[Image]):
+        """
+        Initialize the SimilarityLLMMetric.
+
+        :param reference_images: A dictionary of reference images.
+        :type reference_images: dict[str, list[Image]]
+        """
+        prompt = (
+            "The prompt contains two photos: (1) The product photo that was taken in the "
+            "studio. (2) An AI generated photo that puts the product into a scene. "
+            "The AI generated photo has the tendency to modify the product image "
+            "which is not desired. You are a QA expert that reviews the AI generated picture "
+            "and compares how close the depicted product matches the original "
+            "product photo. You give an overall match score between 0 and 1. To calculate the score you "
+            "evaluate the match of (a) colors, (b) geometries, (c) textures, (d) details. Use JSON as output: "
+            "{'similarity_llm_metric': x} where the likelihood x"
+            "of a match, is expressed as an float percentage between 0 and 1. 1 should be a "
+            "perfect match and 0 should be a complete mismatch. "
+        )
+        super().__init__(
+            prompt=prompt,
+            reference_images=reference_images,
+        )
