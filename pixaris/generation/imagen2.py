@@ -72,13 +72,13 @@ class Imagen2Generator(ImageGenerator):
         # gets input image and mask image from pillow_images
         input_image = extract_value_from_list_of_dicts(
             pillow_images,
-            itentifying_key="node_name",
+            identifying_key="node_name",
             identifying_value="Load Input Image",
             return_key="pillow_image",
         )
         mask_image = extract_value_from_list_of_dicts(
             pillow_images,
-            itentifying_key="node_name",
+            identifying_key="node_name",
             identifying_value="Load Mask Image",
             return_key="pillow_image",
         )
@@ -101,8 +101,9 @@ class Imagen2Generator(ImageGenerator):
         Generates a single image based on the provided arguments.
 
         :param args: A dictionary containing the following keys:
-        * pillow_images (list[dict]): A list of dictionaries containing pillow images and mask images.
-        * generation_params (list[dict]): A list of dictionaries containing generation params.
+        * pillow_images (List[dict[str, List[dict[str, Image.Image]]]]): A list of dictionaries containing 
+            pillow images and mask images.
+        * prompt (str): The prompt that should be used for the generation.
         :type args: dict[str, any]
 
         :return: A tuple containing:

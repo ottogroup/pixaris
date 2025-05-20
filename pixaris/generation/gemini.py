@@ -83,8 +83,6 @@ class GeminiGenerator(ImageGenerator):
 
           [{'node_name': 'Load Input Image', 'pillow_image': <PIL.Image>}]
         :type pillow_images: List[dict]
-        :param generation_params: A list of dictionaries containing generation params.
-        :type generation_params: list[dict]
         :return: The generated image.
         :rtype: PIL.Image.Image
         """
@@ -95,7 +93,7 @@ class GeminiGenerator(ImageGenerator):
         # gets the first image from the pillow_images with node_name 'Load Input Image'
         input_pillow_image = extract_value_from_list_of_dicts(
             pillow_images,
-            itentifying_key="node_name",
+            identifying_key="node_name",
             identifying_value="Load Input Image",
             return_key="pillow_image",
         )
@@ -215,7 +213,7 @@ class GeminiGenerator(ImageGenerator):
 
         :param args: A dictionary containing the following keys:
         * pillow_images (list[dict]): A list of dictionaries containing pillow images images.
-        * generation_params (list[dict]): A list of dictionaries containing generation params.
+        * prompt (str): The prompt that should be used for the generation.
         :type args: dict[str, any]
 
         :return: A tuple containing:
