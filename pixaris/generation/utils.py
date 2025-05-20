@@ -4,7 +4,7 @@ from PIL import Image
 
 def extract_value_from_list_of_dicts(
     dict_list,
-    itentifying_key,
+    identifying_key,
     identifying_value,
     return_key,
     default_value=None,
@@ -33,13 +33,13 @@ def extract_value_from_list_of_dicts(
         (
             param[return_key]
             for param in dict_list
-            if param[itentifying_key] == identifying_value
+            if param[identifying_key] == identifying_value
         ),
         default_value,
     )
     if return_value is None:
         raise ValueError(
-            f"No dict with pair '{itentifying_key}': '{identifying_value}' and key '{return_key}' found."
+            f"No dict with pair '{identifying_key}': '{identifying_value}' and key '{return_key}' found."
         )
     return return_value
 
