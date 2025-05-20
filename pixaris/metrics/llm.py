@@ -10,23 +10,32 @@ from pixaris.metrics.base import BaseMetric
 from pixaris.metrics.utils import dict_mean
 from pixaris.utils.retry import retry
 
-
-class LLMMetric(BaseMetric):
+class BaseLLMMetric(BaseMetric):
     """
-    LLMMetric is a class that calculates various metrics for generated images using a large language model (LLM).
+    BaseLLMMetric is a base class for metrics that use a Gemini large language model (LLM) to evaluate images.
 
     :param object_images: A list of object images to compare against.
     :type object_images: list[Image]
-    :type style_images: A list of style images to compare against.
+    :param style_images: A list of style images to compare against.
     :type style_images: list[Image]
     """
 
-    def __init__(self, object_images: list[Image], style_images: list[Image]):
-        super().__init__()
-        self.object_images = object_images
-        self.style_images = style_images
+    def __init__(self, prompt: str, **reference_images: list[Image]):
+        """
+        Initialize the BaseLLMMetric.
 
-    @retry(exceptions=Exception, tries=3, delay=0.5, max_delay=2, backoff=2)
+        :param prompt: The prompt string.
+        :type prompt: str
+        :param object_images: A list of object images to compare against.
+        :type object_images: list[Image]
+        :param style_images: A list of style images to compare against.
+        :type style_images: list[Image]
+        :param extra_image_lists: Additional named lists of images as keyword arguments.
+        """
+        super().__init__()
+        self.prompt = prompt
+        self.reference_images = reference_images
+
     def _PIL_image_to_vertex_image(self, image: Image) -> GenAIImage:
         """
         Converts a PIL image to a vertex image.
@@ -42,44 +51,24 @@ class LLMMetric(BaseMetric):
 
     def _llm_prompt(
         self,
-        evaulation_image: Image,
-        object_image: Image,
-        style_image: Image,
+        json_prompt: str,
+        images: list[Image],
     ):
         """
-        Generates a prompt for rating images on various metrics and returns a JSON object with the ratings.
-        :param evaulation_image: The input image.
-        :type evaulation_image: PIL.Image.Image
-        :param object_image: The output image.
-        :type object_image: PIL.Image.Image
-        :param style_image: The style image.
-        :type style_image: PIL.Image.Image
-        :return: A prompt that provokes a response  with a JSON with the following keys:
-        * llm_reality: How real does the first picture look where 0 is not real at all and 1 is photorealistic?
-        * llm_similarity: How similar is the main object in the first picture to the template in the second picture where 0 is not similar at all and 1 is identical?
-        * llm_errors: How many errors can you find in the first picture?
-        * llm_style: How well does the style of the first picture match the style of the third picture where 0 is not at all and 1 is identical?
+        Generates a prompt for the LLM using the provided JSON prompt and images.
+        
+        :param json_prompt: The JSON prompt string.
+        :type json_prompt: str
+        :param images: A list of images to include in the prompt.
+        :type images: list[Image]
+        :return: A list containing the JSON prompt and the images as vertexai.generative_models.Part objects.
         :rtype: list[vertexai.generative_models.Part, str]
         """
-        json_prompt = "rate the following evluation image on the following metrics. return only a json file without newlines with the following keys:"
-        reality_prompt = "llm_reality: How real does the evaluation image look where 0 is not real at all and 1 is photorealistic?"
-        similarity_prompt = "llm_similarity: How similar is the main object in the evaluation image to the template in the following picture where 0 is not similar at all and 1 is identical?"
-        error_prompt = (
-            "llm_errors: How many errors can you find in the evaulation image?"
-        )
-        style_prompt = "llm_style: How well does the style of the evaluation image match the style of the following style image where 0 is not at all and 1 is identical?"
-
         return [
             json_prompt,
-            Part.from_image(self._PIL_image_to_vertex_image(evaulation_image)),
-            reality_prompt,
-            similarity_prompt,
-            Part.from_image(self._PIL_image_to_vertex_image(object_image)),
-            error_prompt,
-            style_prompt,
-            Part.from_image(self._PIL_image_to_vertex_image(style_image)),
+            *[Part.from_image(self._PIL_image_to_vertex_image(image)) for image in images],
         ]
-
+        
     def _postprocess_response(self, response_text: str) -> str:
         """
         If there is some sort of JSON-like structure in the response text, extract it and return it.
@@ -235,8 +224,6 @@ class LLMMetric(BaseMetric):
                     executor.map(
                         self._llm_scores_per_image,
                         evaluation_images,
-                        self.object_images,
-                        self.style_images,
                     )
                 )
             )
