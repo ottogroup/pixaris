@@ -35,6 +35,27 @@ class BaseLLMMetric(BaseMetric):
         super().__init__()
         self.prompt = prompt
         self.reference_images = reference_images
+    
+    def _verify_input_images(self, input_images: list[Image]):
+        """
+        Verify that the input images are valid and that the number of input images matches the number of reference images.
+        """
+        if not isinstance(input_images, list):
+            raise ValueError("Input images must be a list.")
+        if not all(isinstance(image, Image) for image in input_images):
+            raise ValueError("All input images must be PIL Image objects.")
+        
+        input_image_len = len(input_images)
+        
+        for image_list in self.reference_images.values():
+            if not isinstance(image_list, list):
+                raise ValueError("Reference images must be a list.")
+            if not all(isinstance(image, Image) for image in image_list):
+                raise ValueError("All reference images must be PIL Image objects.")
+            if len(image_list) != input_image_len:
+                raise ValueError(
+                    f"Number of reference images ({len(image_list)}) does not match number of input images ({input_image_len})."
+                )
 
     def _PIL_image_to_vertex_image(self, image: Image) -> GenAIImage:
         """
@@ -159,8 +180,6 @@ class BaseLLMMetric(BaseMetric):
     def _llm_scores_per_image(
         self,
         evaluation_image: Image,
-        object_image: Image,
-        style_image: Image,
         sample_size: int = 3,
     ) -> dict:
         """
@@ -209,14 +228,7 @@ class BaseLLMMetric(BaseMetric):
         :rtype: dict
         :raises ValueError: If the number of evaluation images does not match the number of object or style images.
         """
-        if len(evaluation_images) != len(self.object_images):
-            raise ValueError(
-                "There should be as many object images as generated images in the llm metric"
-            )
-        if len(evaluation_images) != len(self.style_images):
-            raise ValueError(
-                "There should be as many style images as generated images in the llm metric"
-            )
+        self._verify_input_images(evaluation_images)
 
         with ThreadPoolExecutor(len(evaluation_images)) as executor:
             llm_metrics = dict_mean(
@@ -224,6 +236,7 @@ class BaseLLMMetric(BaseMetric):
                     executor.map(
                         self._llm_scores_per_image,
                         evaluation_images,
+                        *[image for image in self.reference_images.values()],
                     )
                 )
             )

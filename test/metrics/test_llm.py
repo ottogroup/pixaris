@@ -2,7 +2,7 @@ import os
 import unittest
 from unittest.mock import MagicMock
 from PIL import Image
-from pixaris.metrics.llm import LLMMetric
+from pixaris.metrics.llm import BaseLLMMetric
 
 
 class LLMMetricTest(unittest.TestCase):
@@ -14,12 +14,13 @@ class LLMMetricTest(unittest.TestCase):
         style_images = [Image.open("test/assets/test_inspo_image.jpg")] * len(
             object_images
         )
-        llm_metric = LLMMetric(
+        llm_metric = BaseLLMMetric(
+            prompt="test prompt",
             object_images=object_images,
             style_images=style_images,
         )
         llm_metric._call_gemini = MagicMock(
-            return_value='{"llm_reality": 1, "llm_similarity": 1, "llm_errors": 0, "llm_style": 1}'
+            return_value='{"base_llm_metric: 1.0}'
         )
 
         metrics = llm_metric.calculate(object_images)
@@ -29,10 +30,7 @@ class LLMMetricTest(unittest.TestCase):
             self.assertIsInstance(name, str)
             self.assertIsInstance(value, float)
 
-        self.assertEqual(metrics["llm_reality"], 1.0)
-        self.assertEqual(metrics["llm_similarity"], 1.0)
-        self.assertEqual(metrics["llm_errors"], 1.0)
-        self.assertEqual(metrics["llm_style"], 1.0)
+        self.assertEqual(metrics["base_llm_metric"], 1.0)
 
 
 if __name__ == "__main__":
