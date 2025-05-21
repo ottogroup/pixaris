@@ -36,7 +36,7 @@ test_dir = f"test/{PROJECT}/{DATASET}/mask/"
 mask_images = [Image.open(test_dir + image) for image in os.listdir(test_dir)]
 
 # define the metrics we want to use
-same_item_prompt =""" You will be provided with two images. Your task is to analyze them and determine if their *core visual content* is semantically identical or completely distinct.
+same_item_prompt = """ You will be provided with two images. Your task is to analyze them and determine if their *core visual content* is semantically identical or completely distinct.
 
 **Definition of "Same Content" (output `1` for 'content_metric'):**
 The images depict the *exact same unique subject, scene, or specific entity*.

@@ -10,13 +10,18 @@ object_dir = f"test/{PROJECT}/{DATASET}/input/"
 object_images = [Image.open(object_dir + image) for image in os.listdir(object_dir)]
 
 generated_dir = "/home/fidelius/pixaris/local_results/test_project/mock/20250516-155435_example-run/generated_images"
-generated_images = [Image.open(os.path.join(generated_dir, image)) for image in os.listdir(generated_dir)]
+generated_images = [
+    Image.open(os.path.join(generated_dir, image))
+    for image in os.listdir(generated_dir)
+]
 
 style_dir = "/home/fidelius/pixaris/local_results/test_project/mock/20250509-163642_example-run/generated_images"
-style_images = [Image.open(os.path.join(style_dir, image)) for image in os.listdir(style_dir)]
+style_images = [
+    Image.open(os.path.join(style_dir, image)) for image in os.listdir(style_dir)
+]
 
 # define the metrics we want to use
-same_content_prompt =""" You will be provided with two images. Your task is to analyze them and determine if their *core visual content* is semantically identical or completely distinct.
+same_content_prompt = """ You will be provided with two images. Your task is to analyze them and determine if their *core visual content* is semantically identical or completely distinct.
 
 **Definition of "Same Content" (output `1` for 'content_metric'):**
 The images depict the *exact same unique subject, scene, or specific entity*.

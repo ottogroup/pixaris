@@ -264,7 +264,7 @@ class StyleLLMMetric(BaseLLMMetric):
         :type reference_images: dict[str, list[Image]]
         """
         super().__init__(
-            prompt = """
+            prompt="""
                 **Objective:** Analyze the provided image(s) and generate a detailed textual style guide capturing their 
                 core visual characteristics. This style guide will be used later to generate new background images in a 
                 similar style, specifically for a retail context.
@@ -316,7 +316,7 @@ class StyleLLMMetric(BaseLLMMetric):
                 """,
         )
         self.reference_images = reference_images
-        
+
     def _describe_images(self, images: list[list[Image]]) -> list[str]:
         """
         Describe the images using the style extraction prompt.
@@ -324,15 +324,17 @@ class StyleLLMMetric(BaseLLMMetric):
         Example::
             images = [[image1, image2], [image3, image4]]
             will describe image1 and image3 together and image2 and image4 together.
-        
-        :param images: A list of list images to describe. 
+
+        :param images: A list of list images to describe.
         :type images: list[list[Image]]
         :return: A list of descriptions for the reference images.
         :rtype: list[str]
         """
         # Transpose the list of lists to group images by index
         grouped_images = list(zip(*images))
-        prompts = [self._llm_prompt(self.prompt, list(images)) for images in grouped_images]
+        prompts = [
+            self._llm_prompt(self.prompt, list(images)) for images in grouped_images
+        ]
         with ThreadPoolExecutor(len(self.reference_images)) as executor:
             descriptions = list(
                 executor.map(
@@ -341,7 +343,7 @@ class StyleLLMMetric(BaseLLMMetric):
                 )
             )
             return descriptions
-    
+
     def _compare_images_to_descriptions(
         self,
         evaluation_images: list[Image],
@@ -398,11 +400,15 @@ class StyleLLMMetric(BaseLLMMetric):
         Example output:
         {"style_1": 0.9, "style_2": 1.0}
         """
-        image_parts = [Part.from_image(self._PIL_image_to_vertex_image(image)) for image in evaluation_images]
+        image_parts = [
+            Part.from_image(self._PIL_image_to_vertex_image(image))
+            for image in evaluation_images
+        ]
         prompts = [
-            [comparison_prompt,
-            image_part,
-            description] for image_part, description in zip(image_parts, reference_image_descriptions)
+            [comparison_prompt, image_part, description]
+            for image_part, description in zip(
+                image_parts, reference_image_descriptions
+            )
         ]
 
         with ThreadPoolExecutor(len(evaluation_images)) as executor:
@@ -427,8 +433,10 @@ class StyleLLMMetric(BaseLLMMetric):
         :raises ValueError: If the number of evaluation images does not match the number of reference images.
         """
         self._verify_input_images(evaluation_images)
-        
-        reference_image_descriptions = self._describe_images(self.reference_images.values())
+
+        reference_image_descriptions = self._describe_images(
+            self.reference_images.values()
+        )
         comparison_results = self._compare_images_to_descriptions(
             evaluation_images,
             reference_image_descriptions,
