@@ -256,7 +256,7 @@ class StyleLLMMetric(BaseLLMMetric):
     :type style_images: list[Image]
     """
 
-    def __init__(self, emphasis_prompt: str = None):
+    def __init__(self, **reference_images: list[Image]):
         """
         Initialize the StyleLLMMetric.
 
@@ -264,5 +264,110 @@ class StyleLLMMetric(BaseLLMMetric):
         :type reference_images: dict[str, list[Image]]
         """
         super().__init__(
-            prompt="prompt",
+            prompt = """
+                **Objective:** Analyze the provided image(s) and generate a detailed textual style guide capturing their 
+                core visual characteristics. This style guide will be used later to generate new background images in a 
+                similar style, specifically for a retail context.
+
+                **Analyze the following aspects of the provided image(s):**
+
+                1.  **Overall Mood & Atmosphere:**
+                    * Describe the general feeling (e.g., minimalist, luxurious, cozy, energetic, futuristic, rustic, playful, sophisticated, calm).
+                    * Is it bright and airy, dark and moody, dramatic, subdued?
+
+                2.  **Color Palette:**
+                    * Identify the dominant colors.
+                    * Identify key accent colors.
+                    * Describe the color relationships (e.g., monochromatic, analogous, complementary, triadic).
+                    * Characterize the saturation (vibrant, muted, desaturated).
+                    * Characterize the brightness/value (light, dark, high contrast, low contrast).
+
+                3.  **Lighting:**
+                    * Describe the type of lighting (e.g., natural, artificial, studio, ambient).
+                    * Identify the light direction (e.g., front-lit, side-lit, back-lit, top-down).
+                    * Describe the quality of light (e.g., hard and sharp, soft and diffused).
+                    * Characterize the shadows (e.g., deep, soft, minimal, dramatic).
+                    * Is there a specific lighting effect (e.g., lens flare, bokeh, glow)?
+
+                4.  **Composition & Framing:**
+                    * Are there strong compositional principles used (e.g., rule of thirds, symmetry, asymmetry, leading lines, golden ratio)?
+                    * Describe the depth of field (shallow with bokeh, deep focus).
+                    * Is the framing tight or wide?
+                    * How is negative space used?
+                    * What is the typical camera angle or perspective (e.g., eye-level, low angle, high angle)?
+
+                5.  **Textures & Materials:**
+                    * Describe prominent textures (e.g., smooth, rough, glossy, matte, metallic, wooden, fabric, concrete).
+                    * Identify any specific materials that define the style.
+                    * Is the overall feel clean or textured?
+
+                6.  **Key Elements & Motifs (if applicable):**
+                    * Are there recurring shapes, patterns, objects, or graphic elements that define the style?
+                    * Is there a particular theme (e.g., nature, technology, urban)?
+
+                7.  **Level of Detail & Complexity:**
+                    * Is the style detailed and intricate, or simple and clean?
+                    * Is it photorealistic, illustrative, abstract, painterly?
+
+                **Output Format:**
+                Please provide the analysis as a structured style guide, using clear headings or bullet points for each 
+                category listed above. Be descriptive and specific.
+                Do not add any additional information, but provide the output right away without any introductory text.
+                """,
         )
+        self.reference_images = reference_images
+        
+    def _describe_images(self, images: list[list[Image]]) -> list[str]:
+        """
+        Describe the images using the style extraction prompt.
+        images is a list of lists. All te n-th images will be described together.
+        Example::
+            images = [[image1, image2], [image3, image4]]
+            will describe image1 and image3 together and image2 and image4 together.
+        
+        :param images: A list of list images to describe. 
+        :type images: list[list[Image]]
+        :return: A list of descriptions for the reference images.
+        :rtype: list[str]
+        """
+        # Transpose the list of lists to group images by index
+        grouped_images = list(zip(*images))
+        prompts = [self._llm_prompt(self.prompt, list(images)) for images in grouped_images]
+        with ThreadPoolExecutor(len(self.reference_images)) as executor:
+            descriptions = list(
+                executor.map(
+                    self._call_gemini,
+                    prompts,
+                )
+            )
+            return descriptions
+
+    def calculate(self, evaluation_images: list[Image]) -> dict:
+        """
+        Calculate the LLM metrics for a list of evaluation images.
+
+        :param evaluation_images: A list of evaluation images.
+        :type evaluation_images: list[Image]
+        :return: A dictionary containing the LLM metrics for the evaluation images.
+        :rtype: dict
+        :raises ValueError: If the number of evaluation images does not match the number of reference images.
+        """
+        self._verify_input_images(evaluation_images)
+        
+        reference_image_descriptions = self._describe_images(self.reference_images.values())
+        evaluation_image_descriptions = self._describe_images([evaluation_images])
+        
+        for i, description in enumerate(reference_image_descriptions):
+            print(f"Description for reference image {i+1}: {description}")
+
+        with ThreadPoolExecutor(len(evaluation_images)) as executor:
+            llm_metrics = dict_mean(
+                list(
+                    executor.map(
+                        self._llm_scores_per_image,
+                        evaluation_images,
+                        *self.reference_images.values(),
+                    )
+                )
+            )
+            return llm_metrics
