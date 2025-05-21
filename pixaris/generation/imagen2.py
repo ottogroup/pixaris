@@ -1,14 +1,17 @@
 from typing import List
 from pixaris.generation.base import ImageGenerator
 from PIL import Image
-import os
-from io import BytesIO
 import vertexai
 from vertexai.preview.vision_models import Image as GoogleImage
 from vertexai.preview.vision_models import ImageGenerationModel
 
+from pixaris.generation.utils import (
+    encode_image_to_bytes,
+    extract_value_from_list_of_dicts,
+)
 
-class Imagen2ImageGenerator(ImageGenerator):
+
+class Imagen2Generator(ImageGenerator):
     """
     ImagenGenerator is a class that generates images using the Google Gemini API.
 
@@ -24,8 +27,8 @@ class Imagen2ImageGenerator(ImageGenerator):
 
     def validate_inputs_and_parameters(
         self,
-        dataset: List[dict[str, List[dict[str, Image.Image]]]] = [],
-        parameters: list[dict[str, str, any]] = [],
+        dataset: List[dict[str, List[dict[str, Image.Image]]]],
+        prompt: str,
     ):
         """
         Validates the provided dataset and parameters for image generation.
@@ -46,29 +49,10 @@ class Imagen2ImageGenerator(ImageGenerator):
                 raise ValueError("Each entry in the dataset must be a dictionary.")
 
         # Validate parameters, if given
-        if parameters:
-            for param in parameters:
-                if not isinstance(param, dict):
-                    raise ValueError("Each parameter must be a dictionary.")  #
+        if not isinstance(prompt, str):
+            raise ValueError("Prompt must be a string.")
 
-    def _encode_image_to_bytes(self, pillow_image: Image.Image) -> bytes:
-        """
-        Encodes a PIL image to bytes.
-
-        :param pillow_image: The PIL image.
-        :type pillow_image: PIL.Image.Image
-
-        :return: Byte array representation of the image.
-        :rtype: bytes
-        """
-        imgByteArr = BytesIO()
-        pillow_image.save(imgByteArr, format=pillow_image.format)
-        imgByteArr = imgByteArr.getvalue()
-        return imgByteArr
-
-    def _run_imagen(
-        self, pillow_images: List[dict], generation_params: List[dict]
-    ) -> Image.Image:
+    def _run_imagen(self, pillow_images: List[dict], prompt: str) -> Image.Image:
         """
         Generates images using the Imagen API and checks the status until the image is ready.
 
@@ -85,21 +69,23 @@ class Imagen2ImageGenerator(ImageGenerator):
 
         vertexai.init(project=self.gcp_project_id, location=self.gcp_location)
 
-        prompt = "A beautiful image of a dog"  # PLACEHOLDER
-
-        input_image_path = "input-image.png"
-        mask_image_path = "mask-image.png"
-        output_image_path = "output-image.png"
-
-        input_image = pillow_images[0]["pillow_image"]
-        input_image.save(input_image_path)
-
-        mask_image = pillow_images[1]["pillow_image"]
-        mask_image.save(mask_image_path)
+        # gets input image and mask image from pillow_images
+        input_image = extract_value_from_list_of_dicts(
+            pillow_images,
+            identifying_key="node_name",
+            identifying_value="Load Input Image",
+            return_key="pillow_image",
+        )
+        mask_image = extract_value_from_list_of_dicts(
+            pillow_images,
+            identifying_key="node_name",
+            identifying_value="Load Mask Image",
+            return_key="pillow_image",
+        )
 
         model = ImageGenerationModel.from_pretrained("imagegeneration@006")
-        base_img = GoogleImage.load_from_file(location=input_image_path)
-        mask_img = GoogleImage.load_from_file(location=mask_image_path)
+        base_img = GoogleImage(encode_image_to_bytes(input_image))
+        mask_img = GoogleImage(encode_image_to_bytes(mask_image))
 
         images = model.edit_image(
             base_image=base_img,
@@ -108,22 +94,16 @@ class Imagen2ImageGenerator(ImageGenerator):
             edit_mode="inpainting-insert",
         )
 
-        images[0].save(output_image_path)
-        pillow_image = Image.open(output_image_path)
-
-        os.remove("input-image.png")
-        os.remove("mask-image.png")
-        os.remove("output-image.png")
-
-        return pillow_image
+        return images[0]._pil_image
 
     def generate_single_image(self, args: dict[str, any]) -> tuple[Image.Image, str]:
         """
         Generates a single image based on the provided arguments.
 
         :param args: A dictionary containing the following keys:
-        * pillow_images (list[dict]): A list of dictionaries containing pillow images and mask images.
-        * generation_params (list[dict]): A list of dictionaries containing generation params.
+        * pillow_images (List[dict[str, List[dict[str, Image.Image]]]]): A list of dictionaries containing
+            pillow images and mask images.
+        * prompt (str): The prompt that should be used for the generation.
         :type args: dict[str, any]
 
         :return: A tuple containing:
@@ -132,9 +112,11 @@ class Imagen2ImageGenerator(ImageGenerator):
         :rtype: tuple[Image.Image, str]
         """
         pillow_images = args.get("pillow_images", [])
-        generation_params = args.get("generation_params", [])
+        prompt = args.get("prompt", "")
 
-        image = self._run_imagen(pillow_images, generation_params)
+        self.validate_inputs_and_parameters(pillow_images, prompt)
+
+        image = self._run_imagen(pillow_images, prompt)
 
         # Since the names should all be the same, we can just take the first.
         image_name = pillow_images[0]["pillow_image"].filename.split("/")[-1]
