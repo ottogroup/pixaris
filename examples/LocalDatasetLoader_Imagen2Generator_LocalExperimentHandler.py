@@ -1,6 +1,6 @@
 from pixaris.data_loaders.local import LocalDatasetLoader
 from pixaris.experiment_handlers.local import LocalExperimentHandler
-from pixaris.generation.imagen2 import Imagen2ImageGenerator
+from pixaris.generation.imagen2 import Imagen2Generator
 from pixaris.orchestration.base import generate_images_based_on_dataset
 import os
 import yaml
@@ -16,7 +16,7 @@ WORKFLOW_PILLOW_IMAGE = Image.open(
     os.getcwd() + "/test/assets/test-background-generation.png"
 )
 EXPERIMENT_RUN_NAME = "example-run"
-PROMPT = "A beautiful image of a moon"
+PROMPT = "Place the animal in front of a background of a nice lush green forest."
 
 # +
 data_loader = LocalDatasetLoader(
@@ -25,7 +25,7 @@ data_loader = LocalDatasetLoader(
     eval_dir_local="local_experiment_inputs",
 )
 
-generator = Imagen2ImageGenerator(
+generator = Imagen2Generator(
     gcp_project_id=config["gcp_project_id"],
     gcp_location=config["gcp_location"],
 )
@@ -38,6 +38,7 @@ args = {
     "project": PROJECT,
     "dataset": DATASET,
     "experiment_run_name": EXPERIMENT_RUN_NAME,
+    "prompt": PROMPT,
 }
 # -
 

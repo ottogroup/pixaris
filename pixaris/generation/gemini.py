@@ -4,9 +4,13 @@ from typing import List, Optional
 from pixaris.generation.base import ImageGenerator
 from PIL import Image
 from io import BytesIO
-import vertexai
 from google.genai import Client, types
 from vertexai.generative_models import Image as VertexImage
+
+from pixaris.generation.utils import (
+    encode_image_to_bytes,
+    extract_value_from_list_of_dicts,
+)
 
 
 class GeminiGenerator(ImageGenerator):
@@ -65,25 +69,10 @@ class GeminiGenerator(ImageGenerator):
                 if not isinstance(param, dict):
                     raise ValueError("Each parameter must be a dictionary.")
 
-    def _encode_image_to_bytes(self, pillow_image: Image.Image) -> bytes:
-        """
-        Encodes a PIL image to bytes.
-
-        :param pillow_image: The PIL image.
-        :type pillow_image: PIL.Image.Image
-
-        :return: Byte array representation of the image.
-        :rtype: bytes
-        """
-        imgByteArr = BytesIO()
-        pillow_image.save(imgByteArr, format=pillow_image.format)
-        imgByteArr = imgByteArr.getvalue()
-        return imgByteArr
-
     def _run_gemini(
         self,
         pillow_images: List[dict],
-        generation_params: List[dict],
+        prompt: str,
         num_images: int = 1,
     ) -> Image.Image:
         """
@@ -94,52 +83,24 @@ class GeminiGenerator(ImageGenerator):
 
           [{'node_name': 'Load Input Image', 'pillow_image': <PIL.Image>}]
         :type pillow_images: List[dict]
-        :param generation_params: A list of dictionaries containing generation params.
-        :type generation_params: list[dict]
         :return: The generated image.
         :rtype: PIL.Image.Image
         """
         genai_client = Client(
             vertexai=True, project=self.gcp_project_id, location=self.gcp_location
         )
-        # if model is not given in generation_params, set to default
-        model_name = next(
-            (
-                param["value"]
-                for param in generation_params
-                if param["node_name"] == "model_name"
-            ),
-            self.model_name,
-        )
-        vertexai.init(project=self.gcp_project_id, location=self.gcp_location)
-
-        # gets the first prompt from the generation_params
-        prompt = next(
-            (
-                param["value"]
-                for param in generation_params
-                if param["node_name"] == "prompt"
-            ),
-            None,
-        )
-        if prompt is None:
-            raise ValueError("No generation parameter with node_name 'prompt' found.")
 
         # gets the first image from the pillow_images with node_name 'Load Input Image'
-        input_pillow_image = next(
-            (
-                image["pillow_image"]
-                for image in pillow_images
-                if image["node_name"] == "Load Input Image"
-            ),
-            None,
+        input_pillow_image = extract_value_from_list_of_dicts(
+            pillow_images,
+            identifying_key="node_name",
+            identifying_value="Load Input Image",
+            return_key="pillow_image",
         )
-        if input_pillow_image is None:
-            raise ValueError("No image with 'node_name' == 'Load Input Image' found.")
 
         # turn prompt and image into vertex readable content
         input_image = types.Part.from_bytes(
-            data=self._encode_image_to_bytes(input_pillow_image),
+            data=encode_image_to_bytes(input_pillow_image),
             mime_type="image/jpeg",
         )
         msg1_text1 = types.Part.from_text(text=prompt)
@@ -152,7 +113,7 @@ class GeminiGenerator(ImageGenerator):
             if not self.verbose:
                 print("\n--- Wait 5 seconds to avoid 429 error ---")
                 print(f"\n--- Generating image {i + 1}/{num_images} ---")
-                print(f"Sending request to model '{model_name}'...")
+                print(f"Sending request to model '{self.model_name}'...")
             candidate_image: Optional[VertexImage] = None
             candidate_text: Optional[str] = None
             error_text: Optional[str] = None
@@ -162,7 +123,7 @@ class GeminiGenerator(ImageGenerator):
             try:
                 # Generate content - expecting one result per call
                 response = genai_client.models.generate_content(
-                    model=model_name,
+                    model=self.model_name,
                     contents=contents,
                     config=types.GenerateContentConfig(
                         response_modalities=["Text", "Image"]
@@ -252,7 +213,7 @@ class GeminiGenerator(ImageGenerator):
 
         :param args: A dictionary containing the following keys:
         * pillow_images (list[dict]): A list of dictionaries containing pillow images images.
-        * generation_params (list[dict]): A list of dictionaries containing generation params.
+        * prompt (str): The prompt that should be used for the generation.
         :type args: dict[str, any]
 
         :return: A tuple containing:
@@ -261,9 +222,9 @@ class GeminiGenerator(ImageGenerator):
         :rtype: tuple[Image.Image, str]
         """
         pillow_images = args.get("pillow_images", [])
-        generation_params = args.get("generation_params", [])
+        prompt = args.get("prompt", "")
 
-        image = self._run_gemini(pillow_images, generation_params, num_images=1)
+        image = self._run_gemini(pillow_images, prompt, num_images=1)
         image = image[0][0]
         # Since the names should all be the same, we can just take the first.
         image_name = pillow_images[0]["pillow_image"].filename.split("/")[-1]
