@@ -341,6 +341,80 @@ class StyleLLMMetric(BaseLLMMetric):
                 )
             )
             return descriptions
+    
+    def _compare_images_to_descriptions(
+        self,
+        evaluation_images: list[Image],
+        reference_image_descriptions: list[str],
+    ) -> dict:
+        """
+        Compare the evaluation images to the reference image descriptions.
+
+        :param evaluation_images: A list of evaluation images.
+        :type evaluation_images: list[Image]
+        :param reference_image_descriptions: A list of reference image descriptions.
+        :type reference_image_descriptions: list[str]
+        :return: A dictionary containing the LLM metrics for the evaluation images.
+        :rtype: dict
+        """
+        comparison_prompt = """
+        You are an expert image analysis AI. Your task is to meticulously compare the visual style of the provided [IMAGE] against a detailed textual [DESCRIPTION] of an image's style.
+
+        Objective:
+        For each distinct stylistic attribute or aspect mentioned in the [DESCRIPTION], you will evaluate how accurately and consistently the [IMAGE] visually embodies that attribute.
+
+        Scoring Guide:
+        Assign a numeric score between 0.0 and 1.0 (inclusive) for each point:
+
+        1.0: Perfect, unequivocal match. The image completely and obviously displays this attribute as described.
+        0.8 - 0.9: Strong match with minor, negligible deviations or slight ambiguity.
+        0.6 - 0.7: Moderate match. The attribute is present but might have noticeable differences, be less prominent, or only partially apply.
+        0.3 - 0.5: Weak match. There are some similarities, but significant discrepancies or outright mismatches.
+        0.0 - 0.2: No discernible match. The image contradicts the description for this attribute or it is entirely absent.
+        Output Format:
+        Your output must be a single JSON object.
+        Iterate through the [DESCRIPTION] sequentially. Identify each distinct, actionable stylistic statement (each bullet point or sub-bullet point represents a distinct statement).
+        Assign a key style_X where X is an incrementing integer starting from 1 for the very first statement and increasing by 1 for each subsequent statement in the [DESCRIPTION]. The value for each key should be the calculated float score.
+
+        Do NOT include any introductory or concluding text, explanations, or conversational remarks. Output ONLY the JSON object.
+
+        Example of how to number the statements for JSON keys:
+
+        Given this fragment from the description:
+
+        **1. Overall Mood & Atmosphere:**              <-- This becomes `style_1`
+
+        *   Calm and slightly whimsical.
+        *   Bright and airy.
+
+        **2. Color Palette:**              <-- This becomes `style_2`
+
+        *   **Dominant Colors:** Gray, beige, and shades of brown.
+        *   **Key Accent Colors:** Red (bow tie), white (shirt).
+        *   **Color Relationships:** Analogous (browns and beiges). The red and white accents create contrast.
+        *   **Saturation:** Muted, with the red as the only strongly saturated color
+        *   **Brightness/Value:** Light, with a high overall value. 
+        
+        Example output:
+        {"style_1": 0.9, "style_2": 1.0}
+        """
+        image_parts = [Part.from_image(self._PIL_image_to_vertex_image(image)) for image in evaluation_images]
+        prompts = [
+            [comparison_prompt,
+            image_part,
+            description] for image_part, description in zip(image_parts, reference_image_descriptions)
+        ]
+
+        with ThreadPoolExecutor(len(evaluation_images)) as executor:
+            llm_metrics = dict_mean(
+                list(
+                    executor.map(
+                        self._call_gemini,
+                        prompts,
+                    )
+                )
+            )
+            return llm_metrics
 
     def calculate(self, evaluation_images: list[Image]) -> dict:
         """
@@ -355,19 +429,8 @@ class StyleLLMMetric(BaseLLMMetric):
         self._verify_input_images(evaluation_images)
         
         reference_image_descriptions = self._describe_images(self.reference_images.values())
-        evaluation_image_descriptions = self._describe_images([evaluation_images])
-        
-        for i, description in enumerate(reference_image_descriptions):
-            print(f"Description for reference image {i+1}: {description}")
-
-        with ThreadPoolExecutor(len(evaluation_images)) as executor:
-            llm_metrics = dict_mean(
-                list(
-                    executor.map(
-                        self._llm_scores_per_image,
-                        evaluation_images,
-                        *self.reference_images.values(),
-                    )
-                )
-            )
-            return llm_metrics
+        comparison_results = self._compare_images_to_descriptions(
+            evaluation_images,
+            reference_image_descriptions,
+        )
+        return comparison_results
