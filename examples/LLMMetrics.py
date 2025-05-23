@@ -1,46 +1,34 @@
-from pixaris.data_loaders.local import LocalDatasetLoader
-from pixaris.experiment_handlers.local import LocalExperimentHandler
-from pixaris.generation.comfyui import ComfyGenerator
 from pixaris.metrics.llm import (
     BaseLLMMetric,
-    ErrorLLMMetric,
-    SimilarityLLMMetric,
     StyleLLMMetric,
 )
-from pixaris.metrics.luminescence import LuminescenceComparisonByMaskMetric
-from pixaris.metrics.saturation import SaturationComparisonByMaskMetric
-from pixaris.orchestration.base import generate_images_based_on_dataset
-import os
-import json
 from PIL import Image
+import os
 
 PROJECT = "test_project"
 DATASET = "mock"
-with open(os.getcwd() + "/test/assets/test-background-generation.json", "r") as file:
-    WORKFLOW_APIFORMAT_JSON = json.load(file)
-WORKFLOW_PILLOW_IMAGE = Image.open(
-    os.getcwd() + "/test/assets/test-background-generation.png"
-)
-EXPERIMENT_RUN_NAME = "example-run"
 
-data_loader = LocalDatasetLoader(
-    project=PROJECT,
-    dataset=DATASET,
-    eval_dir_local="test",
-)
-
-generator = ComfyGenerator(workflow_apiformat_json=WORKFLOW_APIFORMAT_JSON)
-
-experiment_handler = LocalExperimentHandler()
-
-# Load object, style and mask images for metrics
+# define the paths to the images
 object_dir = f"test/{PROJECT}/{DATASET}/input/"
 object_images = [Image.open(object_dir + image) for image in os.listdir(object_dir)]
-style_images = [Image.open("test/assets/test_inspo_image.jpg")] * len(object_images)
-test_dir = f"test/{PROJECT}/{DATASET}/mask/"
-mask_images = [Image.open(test_dir + image) for image in os.listdir(test_dir)]
+
+generated_dir = "/home/fidelius/pixaris/local_results/test_project/mock/20250516-155435_example-run/generated_images"
+generated_images = [
+    Image.open(os.path.join(generated_dir, image))
+    for image in os.listdir(generated_dir)
+]
+
+style_dir = "/home/fidelius/pixaris/local_results/test_project/mock/20250509-163642_example-run/generated_images"
+style_images = [
+    Image.open(os.path.join(style_dir, image)) for image in os.listdir(style_dir)
+]
 
 # define the metrics we want to use
+
+# BaseLLMMetric is a generic class that can be used for any LLM metric
+# The prompt is a string that describes the task to be performed by the LLM
+# BaseLLMMetric takes a prompt, and a number of lists of images to be used. For example You can give a list of style images and a list of object images.
+# Make sure the prompt describes how to use the style and object images.
 same_content_prompt = """ You will be provided with two images. Your task is to analyze them and determine if their *core visual content* is semantically identical or completely distinct.
 
 **Definition of "Same Content" (output `1` for 'content_metric'):**
@@ -71,39 +59,26 @@ same_content_llm_metric = BaseLLMMetric(
     prompt=same_content_prompt,
     object_images=object_images,
 )
-similarity_llm_metric = SimilarityLLMMetric(
-    reference_images=object_images,
-)
+# for all Metrics, you can calculate them by calling Metric.calculate(generated_images) with the images you want to evaluate.
+# Make sure there are the same number of images in the list as there are in the reference images like object_images or style_images.
+# same_content_metric_result = same_content_llm_metric.calculate(generated_images)
+# print(same_content_metric_result)
+
+# # SimilarityLLMMetric is a specialized LLM Metric that will compare the similartities of the generated images vs. the reference images.
+# similarity_llm_metric = SimilarityLLMMetric(
+#     reference_images=object_images,
+# )
+# similarity_metric_result = similarity_llm_metric.calculate(generated_images)
+# print(similarity_metric_result)
+
+# StyleLLMMetric is a specialized LLM Metric that will compare the styles of the generated images vs. the style images.
 style_llm_metric = StyleLLMMetric(
     style_images=style_images,
 )
-error_llm_metric = ErrorLLMMetric()
-luminescence_metric = LuminescenceComparisonByMaskMetric(mask_images=mask_images)
-saturation_metric = SaturationComparisonByMaskMetric(mask_images=mask_images)
+style_metric_result = style_llm_metric.calculate(generated_images)
+print(style_metric_result)
 
-# define the arguments for the generation
-args = {
-    "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
-    "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
-    "project": PROJECT,
-    "dataset": DATASET,
-    "experiment_run_name": EXPERIMENT_RUN_NAME,
-}
-
-# execute
-out = generate_images_based_on_dataset(
-    data_loader=data_loader,
-    image_generator=generator,
-    experiment_handler=experiment_handler,
-    metrics=[
-        same_content_llm_metric,
-        similarity_llm_metric,
-        style_llm_metric,
-        error_llm_metric,
-        luminescence_metric,
-        saturation_metric,
-    ],
-    args=args,
-)
-
-out[0][0].show()
+# # ErrorLLMMetric is a specialized LLM Metric that will find errors in the generated images.
+# error_llm_metric = ErrorLLMMetric()
+# error_metric_result = error_llm_metric.calculate(generated_images)
+# print(error_metric_result)
