@@ -262,9 +262,7 @@ class SimilarityLLMMetric(BaseLLMMetric):
         """
         self._verify_input_images(evaluation_images)
         vertex_prompts = [
-            self._llm_prompt(
-                self.prompt, list(images)
-            )
+            self._llm_prompt(self.prompt, list(images))
             for images in zip(evaluation_images, *self.reference_images.values())
         ]
 

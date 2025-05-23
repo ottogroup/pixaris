@@ -1,7 +1,12 @@
 from pixaris.data_loaders.local import LocalDatasetLoader
 from pixaris.experiment_handlers.local import LocalExperimentHandler
 from pixaris.generation.comfyui import ComfyGenerator
-from pixaris.metrics.llm import BaseLLMMetric
+from pixaris.metrics.llm import (
+    BaseLLMMetric,
+    ErrorLLMMetric,
+    SimilarityLLMMetric,
+    StyleLLMMetric,
+)
 from pixaris.metrics.luminescence import LuminescenceComparisonByMaskMetric
 from pixaris.metrics.saturation import SaturationComparisonByMaskMetric
 from pixaris.orchestration.base import generate_images_based_on_dataset
@@ -36,7 +41,7 @@ test_dir = f"test/{PROJECT}/{DATASET}/mask/"
 mask_images = [Image.open(test_dir + image) for image in os.listdir(test_dir)]
 
 # define the metrics we want to use
-same_item_prompt = """ You will be provided with two images. Your task is to analyze them and determine if their *core visual content* is semantically identical or completely distinct.
+same_content_prompt = """ You will be provided with two images. Your task is to analyze them and determine if their *core visual content* is semantically identical or completely distinct.
 
 **Definition of "Same Content" (output `1` for 'content_metric'):**
 The images depict the *exact same unique subject, scene, or specific entity*.
@@ -59,11 +64,20 @@ The images depict entirely distinct subjects, scenes, or entities with no semant
 **Output Format:**
 Provide your answer strictly in the following JSON format. Do not include any additional text or explanation outside of this JSON.
 ```json
-{"content_metric": [0 or 1]}"""
+{"content_metric": 1}
+```
+"""
 same_content_llm_metric = BaseLLMMetric(
-    prompt=same_item_prompt,
+    prompt=same_content_prompt,
     object_images=object_images,
 )
+similarity_llm_metric = SimilarityLLMMetric(
+    reference_images=object_images,
+)
+style_llm_metric = StyleLLMMetric(
+    style_images=style_images,
+)
+error_llm_metric = ErrorLLMMetric()
 luminescence_metric = LuminescenceComparisonByMaskMetric(mask_images=mask_images)
 saturation_metric = SaturationComparisonByMaskMetric(mask_images=mask_images)
 
@@ -81,7 +95,14 @@ out = generate_images_based_on_dataset(
     data_loader=data_loader,
     image_generator=generator,
     experiment_handler=experiment_handler,
-    metrics=[same_content_llm_metric, luminescence_metric, saturation_metric],
+    metrics=[
+        same_content_llm_metric,
+        similarity_llm_metric,
+        style_llm_metric,
+        error_llm_metric,
+        luminescence_metric,
+        saturation_metric,
+    ],
     args=args,
 )
 

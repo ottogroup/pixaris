@@ -84,7 +84,7 @@ STYLE_PROMPT = """
     category listed above. Be descriptive and specific.
     Do not add any additional information, but provide the output right away without any introductory text.
     """
-    
+
 COMPARISON_PROMPT = """
     You are an expert image analysis AI. Your task is to meticulously compare the visual style of the provided [IMAGE] against a detailed textual [DESCRIPTION] of an image's style.
 
@@ -164,7 +164,7 @@ COMPARISON_PROMPT = """
     The keys are numbered from 1 to seven, the floating point numbers are example. You should find fitting values to describe the similarities in the [DESCRIPTION] and the [IMAGE]. 
     Do not include any formatting like markdown or any other text. Just the JSON output.
     """
-    
+
 ERROR_PROMPT = """
     Role: You are an expert Image Quality Assessment AI, specialized in identifying and quantifying malformations in AI-generated images. Your knowledge base includes an exhaustive taxonomy of common generation errors. Your primary directive is to provide a concise, high-signal assessment.
 
