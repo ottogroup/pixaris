@@ -81,10 +81,11 @@ class LLMMetricTest(unittest.TestCase):
 
         self.assertEqual(metrics["similarity_llm_metric"], 0.75)
 
-    # @patch("pixaris.metrics.llm.BaseLLMMetric._call_gemini")
+    @patch("pixaris.metrics.llm.BaseLLMMetric._call_gemini")
     def test_style_llm_metric(
         self,
-    ):  # mock_call_gemini
+        mock_call_gemini,
+    ):
         """
         Test the SimilarityLLMMetric class to ensure it calculates the similarity metric correctly.
         """
@@ -95,10 +96,11 @@ class LLMMetricTest(unittest.TestCase):
         llm_metric = StyleLLMMetric(
             reference_images=object_images,
         )
-        # mock_call_gemini.side_effect = itertools.cycle(
-        #     ['{"similarity_llm_metric": 1.0}'] * (len(object_images) - 1)
-        #     + ['{"similarity_llm_metric": 0.0}']
-        # )
+        mock_call_gemini.side_effect = itertools.cycle(
+            [
+                '{"style_1": 0.9, "style_2": 0.8, "style_3": 0.7, "style_4": 0.6, "style_5": 0.5, "style_6": 0.4, "style_7": 0.3}'
+            ]
+        )
 
         metrics = llm_metric.calculate(object_images)
 
@@ -107,7 +109,7 @@ class LLMMetricTest(unittest.TestCase):
             self.assertIsInstance(name, str)
             self.assertIsInstance(value, float)
 
-        self.assertEqual(metrics["similarity_llm_metric"], 0.75)
+        self.assertEqual(metrics["style_llm_metric"], 0.6)
 
 
 if __name__ == "__main__":

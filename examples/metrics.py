@@ -59,4 +59,4 @@ style_llm_metric = StyleLLMMetric(
 # print("Content score: " + same_content_metric_result)
 
 style_metric_result = style_llm_metric.calculate(generated_images)
-print("Style score: " + style_metric_result)
+print(style_metric_result)

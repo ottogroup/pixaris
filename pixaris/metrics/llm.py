@@ -99,8 +99,8 @@ class BaseLLMMetric(BaseMetric):
         :return: The extracted JSON-like structure if found, otherwise the original response text.
         :rtype: str
         """
-        pattern = r"\{.*\}"
-        match = re.search(pattern, response_text)
+        pattern = r"\{.*?\}"
+        match = re.search(pattern, response_text, re.DOTALL)
         if match:
             extracted_string = match.group(0)
             return extracted_string
@@ -377,28 +377,66 @@ class StyleLLMMetric(BaseLLMMetric):
         Your output must be a single JSON object.
         Iterate through the [DESCRIPTION] sequentially. Identify each distinct, actionable stylistic statement (each bullet point or sub-bullet point represents a distinct statement).
         Assign a key style_X where X is an incrementing integer starting from 1 for the very first statement and increasing by 1 for each subsequent statement in the [DESCRIPTION]. The value for each key should be the calculated float score.
-
+        The keys are numbered from 1 to seven, so the output keys should alsop be numbered from 1 to 7.
+        
         Do NOT include any introductory or concluding text, explanations, or conversational remarks. Output ONLY the JSON object.
 
         Example of how to number the statements for JSON keys:
 
         Given this fragment from the description:
 
-        **1. Overall Mood & Atmosphere:**              <-- This becomes `style_1`
+        **Analyzing Retail Backgrounds**
 
-        *   Calm and slightly whimsical.
-        *   Bright and airy.
+        **1. Overall Mood & Atmosphere:**
+        *   **General Feeling:** Whimsical, charming, playful, and clean. There's a subtle sophistication balanced with an endearing cuteness.
+        *   **Brightness/Atmosphere:** Bright and airy, dominated by the luminous light source in the background, creating an uplifting and optimistic feel.
 
-        **2. Color Palette:**              <-- This becomes `style_2`
+        **2. Color Palette:**
+        *   **Dominant Colors:**
+            *   **Background:** Vibrant and lush greens (lime green, emerald green, forest green), creating a natural, leafy forest ambiance.
+            *   **Subject:** Dominant greys (various shades from light silver to charcoal) for the chinchilla's fur, pure white for the shirt collar, and light beige/tan for the ground.
+        *   **Key Accent Colors:** A strong, saturated red for the bow tie, providing a striking focal point against the greens and greys.
+        *   **Color Relationships:** A harmonious blend of analogous greens in the background, contrasted by complementary greys and white in the foreground. The red bow tie acts as a highly effective accent, creating a strong visual pop.
+        *   **Saturation:** The greens are moderately to highly saturated, while the red is vivid. The chinchilla's fur exhibits a natural, desaturated grey.
+        *   **Brightness/Value:** High contrast, particularly between the bright, almost blown-out light source and the surrounding greens. The foreground subject is well-lit with clear, defined values, creating depth.
 
-        *   **Dominant Colors:** Gray, beige, and shades of brown.
-        *   **Key Accent Colors:** Red (bow tie), white (shirt).
-        *   **Color Relationships:** Analogous (browns and beiges). The red and white accents create contrast.
-        *   **Saturation:** Muted, with the red as the only strongly saturated color
-        *   **Brightness/Value:** Light, with a high overall value. 
+        **3. Lighting:**
+        *   **Type of Lighting:** Appears to be a stylized form of natural light, mimicking a sunburst or strong overhead sunlight. It could be a composite of natural background lighting and studio-like lighting on the subject.
+        *   **Light Direction:** Predominantly back-lit from the upper center, creating a strong glow and subtle halo effect around the chinchilla's head. The subject itself is illuminated by a softer, more diffused front or ambient light, ensuring all details are visible.
+        *   **Quality of Light:** The background light is bright, intense, and slightly diffused creating a glow. The light on the subject is soft and smooth, highlighting textures without harsh reflections or shadows.
+        *   **Shadows:** Shadows are minimal and soft, primarily providing subtle dimension under the subject and within its fur. There are no harsh or dramatic shadows.
+        *   **Specific Lighting Effect:** A prominent sunburst/light ray effect emanating from the top-center in the background.
+
+        **4. Composition & Framing:**
+        *   **Compositional Principles:** Strong central framing, placing the main subject (chinchilla) front and center. The overall composition is vertically oriented, emphasizing the height of the subject and background trees.
+        *   **Depth of Field:** Shallow depth of field, with the chinchilla in crisp focus and the background heavily blurred (bokeh effect), effectively isolating the subject and drawing immediate attention to it.
+        *   **Framing:** A mid-shot/full-body shot of the chinchilla, occupying a significant portion of the vertical frame.
+        *   **Negative Space:** The blurred green foliage serves as effective and simple negative space, enhancing the focus on the subject.
+        *   **Camera Angle/Perspective:** Eye-level or slightly low-angle perspective, giving the animal a dignified and engaging presence.
+
+        **5. Textures & Materials:**
+        *   **Prominent Textures:**
+            *   **Subject:** Ultra-soft, fluffy, and dense fur on the chinchilla; smooth, crisp fabric (like cotton or satin) for the white shirt collar and red bow tie.
+            *   **Background:** Heavily blurred organic textures suggestive of leaves, foliage, and tree trunks, providing a natural yet indistinct backdrop.
+            *   **Ground:** A subtly textured, smooth, light-colored surface (possibly concrete or a paved path).
+        *   **Materials:** Fur, polished fabric (bow tie), cotton/linen (shirt collar), natural outdoor elements (trees, leaves), paving/ground material.
+        *   **Overall Feel:** Clean and soft in the foreground; organic and blurred in the background.
+
+        **6. Key Elements & Motifs:**
+        *   **Recurring elements:** Anthropomorphic animals (specifically small, cute creatures), dressed in formal or semi-formal attire (bow ties, collars), set against lush, natural outdoor environments. The strong, central light source is also a motif.
+        *   **Theme:** Whimsical, light-hearted natural elegance with a touch of character.
+
+        **7. Level of Detail & Complexity:**
+        *   **Detail:** High level of detail on the primary subject, capturing intricate fur texture and facial features. The background is intentionally simplistic due to heavy blurring.
+        *   **Complexity:** Simple and clean composition, typically featuring a single main character. The overall scene is not cluttered.
+        *   **Style:** Photorealistic for the animal subject, subtly combined with an almost painterly or illustrative quality for the blurred background and stylized lighting. It appears to be a high-quality digital render or composite image rather than a raw photograph.
         
-        Example output:
-        {"style_1": 0.9, "style_2": 1.0}
+        The JSON output should look like this:
+        
+        {"style_1": 0.9, "style_2": 0.8, "style_3": 0.7, "style_4": 0.6, "style_5": 0.5, "style_6": 0.4, "style_7": 0.3}
+        
+        The keys are numbered from 1 to seven, the floating point numbers are example. You should find fitting values to describe the similarities in the [DESCRIPTION] and the [IMAGE]. 
+        Do not include any formatting like markdown or any other text. Just the JSON output.
         """
         image_parts = [
             Part.from_image(self._PIL_image_to_vertex_image(image))
@@ -412,15 +450,35 @@ class StyleLLMMetric(BaseLLMMetric):
         ]
 
         with ThreadPoolExecutor(len(evaluation_images)) as executor:
-            llm_metrics = dict_mean(
-                list(
-                    executor.map(
-                        self._call_gemini,
-                        prompts,
-                    )
+            responses = list(
+                executor.map(
+                    self._call_gemini,
+                    prompts,
                 )
             )
-            return llm_metrics
+
+        return responses
+
+    def _get_mean_style_metric(self, responses: list[str]) -> dict:
+        """
+        Calculate the mean style metric from the cleaned responses.
+
+        :param cleaned_responses: A list of cleaned responses from the LLM. Return value of _compare_images_to_descriptions.
+        :type cleaned_responses: list[str]
+        :return: A dictionary containing the mean style metric.
+        :rtype: dict
+        """
+        # Parse the responses and calculate the overall mean value
+        parsed_responses = [
+            self._response_to_dict(response_text) for response_text in responses
+        ]
+        mean_responses = dict_mean(parsed_responses)
+        overall_average = (
+            sum(mean_responses.values()) / len(mean_responses) if mean_responses else 0
+        )
+        return {
+            "style_llm_metric": overall_average,
+        }
 
     def calculate(self, evaluation_images: list[Image]) -> dict:
         """
@@ -441,4 +499,4 @@ class StyleLLMMetric(BaseLLMMetric):
             evaluation_images,
             reference_image_descriptions,
         )
-        return comparison_results
+        return self._get_mean_style_metric(comparison_results)
