@@ -276,7 +276,7 @@ class SimilarityLLMMetric(BaseLLMMetric):
 
         mean_metric = self._get_mean_metric(llm_metrics)
 
-        return {"error_llm_metric": mean_metric}
+        return {"similarity_llm_metric": mean_metric}
 
 
 class StyleLLMMetric(BaseLLMMetric):

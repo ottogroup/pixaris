@@ -152,5 +152,4 @@ class LLMMetricTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    # unittest.main()
-    LLMMetricTest().test_error_llm_metric()
+    unittest.main()
