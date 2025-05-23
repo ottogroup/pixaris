@@ -193,8 +193,8 @@ class BaseLLMMetric(BaseMetric):
         """
         Calculate the mean error metric from the cleaned response.
 
-        :param cleaned_response: A dictionary containing the cleaned response from the LLM.
-        :type cleaned_response: dict
+        :param responses: A list of dictionaries containing the responses from the LLM.
+        :type responses: list[dict]
         :return: The mean error metric.
         :rtype: float
         """
@@ -234,6 +234,9 @@ class SimilarityLLMMetric(BaseLLMMetric):
     """
     SimilarityLLMMetric is a subclass of BaseLLMMetric that uses a Gemini LLM to evaluate the similarity between images.
 
+    :param prompt: The prompt string for the LLM. The prompt has to make sure what should be evaluated and that
+        the output is JSON formatted. '{"similarity_llm_metric": x}' where x is the score.
+    :type prompt: str
     :param reference_images: A list of reference images to compare against.
     :type reference_images: list[Image]
     """
@@ -283,10 +286,11 @@ class StyleLLMMetric(BaseLLMMetric):
     """
     StyleLLMMetric is a subclass of BaseLLMMetric that uses a Gemini LLM to evaluate the style of images.
 
-    :param object_images: A list of object images to compare against.
-    :type object_images: list[Image]
-    :param style_images: A list of style images to compare against.
-    :type style_images: list[Image]
+    :param reference_images: A **kwargs dictionary of reference images. Pass lists of images that you want to compare to.
+    Example::
+        style_images = [image1, image2]
+        object_images = [image3, image4]
+    :type reference_images: dict[str, list[Image]]
     """
 
     def __init__(self, **reference_images: list[Image]):
@@ -357,37 +361,16 @@ class StyleLLMMetric(BaseLLMMetric):
         with ThreadPoolExecutor(len(evaluation_images)) as executor:
             responses = list(
                 executor.map(
-                    self._call_gemini,
+                    self._successful_evaluation,
                     vertex_prompts,
                 )
             )
 
         return responses
 
-    def _get_mean_style_metric(self, responses: list[str]) -> dict:
-        """
-        Calculate the mean style metric from the cleaned responses.
-
-        :param cleaned_responses: A list of cleaned responses from the LLM. Return value of _compare_images_to_descriptions.
-        :type cleaned_responses: list[str]
-        :return: A dictionary containing the mean style metric.
-        :rtype: dict
-        """
-        # Parse the responses and calculate the overall mean value
-        parsed_responses = [
-            self._response_to_dict(response_text) for response_text in responses
-        ]
-        mean_responses = dict_mean(parsed_responses)
-        overall_average = (
-            sum(mean_responses.values()) / len(mean_responses) if mean_responses else 0
-        )
-        return {
-            "style_llm_metric": overall_average,
-        }
-
     def calculate(self, evaluation_images: list[Image]) -> dict:
         """
-        Calculate the LLM metrics for a list of evaluation images.
+        Calculate the Style LLM metrics for a list of evaluation images.
 
         :param evaluation_images: A list of evaluation images.
         :type evaluation_images: list[Image]
@@ -404,7 +387,7 @@ class StyleLLMMetric(BaseLLMMetric):
             evaluation_images,
             reference_image_descriptions,
         )
-        return self._get_mean_style_metric(comparison_results)
+        return {"style_llm_metric": self._get_mean_metric(comparison_results)}
 
 
 class ErrorLLMMetric(BaseLLMMetric):
@@ -430,7 +413,7 @@ class ErrorLLMMetric(BaseLLMMetric):
 
     def calculate(self, evaluation_images: list[Image]) -> dict:
         """
-        Calculate the LLM metrics for a list of evaluation images.
+        Calculate the Error LLM metrics for a list of evaluation images.
 
         :param evaluation_images: A list of evaluation images.
         :type evaluation_images: list[Image]

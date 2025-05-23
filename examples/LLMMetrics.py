@@ -1,7 +1,5 @@
 from pixaris.metrics.llm import (
     BaseLLMMetric,
-    SimilarityLLMMetric,
-    ErrorLLMMetric,
     StyleLLMMetric,
 )
 from PIL import Image
@@ -63,15 +61,15 @@ same_content_llm_metric = BaseLLMMetric(
 )
 # for all Metrics, you can calculate them by calling Metric.calculate(generated_images) with the images you want to evaluate.
 # Make sure there are the same number of images in the list as there are in the reference images like object_images or style_images.
-same_content_metric_result = same_content_llm_metric.calculate(generated_images)
-print(same_content_metric_result)
+# same_content_metric_result = same_content_llm_metric.calculate(generated_images)
+# print(same_content_metric_result)
 
-# SimilarityLLMMetric is a specialized LLM Metric that will compare the similartities of the generated images vs. the reference images.
-similarity_llm_metric = SimilarityLLMMetric(
-    reference_images=object_images,
-)
-similarity_metric_result = similarity_llm_metric.calculate(generated_images)
-print(similarity_metric_result)
+# # SimilarityLLMMetric is a specialized LLM Metric that will compare the similartities of the generated images vs. the reference images.
+# similarity_llm_metric = SimilarityLLMMetric(
+#     reference_images=object_images,
+# )
+# similarity_metric_result = similarity_llm_metric.calculate(generated_images)
+# print(similarity_metric_result)
 
 # StyleLLMMetric is a specialized LLM Metric that will compare the styles of the generated images vs. the style images.
 style_llm_metric = StyleLLMMetric(
@@ -80,7 +78,7 @@ style_llm_metric = StyleLLMMetric(
 style_metric_result = style_llm_metric.calculate(generated_images)
 print(style_metric_result)
 
-# ErrorLLMMetric is a specialized LLM Metric that will find errors in the generated images.
-error_llm_metric = ErrorLLMMetric()
-error_metric_result = error_llm_metric.calculate(generated_images)
-print(error_metric_result)
+# # ErrorLLMMetric is a specialized LLM Metric that will find errors in the generated images.
+# error_llm_metric = ErrorLLMMetric()
+# error_metric_result = error_llm_metric.calculate(generated_images)
+# print(error_metric_result)
