@@ -1,4 +1,4 @@
-from pixaris.metrics.llm import BaseLLMMetric, StyleLLMMetric
+from pixaris.metrics.llm import BaseLLMMetric, ErrorLLMMetric, StyleLLMMetric
 from PIL import Image
 import os
 
@@ -54,9 +54,16 @@ same_content_llm_metric = BaseLLMMetric(
 style_llm_metric = StyleLLMMetric(
     style_images=generated_images,
 )
+error_llm_metric = ErrorLLMMetric()
 
 # same_content_metric_result = same_content_llm_metric.calculate(generated_images)
 # print("Content score: " + same_content_metric_result)
 
-style_metric_result = style_llm_metric.calculate(generated_images)
-print(style_metric_result)
+# style_metric_result = style_llm_metric.calculate(generated_images)
+# print(style_metric_result)
+
+# prompts = [error_llm_metric._llm_prompt(error_llm_metric.prompt, [image]) for image in generated_images]
+# responses = [error_llm_metric._call_gemini(prompt) for prompt in prompts]
+# print(responses)
+error_metric_result = error_llm_metric.calculate(generated_images)
+print(error_metric_result)

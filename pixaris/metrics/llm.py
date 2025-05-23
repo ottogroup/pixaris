@@ -500,3 +500,288 @@ class StyleLLMMetric(BaseLLMMetric):
             reference_image_descriptions,
         )
         return self._get_mean_style_metric(comparison_results)
+
+
+class ErrorLLMMetric(BaseLLMMetric):
+    """
+    ErrorLLMMetric is a subclass of BaseLLMMetric that uses a Gemini LLM to evaluate the error between images.
+
+    :param object_images: A list of object images to compare against.
+    :type object_images: list[Image]
+    :param style_images: A list of style images to compare against.
+    :type style_images: list[Image]
+    """
+
+    def __init__(self):
+        """
+        Initialize the ErrorLLMMetric.
+
+        :param reference_images: A dictionary of reference images.
+        :type reference_images: dict[str, list[Image]]
+        """
+        prompt = """
+        Role: You are an expert Image Quality Assessment AI, specialized in identifying and quantifying malformations in AI-generated images. Your knowledge base includes an exhaustive taxonomy of common generation errors. Your primary directive is to provide a concise, high-signal assessment.
+
+        Objective:
+
+        Analyze the provided image to determine what elements are present (e.g., humans, animals, specific objects, text).
+        For each present element, apply the definition of each specific malformation.
+        Assign a metric from 0.0 (catastrophic failure) to 1.0 (perfect, no discernible issues) for each applicable malformation type.
+        Scoring Guidelines:
+
+        1.0 (Perfect): Absolutely no discernible malformations of this specific type are present.
+        0.7 - 0.9 (Minor/Few): Very minor, subtle, or extremely few instances of this malformation. They might be barely noticeable.
+        0.4 - 0.6 (Moderate/Visible): Moderate presence of this malformation. Clearly visible, impacts overall quality.
+        0.1 - 0.3 (Severe/Many): Severe presence of this malformation. Highly distorted, prevalent, or significantly impacting.
+        0.0 (Catastrophic): Complete or near-complete failure in this specific category. Renders the aspect unrecognizable or fundamentally unusable.
+        Strict Output Requirements:
+
+        Flat JSON Structure: The output must be a single-level JSON object.
+        Key Naming: Each key name must be a concatenation of the full hierarchy path of the malformation, separated by underscores (_).
+        Example: anatomical_malformations_hands_fingers_incorrect_finger_count
+        Value Only: The value associated with each key must be only the numerical metric (e.g., 0.8), without any details or nested objects.
+        Omission of Non-Applicable Elements: If a higher-level category or a specific sub-category for malformations is not applicable to the content of the image (e.g., no animals present, no text to analyze, no objects, or no elements where a specific error type can manifest), then that specific key-value pair must be entirely omitted from the output JSON. Do not include keys for malformations that cannot possibly occur given the image content. For example, if there are no hands, skip all hands_fingers keys. If there's no text, skip all text_symbol_malformations keys.
+        Empty Image: If the image is entirely blank or contains no discernible elements to assess, return an empty JSON object {}.
+
+        Flattened Malformation Definitions (Reference List for AI):
+
+        This list defines what each specific malformation represents. Use these definitions to guide your assessment and score assignment.
+
+        anatomical_malformations_hands_fingers_incorrect_finger_count: Too many or too few fingers (e.g., 6, 7, 3, 1).
+
+        anatomical_malformations_hands_fingers_fused_merged_fingers: Fingers appearing stuck together, lacking distinct separation.
+
+        anatomical_malformations_hands_fingers_displaced_misaligned_fingers: Fingers growing from odd places or pointing in unnatural directions.
+
+        anatomical_malformations_hands_fingers_malformed_joints: Fingers bending unnaturally or at impossible angles.
+
+        anatomical_malformations_hands_fingers_incorrect_proportions: Fingers too long/short, too thick/thin.
+
+        anatomical_malformations_hands_fingers_ambiguous_thumbs: Thumbs missing, strangely shaped, or appearing as other fingers.
+
+        anatomical_malformations_hands_fingers_nails: Missing, strangely shaped, or misplaced fingernails.
+
+        anatomical_malformations_hands_fingers_overall_hand_shape_distortion: Hands appearing blob-like, twisted, or unrecognizable.
+
+        anatomical_malformations_hands_fingers_interaction_with_objects: Fingers not gripping objects naturally, merging with objects.
+
+        anatomical_malformations_faces_facial_features_asymmetry: Eyes, nose, mouth, or ears unevenly placed or differing significantly.
+
+        anatomical_malformations_faces_facial_features_mismatched_malformed_features: Eyes without pupils, multiple pupils; mouths with too many/no teeth; noses flattened/distorted; strange ears.
+
+        anatomical_malformations_faces_facial_features_extra_missing_features: Phantom eyes/mouths/noses, or completely missing essential features.
+
+        anatomical_malformations_faces_facial_features_skin_texture_realism: Plastic-like, unnaturally rough, unnatural skin tones, merging with hair/clothing.
+
+        anatomical_malformations_faces_facial_features_expression: Unnatural, forced, blank, or unsettling 'uncanny valley' expressions.
+
+        anatomical_malformations_faces_facial_features_hair: Merging with background, strange textures, floating strands, unnatural partings.
+
+        anatomical_malformations_faces_facial_features_teeth: Too many/few, misaligned, or strangely shaped, often merging into gums.
+
+        anatomical_malformations_bodies_limbs_proportionality_errors: Limbs too long/short, head too large/small for body, torso disproportionate.
+
+        anatomical_malformations_bodies_limbs_joint_malformations: Bending at impossible angles, missing joints, extra joints.
+
+        anatomical_malformations_bodies_limbs_extra_missing_limbs_appendages: Additional or missing arms, legs, or phantom limbs.
+
+        anatomical_malformations_bodies_limbs_merging_blobbing: Limbs merging into torso, other limbs, or background.
+
+        anatomical_malformations_bodies_limbs_unnatural_poses_posture: Contorted, impossible, or extremely rigid poses.
+
+        anatomical_malformations_bodies_limbs_muscle_definition: Over-exaggerated or completely lacking in places.
+
+        anatomical_malformations_bodies_limbs_nudity_clothing_confusion: Clothing melting into skin, or skin appearing where clothing should be.
+
+        anatomical_malformations_animals_creatures_incorrect_limbs_heads: Too many/few legs, tails, heads, or missing body parts.
+
+        anatomical_malformations_animals_creatures_hybridization: Unintentional mixing of different animal features.
+
+        anatomical_malformations_animals_creatures_distorted_anatomy: Twisted bodies, mangled features, or impossible skeletal structures.
+
+        anatomical_malformations_animals_creatures_unnatural_fur_scale_feather_patterns: Disjointed or chaotic textures.
+
+        anatomical_malformations_animals_creatures_facial_malformations: Similar to human faces, but for animals (e.g., misaligned eyes, strange mouths).
+
+        object_prop_malformations_distortion_deformation_melting_liquefaction: Objects appearing to melt or lose solid form.
+
+        object_prop_malformations_distortion_deformation_stretching_squishing: Objects elongated or compressed unnaturally.
+
+        object_prop_malformations_distortion_deformation_bending_warping: Objects appearing to bend or warp without apparent force.
+
+        object_prop_malformations_distortion_deformation_blobbing_amorphousness: Objects losing distinct edges, appearing shapeless.
+
+        object_prop_malformations_distortion_deformation_incorrect_shape_geometric_malformation: Circles as ovals, squares as trapezoids, etc.
+
+        object_prop_malformations_texture_material_inconsistencies_incorrect_material_properties: Metal looking like plastic, wood as stone.
+
+        object_prop_malformations_texture_material_inconsistencies_texture_blurring_fuzziness: Textures lacking detail or appearing smeared.
+
+        object_prop_malformations_texture_material_inconsistencies_repetitive_textures: Repeating patterns where they shouldn't exist.
+
+        object_prop_malformations_texture_material_inconsistencies_material_merging: Different materials bleeding into each other.
+
+        object_prop_malformations_texture_material_inconsistencies_unnatural_reflectivity_gloss: Surfaces too shiny or dull for their material.
+
+        object_prop_malformations_missing_extra_parts_elements: Incomplete objects (car without wheels), spurious random parts.
+
+        object_prop_malformations_compositional_placement_errors_floating_objects: Objects hovering mid-air without support.
+
+        object_prop_malformations_compositional_placement_errors_merging_with_background_other_objects: Objects blending indistinguishably into surroundings.
+
+        object_prop_malformations_compositional_placement_errors_incorrect_scale: Objects too large or too small relative to environment.
+
+        object_prop_malformations_compositional_placement_errors_inconsistent_perspective: Objects appearing at different vanishing points than scene.
+
+        object_prop_malformations_compositional_placement_errors_clipping_interpenetration: Objects passing through each other unrealistically.
+
+        object_prop_malformations_functionality_logical_inconsistencies: Broken/non-functional objects (door without handle), implausible configurations.
+
+        scene_environment_compositional_malformations_perspective_depth_flatness: Lack of depth, making scene appear 2D.
+
+        scene_environment_compositional_malformations_perspective_depth_distorted_perspective: Incorrect or inconsistent vanishing points.
+
+        scene_environment_compositional_malformations_perspective_depth_incorrect_object_placement_in_depth: Foreground objects appearing behind background elements incorrectly.
+
+        scene_environment_compositional_malformations_lighting_shadows_inconsistent_light_sources: Shadows falling in multiple directions where one source should be.
+
+        scene_environment_compositional_malformations_lighting_shadows_missing_shadows: Objects casting no shadows when they should.
+
+        scene_environment_compositional_malformations_lighting_shadows_unnatural_shadows: Shadows too harsh, too soft, or strangely shaped.
+
+        scene_environment_compositional_malformations_lighting_shadows_incorrect_highlights: Highlights where no light source exists or from impossible angles.
+
+        scene_environment_compositional_malformations_lighting_shadows_over_exposure_under_exposure: Parts of image excessively bright or dark, losing detail.
+
+        scene_environment_compositional_malformations_environmental_coherence_impossible_environments: Indoor bleeding into outdoor, conflicting elements (snow in desert).
+
+        scene_environment_compositional_malformations_environmental_coherence_repetitive_patterns: Tiling effects in large areas (walls, terrain).
+
+        scene_environment_compositional_malformations_environmental_coherence_background_blurring_issues: Inconsistent or incorrect background blur.
+
+        scene_environment_compositional_malformations_overall_composition_aesthetics_awkward_cropping: Subjects cut off at odd points, poor framing.
+
+        scene_environment_compositional_malformations_overall_composition_aesthetics_cluttered_chaotic_scenes: Too many elements, lacking clear focal point.
+
+        scene_environment_compositional_malformations_overall_composition_aesthetics_lack_of_artistic_direction: Image appearing generic, uninspired, lacking mood.
+
+        scene_environment_compositional_malformations_overall_composition_aesthetics_stylistic_inconsistency: Elements generated in different artistic styles within image.
+
+        scene_environment_compositional_malformations_overall_composition_aesthetics_color_palette_issues: Unnatural, unbalanced, or clashing colors.
+
+        text_symbol_malformations_garbled_gibberish_text: Unreadable characters, random squiggles, placeholder text.
+
+        text_symbol_malformations_incorrect_language_characters: Attempting English but producing other alphabets.
+
+        text_symbol_malformations_missing_extra_letters: Words misspelled by addition or omission of letters.
+
+        text_symbol_malformations_distorted_text: Text appearing wavy, stretched, melted, or malformed.
+
+        text_symbol_malformations_improper_placement_adherence: Text floating off surfaces, not conforming to 3D objects.
+
+        text_symbol_malformations_symbolic_misinterpretation: Logos, road signs, etc., rendered inaccurately or distorted.
+
+        artifacts_noise_pixelation_low_resolution: Image appears blocky or blurry due to insufficient resolution.
+
+        artifacts_noise_compression_artifacts: Visible blocks or color banding.
+
+        artifacts_noise_digital_noise_grain: Random speckles, static-like interference.
+
+        artifacts_noise_hallucinations_ghosting: Faint, semi-transparent, or random shapes/colors/ghost-like images.
+
+        artifacts_noise_diffusion_artifacts_blurry_fuzzy_patches: Areas lacking detail or appearing smudged.
+
+        artifacts_noise_diffusion_artifacts_over_smoothing: Loss of texture or detail in areas that should have it.
+
+        artifacts_noise_diffusion_artifacts_patchwork_seams: Visible lines or transitions from generated parts.
+
+        artifacts_noise_diffusion_artifacts_color_bleeding: Colors from one area seeping into an adjacent, unrelated area.
+
+        artifacts_noise_diffusion_artifacts_chromatic_aberration: Fringes of color around high-contrast edges.
+
+        semantic_conceptual_errors_misinterpretation_of_prompt: Image deviates significantly from explicit request.
+
+        semantic_conceptual_errors_loss_of_key_prompt_elements: Ignoring crucial details or adjectives within prompt.
+
+        semantic_conceptual_errors_over_under_interpretation: Too literal or too vague generation based on prompt.
+
+        semantic_conceptual_errors_lack_of_desired_mood_emotion: Image's mood contradicts intent.
+
+        semantic_conceptual_errors_inconsistent_narrative_storytelling: Featuring contradictory elements if implied by prompt.
+
+        semantic_conceptual_errors_word_soup_concept_blending: Incoherent blend from multiple conflicting concepts.
+
+        physics_natural_law_violations_gravity_disregard: Objects floating that should be grounded, liquids defying gravity.
+
+        physics_natural_law_violations_material_property_violations: Water looking solid, fire like smoke, opaque glass.
+
+        physics_natural_law_violations_incorrect_reflect_refractions: Reflections where none should be, or geometrically incorrect.
+
+        physics_natural_law_violations_transparency_opacity_errors: Objects that should be transparent are opaque, or vice-versa.
+
+        physics_natural_law_violations_forces_dynamics: Movement or forces depicted unnaturally (e.g., splashes going wrong way).
+
+        Expected Output Format (JSON Example):
+
+        {
+        "anatomical_malformations_hands_fingers_incorrect_finger_count": 0.8,
+        "anatomical_malformations_hands_fingers_displaced_misaligned_fingers": 0.5,
+        "anatomical_malformations_faces_facial_features_asymmetry": 0.9,
+        "object_prop_malformations_compositional_placement_errors_floating_objects": 0.6,
+        "scene_environment_compositional_malformations_lighting_shadows_missing_shadows": 0.7,
+        "text_symbol_malformations_garbled_gibberish_text": 0.2,
+        "artifacts_noise_diffusion_artifacts_blurry_fuzzy_patches": 0.4,
+        "semantic_conceptual_errors_misinterpretation_of_prompt": 0.3,
+        "physics_natural_law_violations_gravity_disregard": 0.1
+        // ... only include keys for applicable malformations ...
+        }
+        
+        Image for Analysis:
+        """
+        super().__init__(
+            prompt=prompt,
+        )
+
+    def _get_mean_metric(self, responses: list[dict]) -> float:
+        """
+        Calculate the mean error metric from the cleaned response.
+
+        :param cleaned_response: A dictionary containing the cleaned response from the LLM.
+        :type cleaned_response: dict
+        :return: The mean error metric.
+        :rtype: float
+        """
+        # Parse the response and calculate the overall mean value
+        mean_value = [
+            (sum(response.values()) / len(response) if responses else 1)
+            for response in responses
+        ]
+        return sum(mean_value) / len(mean_value) if mean_value else 1
+
+    def calculate(self, evaluation_images: list[Image]) -> dict:
+        """
+        Calculate the LLM metrics for a list of evaluation images.
+
+        :param evaluation_images: A list of evaluation images.
+        :type evaluation_images: list[Image]
+        :return: A dictionary containing the LLM metrics for the evaluation images.
+        :rtype: dict
+        :raises ValueError: If the number of evaluation images does not match the number of reference images.
+        """
+        self._verify_input_images(evaluation_images)
+        prompts = [
+            self._llm_prompt(self.prompt, [evaluation_image])
+            for evaluation_image in evaluation_images
+        ]
+
+        with ThreadPoolExecutor(len(evaluation_images)) as executor:
+            llm_metrics = list(
+                executor.map(
+                    self._successful_evaluation,
+                    prompts,
+                )
+            )
+
+        mean_metric = self._get_mean_metric(llm_metrics)
+
+        return {"error_llm_metric": mean_metric}
