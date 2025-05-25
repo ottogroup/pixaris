@@ -42,36 +42,37 @@ class LLMMetric(BaseMetric):
 
     def _llm_prompt(
         self,
-        evaulation_image: Image,
+        evaluation_image: Image,
         object_image: Image,
         style_image: Image,
     ):
         """
-        Generates a prompt for rating images on various metrics and returns a JSON object with the ratings.
-        :param evaulation_image: The input image.
-        :type evaulation_image: PIL.Image.Image
-        :param object_image: The output image.
+        Generate a prompt for rating images on various metrics.
+
+        :param evaluation_image: The evaluation image.
+        :type evaluation_image: PIL.Image.Image
+        :param object_image: The object reference image.
         :type object_image: PIL.Image.Image
-        :param style_image: The style image.
+        :param style_image: The style reference image.
         :type style_image: PIL.Image.Image
-        :return: A prompt that provokes a response  with a JSON with the following keys:
+        :return: A prompt that provokes a response with a JSON containing the following keys:
         * llm_reality: How real does the first picture look where 0 is not real at all and 1 is photorealistic?
         * llm_similarity: How similar is the main object in the first picture to the template in the second picture where 0 is not similar at all and 1 is identical?
         * llm_errors: How many errors can you find in the first picture?
         * llm_style: How well does the style of the first picture match the style of the third picture where 0 is not at all and 1 is identical?
         :rtype: list[vertexai.generative_models.Part, str]
         """
-        json_prompt = "rate the following evluation image on the following metrics. return only a json file without newlines with the following keys:"
+        json_prompt = "rate the following evaluation image on the following metrics. return only a json file without newlines with the following keys:"
         reality_prompt = "llm_reality: How real does the evaluation image look where 0 is not real at all and 1 is photorealistic?"
         similarity_prompt = "llm_similarity: How similar is the main object in the evaluation image to the template in the following picture where 0 is not similar at all and 1 is identical?"
         error_prompt = (
-            "llm_errors: How many errors can you find in the evaulation image?"
+            "llm_errors: How many errors can you find in the evaluation image?"
         )
         style_prompt = "llm_style: How well does the style of the evaluation image match the style of the following style image where 0 is not at all and 1 is identical?"
 
         return [
             json_prompt,
-            Part.from_image(self._PIL_image_to_vertex_image(evaulation_image)),
+            Part.from_image(self._PIL_image_to_vertex_image(evaluation_image)),
             reality_prompt,
             similarity_prompt,
             Part.from_image(self._PIL_image_to_vertex_image(object_image)),
