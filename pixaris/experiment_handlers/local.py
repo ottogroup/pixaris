@@ -144,8 +144,10 @@ class LocalExperimentHandler(ExperimentHandler):
         project: str,
         dataset: str,
     ) -> pd.DataFrame:
-        """
-        Load the results of an experiment.
+        """Load the results of an experiment.
+
+        Returns an empty :class:`~pandas.DataFrame` if the tracking file cannot
+        be read or does not exist.
 
         :param project: The name of the project.
         :type project: str
@@ -171,6 +173,8 @@ class LocalExperimentHandler(ExperimentHandler):
                 print(
                     f"Error reading {results_file}. File might be empty or corrupted."
                 )
+                return pd.DataFrame()
+        return pd.DataFrame()
 
     def load_images_for_experiment(
         self,
