@@ -130,11 +130,6 @@ class GCPExperimentHandler(ExperimentHandler):
         :type bigquery_input: dict
         """
         default_metrics = {
-            "llm_reality": 0.0,
-            "llm_similarity": 0.0,
-            "llm_errors": 0.0,
-            "llm_todeloy": 0.0,
-            "iou": 0.0,
             "hyperparameters": "",
             "generation_params": "",
             "workflow_apiformat_json": "",
