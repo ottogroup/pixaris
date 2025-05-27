@@ -1,14 +1,15 @@
 from pixaris.data_loaders.local import LocalDatasetLoader
 from pixaris.experiment_handlers.local import LocalExperimentHandler
 from pixaris.generation.comfyui import ComfyGenerator
-from pixaris.metrics.llm import (
-    BaseLLMMetric,
-    ErrorLLMMetric,
-    SimilarityLLMMetric,
-    StyleLLMMetric,
+from pixaris.metrics.iou import IoUMetric
+from pixaris.metrics.luminescence import (
+    LuminescenceComparisonByMaskMetric,
+    LuminescenceWithoutMaskMetric,
 )
-from pixaris.metrics.luminescence import LuminescenceComparisonByMaskMetric
-from pixaris.metrics.saturation import SaturationComparisonByMaskMetric
+from pixaris.metrics.saturation import (
+    SaturationComparisonByMaskMetric,
+    SaturationWithoutMaskMetric,
+)
 from pixaris.orchestration.base import generate_images_based_on_dataset
 import os
 import json
@@ -33,53 +34,21 @@ generator = ComfyGenerator(workflow_apiformat_json=WORKFLOW_APIFORMAT_JSON)
 
 experiment_handler = LocalExperimentHandler()
 
-# Load object, style and mask images for metrics
-object_dir = f"test/{PROJECT}/{DATASET}/input/"
-object_images = [Image.open(object_dir + image) for image in os.listdir(object_dir)]
-style_images = [Image.open("test/assets/test_inspo_image.jpg")] * len(object_images)
+# Load mask images from the local directory
 test_dir = f"test/{PROJECT}/{DATASET}/mask/"
 mask_images = [Image.open(test_dir + image) for image in os.listdir(test_dir)]
 
-# define the metrics we want to use
-same_content_prompt = """ You will be provided with two images. Your task is to analyze them and determine if their *core visual content* is semantically identical or completely distinct.
+# LuminescenceComparisonByMaskMetric and SaturationComparisonByMaskMetric are specialized metrics that will compare the
+# luminescence and saturation of the generated images inside and outdside of the provided mask images.
+luminescence_mask_metric = LuminescenceComparisonByMaskMetric(mask_images=mask_images)
+saturation_mask_metric = SaturationComparisonByMaskMetric(mask_images=mask_images)
+# or we can calculate it over the entire image without a mask
+luminence_metric = LuminescenceWithoutMaskMetric()
+saturation_metric = SaturationWithoutMaskMetric()
 
-**Definition of "Same Content" (output `1` for 'content_metric'):**
-The images depict the *exact same unique subject, scene, or specific entity*.
-Minor variations are acceptable and *should be ignored* when determining sameness. These include:
-*   Slight changes in angle, perspective, or zoom (e.g., the same specific car from slightly different sides or zoomed in/out).
-*   Minor cropping or resizing.
-*   Differences in lighting conditions, color balance, brightness, contrast, or application of minor stylistic filters.
-*   Addition or removal of small watermarks, logos, text overlays, or minor annotations that do not alter the primary subject.
-*   Different file formats, compression artifacts, or slight changes in resolution.
-*   If one image is clearly a modified version of the other (e.g., a black and white version of a color image, or an edited version of the original scene).
-
-**Definition of "Completely Different Content" (output `0` for 'content_metric'):**
-The images depict entirely distinct subjects, scenes, or entities with no semantic overlap. For example:
-*   A picture of a cat and a picture of a car.
-*   Two different people, even if they share some resemblance.
-*   Two different landscapes, even if they are of the same *type* (e.g., two different beaches).
-*   Two different objects, even if they are of the same *category* (e.g., two different chairs, two different dogs).
-*   Two different events or moments in time.
-
-**Output Format:**
-Provide your answer strictly in the following JSON format. Do not include any additional text or explanation outside of this JSON.
-```json
-{"content_metric": 1}
-```
-"""
-same_content_llm_metric = BaseLLMMetric(
-    prompt=same_content_prompt,
-    object_images=object_images,
-)
-similarity_llm_metric = SimilarityLLMMetric(
-    reference_images=object_images,
-)
-style_llm_metric = StyleLLMMetric(
-    style_images=style_images,
-)
-error_llm_metric = ErrorLLMMetric()
-luminescence_metric = LuminescenceComparisonByMaskMetric(mask_images=mask_images)
-saturation_metric = SaturationComparisonByMaskMetric(mask_images=mask_images)
+# IoUMetric is a metric that calculates the Intersection over Union (IoU) between the generated images and the provided mask images.
+# Only useful if the generated image is a binary image like a mask.
+iou_metric = IoUMetric(reference_images=mask_images)
 
 # define the arguments for the generation
 args = {
@@ -95,14 +64,7 @@ out = generate_images_based_on_dataset(
     data_loader=data_loader,
     image_generator=generator,
     experiment_handler=experiment_handler,
-    metrics=[
-        same_content_llm_metric,
-        similarity_llm_metric,
-        style_llm_metric,
-        error_llm_metric,
-        luminescence_metric,
-        saturation_metric,
-    ],
+    metrics=[],
     args=args,
 )
 
