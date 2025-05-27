@@ -93,3 +93,11 @@ out = generate_images_based_on_dataset(
 
 # Display the first generated image
 out[0][0].show()
+
+# %% [markdown]
+# ## Next Steps
+# 
+# After execution:
+# 1. Generated images are stored in the specified GCP bucket.
+# 2. Experiment metadata are stored in Google BigQuery.
+# 3. View results in the Pixaris UI 

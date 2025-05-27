@@ -39,7 +39,7 @@ if False:  # set to True if executing from notebook
 
 # %%
 # Configuration parameters - MODIFY THESE VALUES
-BASE_DIR = "local_results"
+BASE_DIR = "local_experiment_inputs"
 PROJECT_NAME = "dummy_project"
 DATASET_NAME = "dummy_dataset"
 IMAGE_NAMES = ["tiger_01.png", "tiger_02.png"]
