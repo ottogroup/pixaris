@@ -50,8 +50,8 @@ Located in the `experimentation/` directory, these scripts provide examples of d
 - `ParallelisedOrchestration_LocalDatasetLoader_FluxGenerator_LocalExperimentHandler.py` - Load dataset from local, run parallelized experiments using Flux and save results locally
 
 #### Cloud Configurations
-- `GCPDatasetLoader_ComfyGenerator_GCPExperimentHandler.py` - Run experiments using GCP data and storing results in GCP
-- `GCPDatasetLoader_GeminiGenerator_LocalExperimentHandler.py` - Load data from GCP, use Gemini for generation, store locally
+- `GCPDatasetLoader_ComfyGenerator_GCPExperimentHandler.py` - Load dataset from GCP, run experiments with ComfyUI, store results in GCP
+- `GCPDatasetLoader_GeminiGenerator_LocalExperimentHandler.py` - Load dataset from GCP, use Gemini for generation, save results locally
 
 #### Advanced Configurations
 - `HyperparameterSearch_GCPDatasetLoader_ComfyGenerator_GCPExperimentHandler.py` - Run hyperparameter search with ComfyUI
