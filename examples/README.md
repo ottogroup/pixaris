@@ -23,6 +23,13 @@ Before running any examples, you should customize the `example_config.yaml` file
 - App Engine deployment settings
 - API keys for various services
 
+## Getting Started for the frontend
+
+1. Run `examples/dummy_data_creation/create_dummy_data_for_frontend_locally.py`
+2. Run `examples/frontend_deployment/initialise_feedback_iteration_locally.py`
+3. Run `examples/frontend_deployment/deploy_frontend_locally_with_local_handling.py`
+
+
 ## Example Categories
 
 ### 1. Dummy Data Creation

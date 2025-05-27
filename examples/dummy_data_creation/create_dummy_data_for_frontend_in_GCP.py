@@ -180,6 +180,7 @@ print("Feedback iteration successfully created in GCP")
 
 # %%
 # Clean up the temporary directory
-shutil.rmtree(LOCAL_IMAGE_DIRECTORY)
-print("Temporary directory cleaned up")
+if False:
+    shutil.rmtree(LOCAL_IMAGE_DIRECTORY)
+    print("Temporary directory cleaned up")
 print("\nDummy data creation completed successfully!")
