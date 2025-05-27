@@ -1,3 +1,16 @@
+# %% [markdown]
+# # LocalDatasetLoader, ComfyGenerator, LocalExperimentHandler with Metrics Example
+#
+# This script demonstrates how to use the LocalDatasetLoader, ComfyGenerator, and LocalExperimentHandler with all implemented metrics in the pixaris library.
+# This is a good starting point to copy metrics you would like to use in your own experiments.
+#
+# ## Requirements
+# - pixaris package installed
+# - Valid GCP configuration in pixaris/config.yaml
+# - Test assets available in the project structure
+# %%
+
+
 from pixaris.data_loaders.local import LocalDatasetLoader
 from pixaris.experiment_handlers.local import LocalExperimentHandler
 from pixaris.generation.comfyui import ComfyGenerator
@@ -23,12 +36,13 @@ from PIL import Image
 
 PROJECT = "test_project"
 DATASET = "mock"
+EXPERIMENT_RUN_NAME = "example-run"
+
 with open(os.getcwd() + "/test/assets/test-background-generation.json", "r") as file:
     WORKFLOW_APIFORMAT_JSON = json.load(file)
 WORKFLOW_PILLOW_IMAGE = Image.open(
     os.getcwd() + "/test/assets/test-background-generation.png"
 )
-EXPERIMENT_RUN_NAME = "example-run"
 
 data_loader = LocalDatasetLoader(
     project=PROJECT,
@@ -40,24 +54,51 @@ generator = ComfyGenerator(workflow_apiformat_json=WORKFLOW_APIFORMAT_JSON)
 
 experiment_handler = LocalExperimentHandler()
 
+
+################################################################
 # Define the paths to the images used to calculate the metrics
+################################################################
+
+# Style directory contains images that represent the style we want to compare against. The first image will be compared to the first generated image, the second image to the second generated image, and so on.
+# here, we take some images from a feedback iteration.
 style_dir = "test/test_results/test_project/feedback_iterations/test_iteration/"
 style_images = [
     Image.open(os.path.join(style_dir, image)) for image in os.listdir(style_dir)
 ]
-object_dir = "test/test_results/test_project/feedback_iterations/test_iteration/"
-object_images = [Image.open(object_dir + image) for image in os.listdir(object_dir)]
-test_dir = "test/test_project/mock/mask/"
-mask_images = [Image.open(test_dir + image) for image in os.listdir(test_dir)]
 
-# define the metrics we want to use
+# Object directory contains images that represent the objects we want to compare against, i.e. the original input images showing the unchanged objects before generation.
+object_dir = "test/test_project/mock/input/"
+object_images = [Image.open(object_dir + image) for image in os.listdir(object_dir)]
+
+# Mask directory contains images that represent the masks we want to use for the luminescence and saturation metrics
+mask_dir = "test/test_project/mock/mask/"
+mask_images = [Image.open(mask_dir + image) for image in os.listdir(mask_dir)]
+
+##########################################################
+############### PREIMPLEMENTED LLM METRICS ###############
+##########################################################
+# SimilarityLLMMetric is a specialized LLM Metric that will compare the similartities of the generated images vs. the reference images.
+similarity_llm_metric = SimilarityLLMMetric(
+    reference_images=object_images,
+)
+# StyleLLMMetric is a specialized LLM Metric that will compare the styles of the generated images vs. the style images.
+style_llm_metric = StyleLLMMetric(
+    style_images=style_images,
+)
+# ErrorLLMMetric is a specialized LLM Metric that will find errors in the generated images.
+error_llm_metric = ErrorLLMMetric()
+
+##########################################################
+############### DEFINE YOUR OWN LLM METRIC ###############
+##########################################################
 
 # BaseLLMMetric is a generic class that can be used for any LLM metric
 # The prompt is a string that describes the task to be performed by the LLM
 # BaseLLMMetric takes a prompt, and a number of lists of images to be used. For example You can give a list of style images and a list of object images.
 # Make sure the prompt describes how to use the style and object images.
+# Here is an example of how you could easily define a metric that checks if two images have the same core visual content.
 
-same_content_prompt = """ You will be provided with two images. Your task is to analyze them and determine if their *core visual content* is semantically identical or completely distinct.
+same_content_prompt = """ You will be provided with two images. Your task is to analyze them and determine if their *core visual content* is identical or completely distinct.
 
 **Definition of "Same Content" (output `1` for 'content_metric'):**
 The images depict the *exact same unique subject, scene, or specific entity*.
@@ -87,16 +128,11 @@ same_content_llm_metric = BaseLLMMetric(
     prompt=same_content_prompt,
     object_images=object_images,
 )
-# SimilarityLLMMetric is a specialized LLM Metric that will compare the similartities of the generated images vs. the reference images.
-similarity_llm_metric = SimilarityLLMMetric(
-    reference_images=object_images,
-)
-# StyleLLMMetric is a specialized LLM Metric that will compare the styles of the generated images vs. the style images.
-style_llm_metric = StyleLLMMetric(
-    style_images=style_images,
-)
-# ErrorLLMMetric is a specialized LLM Metric that will find errors in the generated images.
-error_llm_metric = ErrorLLMMetric()
+
+
+###################################################################
+############### LUMINESCENCE AND SATURATION METRICS ###############
+###################################################################
 
 # LuminescenceComparisonByMaskMetric and SaturationComparisonByMaskMetric are specialized metrics that will compare the
 # luminescence and saturation of the generated images inside and outdside of the provided mask images.
@@ -106,9 +142,18 @@ saturation_mask_metric = SaturationComparisonByMaskMetric(mask_images=mask_image
 luminence_metric = LuminescenceWithoutMaskMetric()
 saturation_metric = SaturationWithoutMaskMetric()
 
+#########################################################
+########################## IOU ##########################
+#########################################################
+
 # IoUMetric is a metric that calculates the Intersection over Union (IoU) between the generated images and the provided mask images.
-# Only useful if the generated image is a binary image like a mask.
+# It is only useful if the generated image is a binary image like a mask. We show how to use it here anyway.
 iou_metric = IoUMetric(reference_images=mask_images)
+
+
+################################################################################
+# Now we have all the components needed to generate images based on the dataset
+################################################################################
 
 # define the arguments for the generation
 args = {
