@@ -115,7 +115,7 @@ loader = GCPDatasetLoader(
 ```
 Alternatively, you can  use the `LocalDatasetLoader` if you have your `dataset` saved locally, or implement your own `DatasetLoader` with whatever requirements and tools you have. A `DatasetLoader` should return a dataset that can be parsed by an `ImageGenerator`.
 
-Information on how what an `dataset` consists of and how you can create one can be found [here](https://github.com/ottogroup/pixaris/tree/main/examples/helpful_scripts/setup_local_experiment_inputs_dummy.py).
+Information on how what an `dataset` consists of and how you can create one can be found [here](https://github.com/ottogroup/pixaris/tree/main/examples/dummy_data_creation/create_dummy_eval_data_for_Generator_locally.py).
 
 ### Setting up how you are generating images
 We implemented a neat `ImageGenerator` that uses ComfyUI.
@@ -207,11 +207,11 @@ Internally, it will load data, generate images, calculate metrics, and save data
 Are you planning to run a huge hyperparameter search to finally figure out which parameter combination is the sweet spot and don't want to wait forever until it has finished? We implemented two neat solutions to orchestrate image generation at scale.
 
 ### Parallelised Calls to Generator
-By handing over the `max_parallel_jobs` in `args` to the orchestration, you can parallelise the calls to any generator. E.g. see [here](https://github.com/ottogroup/pixaris/tree/main/examples/ParallelisedOrchestration_LocalDatasetLoader_FluxGenerator_LocalExperimentHandler.py) how to parallelise calls to the flux api.
+By handing over the `max_parallel_jobs` in `args` to the orchestration, you can parallelise the calls to any generator. E.g. see [here](https://github.com/ottogroup/pixaris/tree/main/examples/experimentation/HyperparameterSearch_GCPDatasetLoader_FluxGenerator_GCPExperimentHandler.py) how to parallelise calls to the flux api.
 
 ### Run Generation on kubernetes Cluster
 
-We implemented an orchestration that is based on ComfyUI and Google Kubernetes Engine (GKE). This uploads the inputs to the cluster and then triggers generation within the cluster. See [here](https://github.com/ottogroup/pixaris/tree/main/examples/GCPDatasetLoader_ComfyClusterGenerator_GCPExperimentHandler.py) for example usage.
+We implemented an orchestration that is based on ComfyUI and Google Kubernetes Engine (GKE). This uploads the inputs to the cluster and then triggers generation within the cluster. See [here](https://github.com/ottogroup/pixaris/tree/main/examples/experimentation/GCPDatasetLoader_ComfyClusterGenerator_GCPExperimentHandler.py) for example usage.
 
 If you want to use Pixaris without setting it up manually, you can pull the prebuilt Pixaris Docker image from this repository:
 ```sh
@@ -233,7 +233,7 @@ launch_ui(feedback_handler, experiment_handler)
 ```
 The UI is then available at `http://localhost:8080`.
 
-Find code to setup dummy data and deploy the frontend in [this folder](https://github.com/ottogroup/pixaris/tree/main/examples/frontend/).
+Find code to setup dummy data and deploy the frontend in [this folder](https://github.com/ottogroup/pixaris/tree/main/examples/frontend_deployment/).
 ### Viewing the Experiment Results
 In the Experiment Tab, you can see the generated images as well as the results of metrics in tabular form.
 ![ExperimentTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/pixaris_experiment_screenshot_explanations.png)
