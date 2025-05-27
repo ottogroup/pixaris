@@ -42,7 +42,11 @@ Located in the `dummy_data_creation/` directory, these scripts help create synth
 
 ### 2. Experimentation
 
-Located in the `experimentation/` directory, these scripts provide examples of different combinations of data loaders, generators, and experiment handlers:
+Located in the `experimentation/` directory, these scripts provide examples of different combinations of data loaders, generators, and experiment handlers.
+
+The example scripts follow a naming convention that indicates the components used:
+- `[AdditionalFeatures]_[DataLoader]_[Generator]_[ExperimentHandler]_[AdditionalFeatures].py`
+
 
 #### Local Configurations
 - `LocalDatasetLoader_ComfyGenerator_LocalExperimentHandler_WithMetrics.py` - Load dataset from local, run experiments using ComfyUI with metrics and save results locally
@@ -55,7 +59,7 @@ Located in the `experimentation/` directory, these scripts provide examples of d
 
 #### Advanced Configurations
 - `HyperparameterSearch_GCPDatasetLoader_ComfyGenerator_GCPExperimentHandler.py` - Run hyperparameter search with ComfyUI
-- `HyperparameterSearch_GCPDatasetLoader_FluxGenerator_GCPExperimentHandler.py` - Run hyperparameter search with 
+- `HyperparameterSearch_GCPDatasetLoader_FluxGenerator_GCPExperimentHandler.py` - Run hyperparameter search with Flux
 
 
 #### Run on Kubernetes
@@ -67,15 +71,10 @@ Located in the `frontend_deployment/` directory, these scripts help you deploy a
 
 - `deploy_frontend_locally_with_local_handling.py` - Deploy the UI locally with local data storage
 - `deploy_frontend_locally_with_GCP_handling.py` - Deploy the UI locally but connect to GCP for data storage
-- `initialise_feedback_iteration_locally.py` - Set up a feedback iteration loop with local storage
-- `initialise_feedback_iteration_in_GCP.py` - Set up a feedback iteration loop with GCP storage
+- `initialise_feedback_iteration_locally.py` - Set up a feedback iteration from a local folder containing images for the `LocalFeedbackHandler`
+- `initialise_feedback_iteration_in_GCP.py` - Set up a feedback iteration from a local folder containing images for the `GCPFeedbackHandler`
 
-## Naming Convention
 
-The example scripts follow a naming convention that indicates the components used:
-- `[DataLoader]_[Generator]_[ExperimentHandler]_[AdditionalFeatures].py`
-
-This helps you quickly identify which components are being used in each example.
 
 ## Getting Started
 

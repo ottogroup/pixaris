@@ -11,6 +11,7 @@
 # - pixaris package installed
 # - Valid GCP configuration in pixaris/config.yaml
 # - Test assets available in the project structure
+# - Have a running kubernetes cluster for this
 
 # %% [markdown]
 # ## Import Libraries and Setup
