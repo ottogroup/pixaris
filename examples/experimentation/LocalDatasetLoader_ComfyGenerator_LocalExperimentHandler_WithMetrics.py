@@ -41,9 +41,9 @@ from PIL import Image
 
 # %%
 # Configuration parameters - MODIFY THESE VALUES
-PROJECT = "test_project" # Your project name
-DATASET = "mock" # Your dataset name
-EXPERIMENT_RUN_NAME = "example-run" # Name of this experiment run
+PROJECT = "test_project"  # Your project name
+DATASET = "mock"  # Your dataset name
+EXPERIMENT_RUN_NAME = "example-run"  # Name of this experiment run
 
 # Load workflow data from test assets
 
