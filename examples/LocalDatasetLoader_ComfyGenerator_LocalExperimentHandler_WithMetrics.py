@@ -41,11 +41,11 @@ generator = ComfyGenerator(workflow_apiformat_json=WORKFLOW_APIFORMAT_JSON)
 experiment_handler = LocalExperimentHandler()
 
 # Define the paths to the images used to calculate the metrics
-style_dir = "test/test_results/dummy_project/dummy_dataset/example_run/"
+style_dir = "test/test_results/test_project/feedback_iterations/test_iteration/"
 style_images = [
     Image.open(os.path.join(style_dir, image)) for image in os.listdir(style_dir)
 ]
-object_dir = "test/test_results/dummy_project/dummy_dataset/example_run/"
+object_dir = "test/test_results/test_project/feedback_iterations/test_iteration/"
 object_images = [Image.open(object_dir + image) for image in os.listdir(object_dir)]
 test_dir = "test/test_project/mock/mask/"
 mask_images = [Image.open(test_dir + image) for image in os.listdir(test_dir)]
