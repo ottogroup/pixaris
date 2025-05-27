@@ -36,9 +36,9 @@ Before running any examples, you should customize the `example_config.yaml` file
 
 Located in the `dummy_data_creation/` directory, these scripts help create synthetic data for development and testing:
 
-- `create_dummy_data_for_frontend_locally.py` - Creates dummy data for local frontend development
-- `create_dummy_data_for_frontend_in_GCP.py` - Creates dummy data in GCP for cloud-based frontend testing
-- `create_dummy_eval_data_for_Generator_locally.py` - Creates evaluation data (mask and input image) for testing generator components
+- `create_dummy_data_for_frontend_locally.py` - Creates all dummy data needed to deploy the frontend with local handling (`LocalExperimentHandler` and `LocalFeedbackHandler`)
+- `create_dummy_data_for_frontend_in_GCP.py` - Creates all dummy data needed to deploy the frontend with cloud-based handling (`GCPExperimentHandler` and `GCPFeedbackHandler`)
+- `create_dummy_eval_data_for_Generator_locally.py` - Creates an evaluation dataset (mask and input image) for working with `Generator`components
 
 ### 2. Experimentation
 
