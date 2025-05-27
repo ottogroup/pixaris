@@ -2,24 +2,28 @@
 Script to initialize a feedback iteration locally.
 
 This script creates a new feedback iteration using the LocalFeedbackHandler.
-It processes images from a local directory for use in the Pixaris feedback 
-interface running locally.
+It loads configuration from the config.yaml file and processes images from a
+local directory for use in the Pixaris feedback interface running locally.
 
 Usage:
     python initialise_feedback_iteration_locally.py
 
 Requirements:
     - pixaris package installed
+    - config.yaml file
     - Local directory containing images for feedback
 """
 
 from pixaris.feedback_handlers.local import LocalFeedbackHandler
 import os
+import yaml
 
 print(f"Current working directory: {os.getcwd()}")
 
 if False:  # set to True if executing from notebook
     os.chdir("../../")
+
+config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 
 # Configuration parameters - MODIFY THESE VALUES
 PROJECT = "dummy_project"  # Your project name

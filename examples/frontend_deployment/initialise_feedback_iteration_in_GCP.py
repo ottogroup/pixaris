@@ -36,7 +36,7 @@ feedback_handler = GCPFeedbackHandler(
 # Configuration parameters - MODIFY THESE VALUES
 PROJECT = "dummy_project"  # Your project name
 FEEDBACK_ITERATION = "dummy_feedback_iteration"  # Name of this feedback iteration
-LOCAL_IMAGE_DIRECTORY = "local_results/dummy_project/feedback_iterations/250428_dummy_feedback_iteration"  
+LOCAL_IMAGE_DIRECTORY = "local_results/dummy_project/feedback_iterations/feedback_iteration_with_dummy_images"
 # For dummy data examples, see: examples/dummy_data_creation
 
 # Create feedback iteration with the provided parameters

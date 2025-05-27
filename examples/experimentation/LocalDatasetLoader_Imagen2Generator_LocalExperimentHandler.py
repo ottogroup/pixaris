@@ -10,11 +10,6 @@ from PIL import Image
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 PROJECT = "test_project"
 DATASET = "mock"
-with open(os.getcwd() + "/test/assets/test-background-generation.json", "r") as file:
-    WORKFLOW_APIFORMAT_JSON = json.load(file)
-WORKFLOW_PILLOW_IMAGE = Image.open(
-    os.getcwd() + "/test/assets/test-background-generation.png"
-)
 EXPERIMENT_RUN_NAME = "example-run"
 PROMPT = "Place the animal in front of a background of a nice lush green forest."
 
@@ -33,8 +28,6 @@ generator = Imagen2Generator(
 experiment_handler = LocalExperimentHandler()
 
 args = {
-    "workflow_apiformat_json": WORKFLOW_APIFORMAT_JSON,
-    "workflow_pillow_image": WORKFLOW_PILLOW_IMAGE,
     "project": PROJECT,
     "dataset": DATASET,
     "experiment_run_name": EXPERIMENT_RUN_NAME,

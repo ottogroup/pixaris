@@ -33,8 +33,6 @@ generator = GeminiGenerator(
 experiment_handler = LocalExperimentHandler()
 
 args = {
-    "workflow_apiformat_json": {},
-    "workflow_pillow_image": {},
     "prompt": PROMPT,
     "model_name": MODEL_NAME,
     "project": PROJECT,

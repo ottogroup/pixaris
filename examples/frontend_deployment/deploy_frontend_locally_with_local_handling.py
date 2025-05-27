@@ -8,7 +8,6 @@ import yaml
 
 config = yaml.safe_load(open("pixaris/config.yaml"))
 
-
 feedback_handler = LocalFeedbackHandler()
 experiment_handler = LocalExperimentHandler()
 
