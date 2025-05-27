@@ -1,7 +1,7 @@
 # %% [markdown]
 # # Create Dummy Data for Pixaris Frontend in GCP
 #
-# This script creates dummy experimental and feedback data in GCP using the GCPExperimentHandler.
+# This script creates dummy experiment and feedback data in GCP using the GCPExperimentHandler and GCPFeedbackHandler.
 # It loads configuration from the config.yaml file and generates/uploads dummy tiger images
 # to GCP for use in the Pixaris experiment tracking and feedback interfaces.
 #
