@@ -16,7 +16,7 @@ class BaseLLMMetric(BaseMetric):
     """
     BaseLLMMetric is a base class for metrics that use a Gemini large language model (LLM) to evaluate images.
 
-    :param prompt: The prompt string for the LLM. The prompt has to make sure what should be evaluated and that
+    :param prompt: The prompt string for the LLM. The prompt has to determine what should be evaluated and that
         the output is JSON formatted. '{"base_llm_metric": x}' where x is the score. Can also be multiple scores in one.
     :type prompt: str
     :param sample_size: The number of times to call the LLM for the same image. Defaults to 3.
