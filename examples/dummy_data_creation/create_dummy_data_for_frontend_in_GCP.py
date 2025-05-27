@@ -1,10 +1,10 @@
 # %% [markdown]
 # # Create Dummy Data for Pixaris Frontend in GCP
-# 
+#
 # This script creates dummy experimental and feedback data in GCP using the GCPExperimentHandler.
 # It loads configuration from the config.yaml file and generates/uploads dummy tiger images
 # to GCP for use in the Pixaris experiment tracking and feedback interfaces.
-# 
+#
 # ## Requirements
 # - pixaris package installed
 # - Valid GCP credentials configured
@@ -15,7 +15,6 @@
 
 # %%
 
-import json
 import random
 import shutil
 import os
@@ -33,6 +32,7 @@ config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 
 # %% [markdown]
 # ## Define Tiger Image Creation Function
+
 
 def create_tiger_image(background_color_int: int):
     # Create a blank 64x64 pixel image
@@ -71,6 +71,7 @@ def create_tiger_image(background_color_int: int):
 
     img = img.resize((200, 200))
     return img
+
 
 # %%
 # Create an example image
@@ -126,7 +127,9 @@ dummy_args = {
 }
 
 # Store the experiment results in GCP
-print(f"Storing {NUM_EXPERIMENT_ENTRIES} dummy experiment results for project '{PROJECT}', dataset '{DATASET}'")
+print(
+    f"Storing {NUM_EXPERIMENT_ENTRIES} dummy experiment results for project '{PROJECT}', dataset '{DATASET}'"
+)
 experiment_handler.store_results(
     project=PROJECT,
     dataset=DATASET,
@@ -160,7 +163,9 @@ feedback_handler = GCPFeedbackHandler(
 )
 
 # Create feedback iteration with the provided parameters
-print(f"Creating feedback iteration '{FEEDBACK_ITERATION_NAME}' for project '{PROJECT}'")
+print(
+    f"Creating feedback iteration '{FEEDBACK_ITERATION_NAME}' for project '{PROJECT}'"
+)
 feedback_handler.create_feedback_iteration(
     local_image_directory=LOCAL_IMAGE_DIRECTORY,
     project=PROJECT,

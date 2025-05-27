@@ -1,11 +1,11 @@
 # %% [markdown]
 # # Deploy Pixaris Frontend Locally with Local Data Handling
-# 
+#
 # This script demonstrates how to deploy the Pixaris UI locally with local data handling:
 # - LocalFeedbackHandler for storing feedback locally
 # - LocalExperimentHandler for handling experiment data locally
 # - Local UI server for interacting with the system
-# 
+#
 # ## Requirements
 # - pixaris package installed
 # - Valid configuration in pixaris/config.yaml
@@ -30,7 +30,7 @@ print(f"Current working directory: {os.getcwd()}")
 print("\n=== Loading Configuration ===")
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 
-# Note: To create dummy data for the frontend: 
+# Note: To create dummy data for the frontend:
 # Run examples/dummy_data_creation/create_dummy_data_for_frontend_locally.py
 
 # %% [markdown]

@@ -1,11 +1,11 @@
 # %% [markdown]
 # # Deploy Pixaris Frontend Locally with GCP Integration
-# 
+#
 # This script demonstrates how to deploy the Pixaris UI locally while using GCP for data handling:
 # - GCPFeedbackHandler for storing feedback in Google Cloud
 # - GCPExperimentHandler for handling experiment data from Google Cloud
 # - Local UI server for interacting with the system
-# 
+#
 # ## Requirements
 # - pixaris package installed
 # - Valid GCP configuration in pixaris/config.yaml
@@ -31,7 +31,7 @@ print(f"Current working directory: {os.getcwd()}")
 print("\n=== Loading Configuration ===")
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 
-# Note: To create dummy data for the frontend: 
+# Note: To create dummy data for the frontend:
 # Run examples/dummy_data_creation/create_dummy_data_for_frontend_in_GCP.py
 
 # %% [markdown]

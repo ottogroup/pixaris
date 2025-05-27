@@ -1,9 +1,9 @@
 # %% [markdown]
 # # Create Dummy Evaluation Data for Pixaris Generator: Local Data Handling
-# 
+#
 # This script creates a basic folder structure with dummy image files for evaluation purposes.
 # It generates input images and corresponding mask images organized in a dataset structure.
-# 
+#
 # ## Folder structure created:
 # ```
 # local_results
@@ -25,7 +25,6 @@
 
 # %%
 import os
-import numpy as np
 import random
 from PIL import Image, ImageDraw
 
@@ -47,12 +46,14 @@ IMAGE_NAMES = ["tiger_01.png", "tiger_02.png"]
 # %% [markdown]
 # ## Define Helper Functions
 
+
 # %%
 # Function to create a directory if it doesn't exist
 def create_directory(path):
     if not os.path.exists(path):
         os.makedirs(path)
         print(f"Created directory: {path}")
+
 
 # Function to create a tiger image
 def create_tiger_image(background_color_int: int):
@@ -92,6 +93,7 @@ def create_tiger_image(background_color_int: int):
 
     img = img.resize((200, 200))
     return img
+
 
 # %%
 # Create an example image
@@ -133,9 +135,9 @@ for i, img_name in enumerate(IMAGE_NAMES):
     # Create a tiger image and convert it to grayscale for mask
     img = create_tiger_image(random.randint(0, 10_000_000))
     # Convert to grayscale and threshold to binary
-    mask_img = img.convert('L')
+    mask_img = img.convert("L")
     # Apply threshold to create binary mask
-    mask_img = mask_img.point(lambda x: 0 if x < 128 else 255, '1')
+    mask_img = mask_img.point(lambda x: 0 if x < 128 else 255, "1")
     mask_img.save(mask_path)
     print(f"Created mask image: {mask_path}")
 

@@ -1,11 +1,11 @@
 # %% [markdown]
 # # Hyperparameter Search with ComfyGenerator and GCP Integration
-# 
+#
 # This script demonstrates how to run hyperparameter search experiments using Pixaris with GCP integration:
 # - GCPDatasetLoader for loading data from Google Cloud
-# - ComfyGenerator for generating images using ComfyUI 
+# - ComfyGenerator for generating images using ComfyUI
 # - GCPExperimentHandler for storing experiment results in Google Cloud
-# 
+#
 # ## Requirements
 # - pixaris package installed
 # - Valid GCP configuration in pixaris/config.yaml
@@ -18,6 +18,7 @@
 # Set DEV_MODE to true if you want to work locally with 8188 port
 # This must be set before importing from pixaris
 import os
+
 os.environ["DEV_MODE"] = "true"
 
 import json
@@ -47,7 +48,7 @@ EXPERIMENT_RUN_NAME = "example-run"  # Name of this experiment run
 # Load workflow data from test assets
 with open(os.getcwd() + "/test/assets/test-background-generation.json", "r") as file:
     WORKFLOW_APIFORMAT_JSON = json.load(file)
-    
+
 # Load workflow image
 WORKFLOW_PILLOW_IMAGE = Image.open(
     os.getcwd() + "/test/assets/test-background-generation.png"
@@ -125,14 +126,14 @@ out = generate_images_for_hyperparameter_search_based_on_dataset(
     args=args,
 )
 
-print(f"Hyperparameter search completed successfully!")
+print("Hyperparameter search completed successfully!")
 print(f"Check results using the experiment run name: {EXPERIMENT_RUN_NAME}")
 
 # ## Next Steps
-# 
+#
 # After execution:
 # 1. Generated images are stored in the specified GCP bucket.
 # 2. Experiment metadata are stored in Google BigQuery.
-# 3. View results in the Pixaris UI 
+# 3. View results in the Pixaris UI
 
 # %%

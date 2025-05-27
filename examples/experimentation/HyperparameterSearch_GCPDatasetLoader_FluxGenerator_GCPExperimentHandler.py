@@ -1,12 +1,12 @@
 # %% [markdown]
 # # Hyperparameter Search with FluxGenerator and GCP Integration
-# 
+#
 # This script demonstrates how to run hyperparameter search experiments using Pixaris with GCP integration:
 # - GCPDatasetLoader for loading data from Google Cloud
 # - FluxFillGenerator for generating images using Beautiful.AI Flux
 # - GCPExperimentHandler for storing experiment results in Google Cloud
 # - Hyperparameter search for exploring different parameter combinations
-# 
+#
 # ## Requirements
 # - pixaris package installed
 # - Valid GCP configuration in pixaris/config.yaml
@@ -110,12 +110,12 @@ out = generate_images_for_hyperparameter_search_based_on_dataset(
     args=args,
 )
 
-print(f"\n=== Experiment Completed ===")
+print("\n=== Experiment Completed ===")
 
 # %% [markdown]
 # ## Next Steps
-# 
+#
 # After execution:
 # 1. Generated images are stored in the specified GCP bucket.
 # 2. Experiment metadata are stored in Google BigQuery.
-# 3. View results in the Pixaris UI 
+# 3. View results in the Pixaris UI

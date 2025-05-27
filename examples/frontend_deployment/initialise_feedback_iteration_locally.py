@@ -1,11 +1,11 @@
 # %% [markdown]
 # # Initialize Feedback Iteration Locally
-# 
+#
 # This script demonstrates how to create a new feedback iteration using the LocalFeedbackHandler:
 # - LocalFeedbackHandler for managing feedback data locally
 # - Processes images from a local directory for use in the Pixaris feedback interface
 # - Stores feedback data in local files
-# 
+#
 # ## Requirements
 # - pixaris package installed
 # - config.yaml file
@@ -36,7 +36,9 @@ config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 # Configuration parameters - MODIFY THESE VALUES
 PROJECT = "dummy_project"  # Your project name
 FEEDBACK_ITERATION = "dummy_feedback_iteration"  # Name of this feedback iteration
-LOCAL_IMAGE_DIRECTORY = "local_results/dummy_project/feedback_iterations/250428_dummy_feedback_iteration"  
+LOCAL_IMAGE_DIRECTORY = (
+    "local_results/dummy_project/feedback_iterations/250428_dummy_feedback_iteration"
+)
 
 # Note: For dummy data examples, see: examples/dummy_data_creation
 

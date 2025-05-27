@@ -1,11 +1,11 @@
 # %% [markdown]
 # # Initialize Feedback Iteration in Google Cloud Platform (GCP)
-# 
+#
 # This script creates a new feedback iteration in GCP using the GCPFeedbackHandler:
 # - Loads configuration from the config.yaml file
 # - Uploads images from a local directory to GCP for use in the Pixaris feedback interface
 # - Creates a structured feedback iteration in GCP
-# 
+#
 # ## Requirements
 # - pixaris package installed
 # - Valid GCP credentials configured

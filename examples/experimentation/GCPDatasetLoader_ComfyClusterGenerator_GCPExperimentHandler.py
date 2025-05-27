@@ -1,13 +1,12 @@
-
 # %% [markdown]
 # # Cloud Experiment with ComfyClusterGenerator and GCP Integration
-# 
+#
 # This script demonstrates how to run experiments using Pixaris with GCP integration:
 # - GCPDatasetLoader for loading data from Google Cloud
 # - ComfyClusterGenerator for generating images using ComfyUI in a cluster
 # - GCPExperimentHandler for storing experiment results in Google Cloud
 # - Kubernetes orchestration for distributed processing
-# 
+#
 # ## Requirements
 # - pixaris package installed
 # - Valid GCP configuration in pixaris/config.yaml
@@ -20,6 +19,7 @@
 # Set DEV_MODE to true if you want to work locally with 8188 port
 # This must be set before importing from pixaris
 import os
+
 os.environ["DEV_MODE"] = "true"
 
 import json
@@ -47,7 +47,7 @@ EXPERIMENT_RUN_NAME = "example-cluster-run"  # Name of this experiment run
 # Load workflow data from test assets
 with open(os.getcwd() + "/test/assets/test-background-generation.json", "r") as file:
     WORKFLOW_APIFORMAT_JSON = json.load(file)
-    
+
 # Load workflow image
 WORKFLOW_PILLOW_IMAGE = Image.open(
     os.getcwd() + "/test/assets/test-background-generation.png"
@@ -101,7 +101,9 @@ args = {
 
 # %%
 print("\n=== Executing Kubernetes Orchestration ===")
-print(f"Running experiment '{EXPERIMENT_RUN_NAME}' for project '{PROJECT}', dataset '{DATASET}'")
+print(
+    f"Running experiment '{EXPERIMENT_RUN_NAME}' for project '{PROJECT}', dataset '{DATASET}'"
+)
 print("This will distribute the workload across Kubernetes pods")
 # Execute the orchestration
 pixaris_orchestration_kubernetes_locally(
@@ -118,8 +120,8 @@ print("Results will be stored in GCP when the process completes")
 
 # %% [markdown]
 # ## Next Steps
-# 
+#
 # After execution:
 # 1. Generated images are stored in the specified GCP bucket.
 # 2. Experiment metadata are stored in Google BigQuery.
-# 3. View results in the Pixaris UI 
+# 3. View results in the Pixaris UI

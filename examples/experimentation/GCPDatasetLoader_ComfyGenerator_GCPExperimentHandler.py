@@ -1,9 +1,9 @@
 # %% [markdown]
 # # Pixaris Experimentation: GCP Dataset Loader with Comfy Generator and GCP Experiment Handler
-# 
+#
 # This script demonstrates using the GCP Dataset Loader with ComfyGenerator and GCP Experiment Handler.
 # It loads data from GCP storage, processes it with ComfyUI, and saves results back to GCP.
-# 
+#
 # ## Requirements
 # - pixaris package installed
 # - GCP configuration in config.yaml
@@ -96,8 +96,8 @@ out[0][0].show()
 
 # %% [markdown]
 # ## Next Steps
-# 
+#
 # After execution:
 # 1. Generated images are stored in the specified GCP bucket.
 # 2. Experiment metadata are stored in Google BigQuery.
-# 3. View results in the Pixaris UI 
+# 3. View results in the Pixaris UI

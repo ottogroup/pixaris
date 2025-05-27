@@ -1,12 +1,12 @@
 # %% [markdown]
 # # Local Experiment with Imagen2Generator
-# 
+#
 # This script demonstrates how to run experiments using Pixaris with local and GCP components:
 # - LocalDatasetLoader for loading data from the local filesystem
 # - Imagen2Generator for generating images using Google's Imagen 2 model
 # - LocalExperimentHandler for storing experiment results locally
 # - Standard orchestration for single-machine processing
-# 
+#
 # ## Requirements
 # - pixaris package installed
 # - Valid GCP configuration in pixaris/config.yaml for Imagen2 API access
@@ -18,8 +18,6 @@
 # %%
 import os
 import yaml
-import json
-from PIL import Image
 
 from pixaris.data_loaders.local import LocalDatasetLoader
 from pixaris.experiment_handlers.local import LocalExperimentHandler
@@ -104,7 +102,7 @@ out[0][0].show()
 
 # %% [markdown]
 # ## Next Steps
-# 
+#
 # After execution:
 # 1. Generated images and Experiment metadata and are stored in your local experiment directory.
 # 2. View results in the Pixaris UI (see how to deploy in examples/frontend_deployment)

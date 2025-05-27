@@ -1,12 +1,12 @@
 # %% [markdown]
 # # Parallelised Orchestration with Local Components and Flux Integration
-# 
+#
 # This script demonstrates how to run parallelised experiments using Pixaris with local components:
 # - LocalDatasetLoader for loading data from the local filesystem
 # - FluxFillGenerator for generating images using the Flux API
 # - LocalExperimentHandler for storing experiment results locally
 # - Parallelised orchestration for efficient processing
-# 
+#
 # ## Requirements
 # - pixaris package installed
 # - Valid Flux API key in pixaris/config.yaml
@@ -107,7 +107,7 @@ out[0][0].show()
 
 # %% [markdown]
 # ## Next Steps
-# 
+#
 # After execution:
 # 1. Generated images and Experiment metadata and are stored in your local experiment directory.
 # 2. View results in the Pixaris UI (see how to deploy in examples/frontend_deployment)

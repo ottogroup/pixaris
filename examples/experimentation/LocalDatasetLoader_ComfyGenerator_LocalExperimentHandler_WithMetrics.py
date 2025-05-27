@@ -1,10 +1,10 @@
 # %% [markdown]
 # # Image Generation with Metrics Using Local Resources
-# 
+#
 # This script demonstrates how to use Pixaris for image generation and evaluation using local resources.
 # It configures a LocalDatasetLoader, ComfyGenerator, and LocalExperimentHandler with multiple metrics
 # to generate and evaluate images.
-# 
+#
 # ## Requirements
 # - pixaris package installed
 # - test assets available in the project structure
@@ -117,7 +117,7 @@ out[0][0].show()
 
 # %% [markdown]
 # ## Next Steps
-# 
+#
 # After execution:
 # 1. Generated images and Experiment metadata and are stored in your local experiment directory.
 # 2. View results in the Pixaris UI (see how to deploy in examples/frontend_deployment)

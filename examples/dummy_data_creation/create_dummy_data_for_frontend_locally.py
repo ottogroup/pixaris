@@ -1,10 +1,10 @@
 # %% [markdown]
 # # Create Dummy Data for Pixaris Frontend: Local Data Handling
-# 
+#
 # This script creates dummy experimental and feedback data locally using the LocalExperimentHandler.
-# It generates and stores dummy tiger images locally for use in the Pixaris experiment tracking 
+# It generates and stores dummy tiger images locally for use in the Pixaris experiment tracking
 # and feedback interfaces.
-# 
+#
 # ## Requirements
 # - pixaris package installed
 # - test assets available in the project structure
@@ -13,7 +13,6 @@
 # ## Import Libraries and Setup
 
 # %%
-import json
 import random
 import shutil
 import os
@@ -117,7 +116,9 @@ dummy_args = {
     "experiment_run_name": EXPERIMENT_RUN_NAME,
 }
 
-print(f"Storing {NUM_EXPERIMENT_ENTRIES} dummy experiment results for project '{PROJECT}', dataset '{DATASET}'")
+print(
+    f"Storing {NUM_EXPERIMENT_ENTRIES} dummy experiment results for project '{PROJECT}', dataset '{DATASET}'"
+)
 experiment_handler.store_results(
     project=PROJECT,
     dataset=DATASET,
@@ -150,7 +151,9 @@ local_image_directory = LOCAL_IMAGE_DIRECTORY
 feedback_handler = LocalFeedbackHandler()
 
 # Create feedback iteration with the provided parameters
-print(f"Creating feedback iteration '{FEEDBACK_ITERATION_NAME}' for project '{PROJECT}'")
+print(
+    f"Creating feedback iteration '{FEEDBACK_ITERATION_NAME}' for project '{PROJECT}'"
+)
 feedback_handler.create_feedback_iteration(
     local_image_directory=local_image_directory,
     project=PROJECT,

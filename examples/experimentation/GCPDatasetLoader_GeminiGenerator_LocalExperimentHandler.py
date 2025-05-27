@@ -1,11 +1,11 @@
 # %% [markdown]
 # # Local Experiment with GeminiGenerator and Local Experiment Handling
-# 
+#
 # This script demonstrates how to run experiments using Pixaris with:
 # - GCPDatasetLoader for loading data from Google Cloud
 # - GeminiGenerator for generating images using Gemini AI model
 # - LocalExperimentHandler for storing experiment results locally
-# 
+#
 # ## Requirements
 # - pixaris package installed
 # - Valid GCP configuration in pixaris/config.yaml
@@ -103,7 +103,7 @@ out[0][0].show()
 
 # %% [markdown]
 # ## Next Steps
-# 
+#
 # After execution:
 # 1. Generated images and Experiment metadata and are stored in your local experiment directory.
 # 2. View results in the Pixaris UI (see how to deploy in examples/frontend_deployment)
