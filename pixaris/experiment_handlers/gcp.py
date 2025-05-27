@@ -134,7 +134,7 @@ class GCPExperimentHandler(ExperimentHandler):
             "generation_params": "",
             "workflow_apiformat_json": "",
             "workflow_pillow_image": "",
-            # "max_parallel_jobs": 0.0,
+            "max_parallel_jobs": 0.0,
         }
         for k, v in default_metrics.items():
             bigquery_input.setdefault(k, v)
