@@ -1,7 +1,7 @@
 # %% [markdown]
 # # Create Dummy Data for Pixaris Frontend: Local Data Handling
 #
-# This script creates dummy experimental and feedback data locally using the LocalExperimentHandler.
+# This script creates dummy experiment and feedback data locally using the LocalExperimentHandler and LocalFeedbackHandler.
 # It generates and stores dummy tiger images locally for use in the Pixaris experiment tracking
 # and feedback interfaces.
 #
