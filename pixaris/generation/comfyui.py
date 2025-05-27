@@ -3,6 +3,9 @@ from pixaris.generation.base import ImageGenerator
 from pixaris.generation.comfyui_utils.workflow import ComfyWorkflow
 from PIL import Image
 import hashlib
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ComfyGenerator(ImageGenerator):
@@ -134,7 +137,7 @@ class ComfyGenerator(ImageGenerator):
                 self._get_unique_int_for_image(pillow_images[0]["pillow_image"]),
             )
         else:
-            print(
+            logger.info(
                 "Node 'KSampler (Efficient) - Generation' not found in the workflow. Seed will not be set."
             )
 
@@ -188,7 +191,7 @@ class ComfyGenerator(ImageGenerator):
             image = self.workflow.get_image("Save Image")[0]
             return image, image_name
         except ConnectionError as e:
-            print(
+            logger.error(
                 "Connection Error. Did you forget to build the iap tunnel to ComfyUI on port 8188?"
             )
             raise e

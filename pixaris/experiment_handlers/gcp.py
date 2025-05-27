@@ -10,6 +10,9 @@ import time
 from datetime import datetime
 import gradio as gr
 from pixaris.utils.bigquery import ensure_table_exists
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class GCPExperimentHandler(ExperimentHandler):
@@ -234,7 +237,7 @@ class GCPExperimentHandler(ExperimentHandler):
 
         # Check for errors and display warnings to UI
         if errors == []:
-            print(f"Inserted row into table {table_ref}.")
+            logger.info("Inserted row into table %s.", table_ref)
         else:
             raise RuntimeError(f"Failed to insert row into table {table_ref}: {errors}")
 
@@ -256,7 +259,7 @@ class GCPExperimentHandler(ExperimentHandler):
             pillow_image.save(image_path)
             blob = self.pixaris_bucket.blob(gcp_image_path)
             blob.upload_from_filename(image_path)
-            print(f"Uploaded {name} to {gcp_image_path}")
+            logger.info("Uploaded %s to %s", name, gcp_image_path)
             os.remove(image_path)
 
     def store_results(
@@ -396,7 +399,10 @@ class GCPExperimentHandler(ExperimentHandler):
         self.storage_client = storage.Client(project=self.gcp_project_id)
         self.pixaris_bucket = self.storage_client.bucket(self.gcp_pixaris_bucket_name)
 
-        print(f"Downloading images for experiment_run_name {experiment_run_name}...")
+        logger.info(
+            "Downloading images for experiment_run_name %s...",
+            experiment_run_name,
+        )
         path_in_parent_folder = (
             f"{project}/{dataset}/{experiment_run_name}/generated_images/"
         )
@@ -423,6 +429,6 @@ class GCPExperimentHandler(ExperimentHandler):
                 os.makedirs(os.path.dirname(image_path_local), exist_ok=True)
                 blob.download_to_filename(image_path_local)
 
-        print("Done.")
+        logger.info("Done.")
         local_image_paths.sort()
         return local_image_paths

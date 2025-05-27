@@ -6,11 +6,14 @@ from PIL import Image
 from io import BytesIO
 from google.genai import Client, types
 from vertexai.generative_models import Image as VertexImage
+import logging
 
 from pixaris.generation.utils import (
     encode_image_to_bytes,
     extract_value_from_list_of_dicts,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class GeminiGenerator(ImageGenerator):
@@ -33,8 +36,9 @@ class GeminiGenerator(ImageGenerator):
         self.gcp_project_id = gcp_project_id
         # todo: once gemini is available in other regions, remove this check and the default value for gcp_location
         if gcp_location != "us-central1":
-            print(
-                f"Warning: Currently, gemini is only supported in 'us-central1'. Setting '{gcp_location}' can result in errors."
+            logger.warning(
+                "Warning: Currently, gemini is only supported in 'us-central1'. Setting '%s' can result in errors.",
+                gcp_location,
             )
         self.gcp_location = gcp_location
         self.model_name = model_name
@@ -111,9 +115,9 @@ class GeminiGenerator(ImageGenerator):
         for i in range(num_images):
             time.sleep(5)
             if not self.verbose:
-                print("\n--- Wait 5 seconds to avoid 429 error ---")
-                print(f"\n--- Generating image {i + 1}/{num_images} ---")
-                print(f"Sending request to model '{self.model_name}'...")
+                logger.info("\n--- Wait 5 seconds to avoid 429 error ---")
+                logger.info("\n--- Generating image %s/%s ---", i + 1, num_images)
+                logger.info("Sending request to model '%s'...", self.model_name)
             candidate_image: Optional[VertexImage] = None
             candidate_text: Optional[str] = None
             error_text: Optional[str] = None
@@ -133,34 +137,39 @@ class GeminiGenerator(ImageGenerator):
                 if response and response.candidates:
                     # Expecting only one candidate since number_of_results is not used
                     if len(response.candidates) > 1 and self.verbose:
-                        print(
-                            f"  Warning: Received {len(response.candidates)} candidates, expected 1. Processing the first."
+                        logger.warning(
+                            "  Warning: Received %s candidates, expected 1. Processing the first.",
+                            len(response.candidates),
                         )
 
                     candidate = response.candidates[0]
                     if self.verbose:
-                        print(
-                            f"Processing Candidate 1 (Finish Reason: {candidate.finish_reason})"
+                        logger.info(
+                            "Processing Candidate 1 (Finish Reason: %s)",
+                            candidate.finish_reason,
                         )
 
                     if candidate.finish_reason != "STOP":
                         if self.verbose:
-                            print(
-                                f"  Warning: Candidate finished with reason: {candidate.finish_reason}. Content might be missing or incomplete."
+                            logger.warning(
+                                "  Warning: Candidate finished with reason: %s. Content might be missing or incomplete.",
+                                candidate.finish_reason,
                             )
                         error_text = f"Generation failed: Model finished with reason '{candidate.finish_reason}'."
 
                     if candidate.content and candidate.content.parts:
                         if self.verbose:
-                            print(
-                                f"  Candidate has {len(candidate.content.parts)} parts."
+                            logger.info(
+                                "  Candidate has %s parts.",
+                                len(candidate.content.parts),
                             )
                         image_data = candidate.content.parts[0].inline_data.data
                         candidate_image = VertexImage.from_bytes(image_data)
                         candidate_image = Image.open(BytesIO(candidate_image.data))
                     else:
-                        print(
-                            f"  Warning: No content or parts found for candidate (Finish Reason: {candidate.finish_reason})."
+                        logger.warning(
+                            "  Warning: No content or parts found for candidate (Finish Reason: %s).",
+                            candidate.finish_reason,
                         )
                         if (
                             not error_text
@@ -170,13 +179,13 @@ class GeminiGenerator(ImageGenerator):
                             )
 
                 else:
-                    print(
+                    logger.warning(
                         "  Warning: No candidates found in the response for this call."
                     )
                     error_text = "Generation failed: No candidates in response."
                     # Log the full response if possible for debugging
                     try:
-                        print(f"  Full response: {response}")
+                        logger.info("  Full response: %s", response)
                     except Exception:
                         pass
 
@@ -184,25 +193,30 @@ class GeminiGenerator(ImageGenerator):
                     (candidate_image, error_text if error_text else candidate_text)
                 )
                 if candidate_image:
-                    print(f"  -> Extracted Image for call {i + 1}.")
+                    logger.info("  -> Extracted Image for call %s.", i + 1)
                 if (
                     candidate_text and not error_text
                 ):  # Log text only if no error occurred
-                    print(f"  -> Extracted Text for call {i + 1}.")
+                    logger.info("  -> Extracted Text for call %s.", i + 1)
                 if error_text:
-                    print(f"  -> Recorded Error for call {i + 1}: {error_text}")
+                    logger.info("  -> Recorded Error for call %s: %s", i + 1, error_text)
                 if not candidate_image and not candidate_text and not error_text:
-                    print(
-                        f"  -> Failed to extract Image or Text for call {i + 1} (No specific error text)."
+                    logger.info(
+                        "  -> Failed to extract Image or Text for call %s (No specific error text).",
+                        i + 1,
                     )
 
-                print(
-                    f"\n--- Background Image Generation Loop Complete ({len(generated_outputs)} outputs processed) ---"
+                logger.info(
+                    "\n--- Background Image Generation Loop Complete (%s outputs processed) ---",
+                    len(generated_outputs),
                 )
                 return generated_outputs
 
             except Exception as e:
-                print(f"An unexpected error occurred outside the generation loop: {e}")
+                logger.error(
+                    "An unexpected error occurred outside the generation loop: %s",
+                    e,
+                )
                 traceback.print_exc()
                 # Return list of Nones matching num_images on error
                 return [(None, f"Error: {e}")] * num_images
