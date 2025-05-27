@@ -32,7 +32,7 @@ def launch_ui(
         with gr.Row():
             with gr.Column(scale=1, min_width=100):
                 gr.Image(
-                    value="test/assets/pixaris_logo.png",
+                    value="assets/pixaris_logo.png",
                     elem_id="pixaris-logo",
                     show_label=False,
                     height=100,

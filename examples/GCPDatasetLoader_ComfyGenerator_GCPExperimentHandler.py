@@ -16,7 +16,7 @@ WORKFLOW_PILLOW_IMAGE = Image.open(os.getcwd() + "/test/assets/test_inspo.png")
 EXPERIMENT_RUN_NAME = "example-run"
 
 
-# +
+# Setup the GCPDatasetLoader, ComfyGenerator, and GCPExperimentHandler
 data_loader = GCPDatasetLoader(
     gcp_project_id=config["gcp_project_id"],
     gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
@@ -46,7 +46,6 @@ args = {
     ],
     "experiment_run_name": EXPERIMENT_RUN_NAME,
 }
-# -
 
 # execute
 out = generate_images_based_on_dataset(

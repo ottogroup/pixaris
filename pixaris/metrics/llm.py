@@ -7,24 +7,52 @@ import vertexai
 from vertexai.generative_models import GenerativeModel, Image as GenAIImage, Part
 import yaml
 from pixaris.metrics.base import BaseMetric
+from pixaris.metrics import prompts
 from pixaris.metrics.utils import dict_mean
 from pixaris.utils.retry import retry
 
 
-class LLMMetric(BaseMetric):
+class BaseLLMMetric(BaseMetric):
     """
-    LLMMetric is a class that calculates various metrics for generated images using a large language model (LLM).
+    BaseLLMMetric is a base class for metrics that use a Gemini large language model (LLM) to evaluate images.
 
-    :param object_images: A list of object images to compare against.
-    :type object_images: list[Image]
-    :type style_images: A list of style images to compare against.
-    :type style_images: list[Image]
+    :param prompt: The prompt string for the LLM. The prompt has to determine what should be evaluated and that
+        the output is JSON formatted. '{"base_llm_metric": x}' where x is the score. Can also be multiple scores in one.
+    :type prompt: str
+    :param sample_size: The number of times to call the LLM for the same image. Defaults to 3.
+    :type sample_size: int, optional
+    :param reference_images: A dictionary of reference images.
+    :type reference_images: dict[str, list[Image]]
     """
 
-    def __init__(self, object_images: list[Image], style_images: list[Image]):
+    def __init__(
+        self, prompt: str, sample_size: int = 3, **reference_images: list[Image]
+    ):
         super().__init__()
-        self.object_images = object_images
-        self.style_images = style_images
+        self.prompt = prompt
+        self.sample_size = sample_size
+        self.reference_images = reference_images
+
+    def _verify_input_images(self, input_images: list[Image]):
+        """
+        Verify that the input images are valid and that the number of input images matches the number of reference images.
+        """
+        if not isinstance(input_images, list):
+            raise ValueError("Input images must be a list.")
+        if not all(isinstance(image, Image) for image in input_images):
+            raise ValueError("All input images must be PIL Image objects.")
+
+        input_image_len = len(input_images)
+
+        for image_list in self.reference_images.values():
+            if not isinstance(image_list, list):
+                raise ValueError("Reference images must be a list.")
+            if not all(isinstance(image, Image) for image in image_list):
+                raise ValueError("All reference images must be PIL Image objects.")
+            if len(image_list) != input_image_len:
+                raise ValueError(
+                    f"Number of reference images ({len(image_list)}) does not match number of input images ({input_image_len})."
+                )
 
     @retry(exceptions=Exception, tries=3, delay=0.5, max_delay=2, backoff=2)
     def _PIL_image_to_vertex_image(self, image: Image) -> GenAIImage:
@@ -42,42 +70,25 @@ class LLMMetric(BaseMetric):
 
     def _llm_prompt(
         self,
-        evaulation_image: Image,
-        object_image: Image,
-        style_image: Image,
+        json_prompt: str,
+        images: list[Image],
     ):
         """
-        Generates a prompt for rating images on various metrics and returns a JSON object with the ratings.
-        :param evaulation_image: The input image.
-        :type evaulation_image: PIL.Image.Image
-        :param object_image: The output image.
-        :type object_image: PIL.Image.Image
-        :param style_image: The style image.
-        :type style_image: PIL.Image.Image
-        :return: A prompt that provokes a response  with a JSON with the following keys:
-        * llm_reality: How real does the first picture look where 0 is not real at all and 1 is photorealistic?
-        * llm_similarity: How similar is the main object in the first picture to the template in the second picture where 0 is not similar at all and 1 is identical?
-        * llm_errors: How many errors can you find in the first picture?
-        * llm_style: How well does the style of the first picture match the style of the third picture where 0 is not at all and 1 is identical?
+        Generates a prompt for the LLM using the provided JSON prompt and images.
+
+        :param json_prompt: The JSON prompt string.
+        :type json_prompt: str
+        :param images: A list of images to include in the prompt.
+        :type images: list[Image]
+        :return: A list containing the JSON prompt and the images as vertexai.generative_models.Part objects.
         :rtype: list[vertexai.generative_models.Part, str]
         """
-        json_prompt = "rate the following evluation image on the following metrics. return only a json file without newlines with the following keys:"
-        reality_prompt = "llm_reality: How real does the evaluation image look where 0 is not real at all and 1 is photorealistic?"
-        similarity_prompt = "llm_similarity: How similar is the main object in the evaluation image to the template in the following picture where 0 is not similar at all and 1 is identical?"
-        error_prompt = (
-            "llm_errors: How many errors can you find in the evaulation image?"
-        )
-        style_prompt = "llm_style: How well does the style of the evaluation image match the style of the following style image where 0 is not at all and 1 is identical?"
-
         return [
             json_prompt,
-            Part.from_image(self._PIL_image_to_vertex_image(evaulation_image)),
-            reality_prompt,
-            similarity_prompt,
-            Part.from_image(self._PIL_image_to_vertex_image(object_image)),
-            error_prompt,
-            style_prompt,
-            Part.from_image(self._PIL_image_to_vertex_image(style_image)),
+            *[
+                Part.from_image(self._PIL_image_to_vertex_image(image))
+                for image in images
+            ],
         ]
 
     def _postprocess_response(self, response_text: str) -> str:
@@ -89,8 +100,8 @@ class LLMMetric(BaseMetric):
         :return: The extracted JSON-like structure if found, otherwise the original response text.
         :rtype: str
         """
-        pattern = r"\{.*\}"
-        match = re.search(pattern, response_text)
+        pattern = r"\{.*?\}"
+        match = re.search(pattern, response_text, re.DOTALL)
         if match:
             extracted_string = match.group(0)
             return extracted_string
@@ -107,21 +118,13 @@ class LLMMetric(BaseMetric):
         :rtype: dict
         """
         parsed_text = self._postprocess_response(response_text)
-        response_dict = json.loads(parsed_text)
-        response_dict = {key: float(value) for key, value in response_dict.items()}
+        return json.loads(parsed_text)
 
-        if not all(
-            metrics in response_dict
-            for metrics in ["llm_reality", "llm_similarity", "llm_errors", "llm_style"]
-        ):
-            raise ValueError("Response dictionary does not contain all required keys.")
-        return response_dict
-
-    def _call_gemini(self, prompt) -> str:
+    def _call_gemini(self, prompt: list[vertexai.generative_models.Part, str]) -> str:
         """
         Sends the prompt to Google API
 
-        :param prompt: The prompt for the LLM metrics. Generated by llm_prompt().
+        :param prompt: The prompt for the LLM metrics. Generated by _llm_prompt().
         :type prompt: list[vertexai.generative_models.Part, str]
         :return: The LLM response.
         :rtype: str
@@ -137,9 +140,11 @@ class LLMMetric(BaseMetric):
 
         return responses.text
 
-    def _successful_evaluation(self, prompt, max_tries: int = 3) -> dict:
+    def _successful_evaluation(
+        self, prompt: list[vertexai.generative_models.Part, str], max_tries: int = 3
+    ) -> dict:
         """
-        Perform an evaluation by calling the `call_gemini` function with the given parameters.
+        Perform an evaluation by calling the `_call_gemini` function with the given parameters.
         Assures that gemini returns correct json code by calling it up to max_tries times if it fails.
 
         :param prompt: The prompt for the LLM metrics. Generated by llm_prompt().
@@ -150,84 +155,67 @@ class LLMMetric(BaseMetric):
         :rtype: dict
         :raises ValueError: If the response cannot be parsed as JSON.
         """
-        for i in range(max_tries):
+        for _ in range(max_tries):
             try:
-                return self._response_to_dict(self._call_gemini(prompt))
+                ans = self._response_to_dict(self._call_gemini(prompt))
+                return ans
             except ValueError:
                 pass
-
-    def _combined_score(self, response: dict) -> float:
-        """
-        Calculates the combined score from the response dictionary.
-
-        :param response: The response dictionary.
-        :type response: dict
-        return: The combined score. Score is the unweighted mean of all the scores.
-        :rtype: float
-        """
-        return sum(response.values()) / len(response.values())
 
     def _llm_scores_per_image(
         self,
         evaluation_image: Image,
-        object_image: Image,
-        style_image: Image,
-        sample_size: int = 3,
+        *reference_images: list[Image],
     ) -> dict:
         """
-        Calculates the LLM score for the generated image.
+        Calculates the LLM score for the generated image and possibly some reference images.
 
         :param evaluation_image: The generated image.
         :type evaluation_image: PIL.Image.Image
-        :param object_image: The object image the evaluation image should be similar to.
-        :type object_image: PIL.Image.Image
-        :param style_image: The style image the evaluation image should be similar to.
-        :type style_image: PIL.Image.Image
-        :param sample_size: The number of times to call the LLM for the same image. Defaults to 3.
-        :type sample_size: int, optional
+        :param reference_images: A list of reference images.
+        :type reference_images: list[Image]
         :return: A dictionary containing the LLM scores for the evaluation image.
         :rtype: dict
         """
         scores = [
             self._successful_evaluation(
-                self._llm_prompt(evaluation_image, object_image, style_image)
+                self._llm_prompt(self.prompt, [evaluation_image, *reference_images]),
             )
-            for _ in range(sample_size)
+            for _ in range(self.sample_size)
         ]
 
         # Calculate the average score for each metric
         average_scores_per_metric = dict_mean(scores)
 
-        # Invert the error count to get a score
-        average_scores_per_metric["llm_errors"] = 1 / (
-            1 + average_scores_per_metric["llm_errors"]
-        )
-
-        # Calculate the llm_average score
-        average_scores_per_metric["llm_average"] = self._combined_score(
-            average_scores_per_metric
-        )
-
         return average_scores_per_metric
+
+    def _get_mean_metric(self, responses: list[dict]) -> float:
+        """
+        Calculate the mean error metric from the cleaned response.
+
+        :param responses: A list of dictionaries containing the responses from the LLM.
+        :type responses: list[dict]
+        :return: The mean error metric.
+        :rtype: float
+        """
+        # Parse the response and calculate the overall mean value
+        mean_value = [
+            (sum(response.values()) / len(response) if responses else 1)
+            for response in responses
+        ]
+        return sum(mean_value) / len(mean_value) if mean_value else 1
 
     def calculate(self, evaluation_images: list[Image]) -> dict:
         """
-        Calculate the LLM metrics for a list of generated images.
+        Calculate the LLM metrics for a list of evaluation images.
 
-        :param evaluation_images: A list of generated images.
+        :param evaluation_images: A list of evaluation images.
         :type evaluation_images: list[Image]
-        :return: A dictionary containing the LLM metrics for the generated images.
+        :return: A dictionary containing the LLM metrics for the evaluation images.
         :rtype: dict
-        :raises ValueError: If the number of evaluation images does not match the number of object or style images.
+        :raises ValueError: If the number of evaluation images does not match the number of reference images.
         """
-        if len(evaluation_images) != len(self.object_images):
-            raise ValueError(
-                "There should be as many object images as generated images in the llm metric"
-            )
-        if len(evaluation_images) != len(self.style_images):
-            raise ValueError(
-                "There should be as many style images as generated images in the llm metric"
-            )
+        self._verify_input_images(evaluation_images)
 
         with ThreadPoolExecutor(len(evaluation_images)) as executor:
             llm_metrics = dict_mean(
@@ -235,9 +223,219 @@ class LLMMetric(BaseMetric):
                     executor.map(
                         self._llm_scores_per_image,
                         evaluation_images,
-                        self.object_images,
-                        self.style_images,
+                        *self.reference_images.values(),
                     )
                 )
             )
             return llm_metrics
+
+
+class SimilarityLLMMetric(BaseLLMMetric):
+    """
+    SimilarityLLMMetric is a class inheriting from BaseLLMMetric that uses a Gemini LLM to evaluate the similarity between images.
+    Compare the objects in your images against objects in a set of reference images. Calculates a rough estimate of how similar they are.
+    The metric ranges from 0 (not similar) to 1 (very similar).
+
+    :param reference_images: A list of reference images to compare against.
+    :type reference_images: list[Image]
+    """
+
+    def __init__(self, reference_images: list[Image]):
+        """
+        Initialize the SimilarityLLMMetric.
+
+        :param reference_images: A list of reference images to compare against.
+        :type reference_images: dict[str, list[Image]]
+        """
+        super().__init__(
+            prompt=prompts.SIMILARITY_PROMPT,
+            reference_images=reference_images,
+        )
+
+    def calculate(self, evaluation_images: list[Image]) -> dict:
+        """
+        Calculate the LLM metrics for a list of evaluation images.
+
+        :param evaluation_images: A list of evaluation images.
+        :type evaluation_images: list[Image]
+        :return: A dictionary containing the LLM metrics for the evaluation images.
+        :rtype: dict
+        :raises ValueError: If the number of evaluation images does not match the number of reference images.
+        """
+        self._verify_input_images(evaluation_images)
+        vertex_prompts = [
+            self._llm_prompt(self.prompt, list(images))
+            for images in zip(evaluation_images, *self.reference_images.values())
+        ]
+
+        with ThreadPoolExecutor(len(evaluation_images)) as executor:
+            llm_metrics = list(
+                executor.map(
+                    self._successful_evaluation,
+                    vertex_prompts,
+                )
+            )
+
+        mean_metric = self._get_mean_metric(llm_metrics)
+
+        return {"similarity_llm_metric": mean_metric}
+
+
+class StyleLLMMetric(BaseLLMMetric):
+    """
+    StyleLLMMetric is a class inheriting from BaseLLMMetric that uses a Gemini LLM to evaluate the style of images.
+    Compares the style of the generated images against a (multiple) reference style images.
+    The metric ranges from 0 (bad style match) to 1 (excellent style match).
+
+    :param reference_images: A **kwargs dictionary of reference images. Pass lists of images that you want to compare to.
+    Example::
+        style_images = [image1, image2]
+        object_images = [image3, image4]
+
+        Will compare image1 and image3 to the first evaluation image and image2 and image4 to the second evaluation image.
+    :type reference_images: dict[str, list[Image]]
+    """
+
+    def __init__(self, **reference_images: list[Image]):
+        """
+        Initialize the StyleLLMMetric.
+
+        :param reference_images: A dictionary of reference images.
+        :type reference_images: dict[str, list[Image]]
+        """
+        super().__init__(
+            prompt=prompts.STYLE_PROMPT,
+        )
+        self.reference_images = reference_images
+
+    def _describe_images(self, images: list[list[Image]]) -> list[str]:
+        """
+        Describe the images using the style extraction prompt.
+        images is a list of lists. All the n-th images will be described together.
+        Example::
+            images = [[image1, image2], [image3, image4]]
+            will describe image1 and image3 together and image2 and image4 together.
+
+        :param images: A list of list images to describe.
+        :type images: list[list[Image]]
+        :return: A list of descriptions for the reference images.
+        :rtype: list[str]
+        """
+        # Transpose the list of lists to group images by index
+        grouped_images = list(zip(*images))
+        vertex_prompts = [
+            self._llm_prompt(self.prompt, list(images)) for images in grouped_images
+        ]
+        with ThreadPoolExecutor(len(self.reference_images)) as executor:
+            descriptions = list(
+                executor.map(
+                    self._call_gemini,
+                    vertex_prompts,
+                )
+            )
+            return descriptions
+
+    def _compare_images_to_descriptions(
+        self,
+        evaluation_images: list[Image],
+        reference_image_descriptions: list[str],
+    ) -> dict:
+        """
+        Compare the evaluation images to the reference image descriptions.
+
+        :param evaluation_images: A list of evaluation images.
+        :type evaluation_images: list[Image]
+        :param reference_image_descriptions: A list of reference image descriptions.
+        :type reference_image_descriptions: list[str]
+        :return: A dictionary containing the LLM metrics for the evaluation images.
+        :rtype: dict
+        """
+        image_parts = [
+            Part.from_image(self._PIL_image_to_vertex_image(image))
+            for image in evaluation_images
+        ]
+        vertex_prompts = [
+            [prompts.COMPARISON_PROMPT, image_part, description]
+            for image_part, description in zip(
+                image_parts, reference_image_descriptions
+            )
+        ]
+
+        with ThreadPoolExecutor(len(evaluation_images)) as executor:
+            responses = list(
+                executor.map(
+                    self._successful_evaluation,
+                    vertex_prompts,
+                )
+            )
+
+        return responses
+
+    def calculate(self, evaluation_images: list[Image]) -> dict:
+        """
+        Calculate the Style LLM metrics for a list of evaluation images.
+
+        :param evaluation_images: A list of evaluation images.
+        :type evaluation_images: list[Image]
+        :return: A dictionary containing the LLM metrics for the evaluation images.
+        :rtype: dict
+        :raises ValueError: If the number of evaluation images does not match the number of reference images.
+        """
+        self._verify_input_images(evaluation_images)
+
+        reference_image_descriptions = self._describe_images(
+            self.reference_images.values()
+        )
+        comparison_results = self._compare_images_to_descriptions(
+            evaluation_images,
+            reference_image_descriptions,
+        )
+        return {"style_llm_metric": self._get_mean_metric(comparison_results)}
+
+
+class ErrorLLMMetric(BaseLLMMetric):
+    """
+    ErrorLLMMetric is a class inheriting from BaseLLMMetric that uses a Gemini LLM to evaluate the error in the generated images.
+    This metric is used to find errors in the generated images, such as missing objects, incorrect colors, or other visual artifacts.
+    Does not require any reference images.
+    The metric ranges from 0 (many errors) to 1 (no errors).
+    """
+
+    def __init__(self):
+        """
+        Initialize the ErrorLLMMetric.
+
+        :param reference_images: A dictionary of reference images.
+        :type reference_images: dict[str, list[Image]]
+        """
+        super().__init__(
+            prompt=prompts.ERROR_PROMPT,
+        )
+
+    def calculate(self, evaluation_images: list[Image]) -> dict:
+        """
+        Calculate the Error LLM metrics for a list of evaluation images.
+
+        :param evaluation_images: A list of evaluation images.
+        :type evaluation_images: list[Image]
+        :return: A dictionary containing the LLM metrics for the evaluation images.
+        :rtype: dict
+        :raises ValueError: If the number of evaluation images does not match the number of reference images.
+        """
+        self._verify_input_images(evaluation_images)
+        vertex_prompts = [
+            self._llm_prompt(self.prompt, [evaluation_image])
+            for evaluation_image in evaluation_images
+        ]
+
+        with ThreadPoolExecutor(len(evaluation_images)) as executor:
+            llm_metrics = list(
+                executor.map(
+                    self._successful_evaluation,
+                    vertex_prompts,
+                )
+            )
+
+        mean_metric = self._get_mean_metric(llm_metrics)
+
+        return {"error_llm_metric": mean_metric}
