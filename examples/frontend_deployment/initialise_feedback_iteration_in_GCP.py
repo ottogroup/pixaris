@@ -39,7 +39,7 @@ config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 print("\n=== Setting Project Parameters ===")
 PROJECT = "dummy_project"  # Your project name
 FEEDBACK_ITERATION = "dummy_feedback_iteration"  # Name of this feedback iteration
-LOCAL_IMAGE_DIRECTORY = "local_results/dummy_project/feedback_iterations/feedback_iteration_with_dummy_images"
+LOCAL_IMAGE_DIRECTORY = "local_results/dummy_project/feedback_iterations/feedback_iteration_with_dummy_images" # change this to the path of the folder that contains the images you want to add to the new feedback iteration.
 
 # %% [markdown]
 # ## Initialize Components
