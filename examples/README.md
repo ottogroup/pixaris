@@ -45,9 +45,9 @@ Located in the `dummy_data_creation/` directory, these scripts help create synth
 Located in the `experimentation/` directory, these scripts provide examples of different combinations of data loaders, generators, and experiment handlers:
 
 #### Local Configurations
-- `LocalDatasetLoader_ComfyGenerator_LocalExperimentHandler_WithMetrics.py` - Run experiments locally using ComfyUI with metrics
-- `LocalDatasetLoader_Imagen2Generator_LocalExperimentHandler.py` - Run experiments locally using Imagen2
-- `ParallelisedOrchestration_LocalDatasetLoader_FluxGenerator_LocalExperimentHandler.py` - Run parallelized experiments locally
+- `LocalDatasetLoader_ComfyGenerator_LocalExperimentHandler_WithMetrics.py` - Load dataset from local, run experiments using ComfyUI with metrics and save results locally
+- `LocalDatasetLoader_Imagen2Generator_LocalExperimentHandler.py` - Load dataset from local, run experiments using Imagen2 and save results locally
+- `ParallelisedOrchestration_LocalDatasetLoader_FluxGenerator_LocalExperimentHandler.py` - Load dataset from local, run parallelized experiments using Flux and save results locally
 
 #### Cloud Configurations
 - `GCPDatasetLoader_ComfyGenerator_GCPExperimentHandler.py` - Run experiments using GCP data and storing results in GCP
