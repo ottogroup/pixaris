@@ -54,11 +54,11 @@ args = {
 }
 # -
 
-style_dir = "local_results/dummy_project/dummy_dataset/20250509-165457_example-run/generated_images/"
+style_dir = "test/test_results/dummy_project/dummy_dataset/example_run/"
 style_images = [
     Image.open(os.path.join(style_dir, image)) for image in os.listdir(style_dir)
 ]
-object_dir = "local_results/dummy_project/dummy_dataset/20250509-165457_example-run/generated_images/"
+object_dir = "test/test_results/dummy_project/dummy_dataset/example_run/"
 object_images = [Image.open(object_dir + image) for image in os.listdir(object_dir)]
 
 

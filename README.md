@@ -146,6 +146,11 @@ llm_metric = LLMMetric(object_images, style_images)
 
 As always, it is intended for you to implement your own metrics by inheriting from the `BaseMetric` class.
 
+There are multiple Metrics Implemented already:
+1. IOU: Intersection Over Union, useful to compare binary images like masks
+2. Luminescence and Saturation: Comparing Image values of the entire image. Optional: Compare values inside and outside of a given Mask
+3. [LLM Metrics](https://github.com/ottogroup/pixaris/tree/main/examples/LLMMetrics.py) (BaseLLMMetric, SimilarityLLMMetric, StyleLLMMetric, ErrorLLMMetric): Evaluate by calling Gemini and asking it very specific prompts. You can formulate your prompt yourself by using BaseLLMMetric.
+
 ### Define args for your experiment run
 Depending on the specific components we defined and what they provide, we need to give some more arguments.
 `args` can include whatever data is needed by any of the components and is not given explicitly through parameters of a component. The content of `args` is highly dependent on the components you use.

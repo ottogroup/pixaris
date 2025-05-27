@@ -233,10 +233,8 @@ class BaseLLMMetric(BaseMetric):
 class SimilarityLLMMetric(BaseLLMMetric):
     """
     SimilarityLLMMetric is a subclass of BaseLLMMetric that uses a Gemini LLM to evaluate the similarity between images.
+    Compare the objects in your images against objects in a set of reference images. Calculates a rough estimate of how similar they are.
 
-    :param prompt: The prompt string for the LLM. The prompt has to make sure what should be evaluated and that
-        the output is JSON formatted. '{"similarity_llm_metric": x}' where x is the score.
-    :type prompt: str
     :param reference_images: A list of reference images to compare against.
     :type reference_images: list[Image]
     """
@@ -285,11 +283,14 @@ class SimilarityLLMMetric(BaseLLMMetric):
 class StyleLLMMetric(BaseLLMMetric):
     """
     StyleLLMMetric is a subclass of BaseLLMMetric that uses a Gemini LLM to evaluate the style of images.
+    Compares the style of the generated images against a (multiple) reference style images.
 
     :param reference_images: A **kwargs dictionary of reference images. Pass lists of images that you want to compare to.
     Example::
         style_images = [image1, image2]
         object_images = [image3, image4]
+
+        Will compare image1 and image3 to the first evaluation image and image2 and image4 to the second evaluation image.
     :type reference_images: dict[str, list[Image]]
     """
 
@@ -392,12 +393,9 @@ class StyleLLMMetric(BaseLLMMetric):
 
 class ErrorLLMMetric(BaseLLMMetric):
     """
-    ErrorLLMMetric is a subclass of BaseLLMMetric that uses a Gemini LLM to evaluate the error between images.
-
-    :param object_images: A list of object images to compare against.
-    :type object_images: list[Image]
-    :param style_images: A list of style images to compare against.
-    :type style_images: list[Image]
+    ErrorLLMMetric is a subclass of BaseLLMMetric that uses a Gemini LLM to evaluate the error in the generated images.
+    This metric is used to find errors in the generated images, such as missing objects, incorrect colors, or other visual artifacts.
+    Does not require any reference images.
     """
 
     def __init__(self):

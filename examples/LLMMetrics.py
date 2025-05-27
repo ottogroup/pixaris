@@ -14,13 +14,13 @@ DATASET = "mock"
 object_dir = f"test/{PROJECT}/{DATASET}/input/"
 object_images = [Image.open(object_dir + image) for image in os.listdir(object_dir)]
 
-generated_dir = "/home/fidelius/pixaris/local_results/test_project/mock/20250516-155435_example-run/generated_images"
+generated_dir = "test/test_results/test_project/feedback_iterations/test_iteration/"
 generated_images = [
     Image.open(os.path.join(generated_dir, image))
     for image in os.listdir(generated_dir)
 ]
 
-style_dir = "/home/fidelius/pixaris/local_results/test_project/mock/20250509-163642_example-run/generated_images"
+style_dir = "test/test_results/test_project/feedback_iterations/test_iteration/"
 style_images = [
     Image.open(os.path.join(style_dir, image)) for image in os.listdir(style_dir)
 ]
