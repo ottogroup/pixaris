@@ -175,3 +175,6 @@ temp.json
 local_experiment_inputs/
 local_results/
 requirements.txt
+
+# Documentation
+*.rst
