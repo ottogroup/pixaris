@@ -232,8 +232,9 @@ class BaseLLMMetric(BaseMetric):
 
 class SimilarityLLMMetric(BaseLLMMetric):
     """
-    SimilarityLLMMetric is a subclass of BaseLLMMetric that uses a Gemini LLM to evaluate the similarity between images.
+    SimilarityLLMMetric is a class inheriting from BaseLLMMetric that uses a Gemini LLM to evaluate the similarity between images.
     Compare the objects in your images against objects in a set of reference images. Calculates a rough estimate of how similar they are.
+    The metric ranges from 0 (not similar) to 1 (very similar).
 
     :param reference_images: A list of reference images to compare against.
     :type reference_images: list[Image]
@@ -282,8 +283,9 @@ class SimilarityLLMMetric(BaseLLMMetric):
 
 class StyleLLMMetric(BaseLLMMetric):
     """
-    StyleLLMMetric is a subclass of BaseLLMMetric that uses a Gemini LLM to evaluate the style of images.
+    StyleLLMMetric is a class inheriting from BaseLLMMetric that uses a Gemini LLM to evaluate the style of images.
     Compares the style of the generated images against a (multiple) reference style images.
+    The metric ranges from 0 (bad style match) to 1 (excellent style match).
 
     :param reference_images: A **kwargs dictionary of reference images. Pass lists of images that you want to compare to.
     Example::
@@ -309,7 +311,7 @@ class StyleLLMMetric(BaseLLMMetric):
     def _describe_images(self, images: list[list[Image]]) -> list[str]:
         """
         Describe the images using the style extraction prompt.
-        images is a list of lists. All te n-th images will be described together.
+        images is a list of lists. All the n-th images will be described together.
         Example::
             images = [[image1, image2], [image3, image4]]
             will describe image1 and image3 together and image2 and image4 together.
@@ -393,9 +395,10 @@ class StyleLLMMetric(BaseLLMMetric):
 
 class ErrorLLMMetric(BaseLLMMetric):
     """
-    ErrorLLMMetric is a subclass of BaseLLMMetric that uses a Gemini LLM to evaluate the error in the generated images.
+    ErrorLLMMetric is a class inheriting from BaseLLMMetric that uses a Gemini LLM to evaluate the error in the generated images.
     This metric is used to find errors in the generated images, such as missing objects, incorrect colors, or other visual artifacts.
     Does not require any reference images.
+    The metric ranges from 0 (many errors) to 1 (no errors).
     """
 
     def __init__(self):
