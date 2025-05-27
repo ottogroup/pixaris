@@ -8,7 +8,7 @@ The examples are organized into three main categories:
 
 ```
 examples/
-├── dummy_data_creation/        # Scripts to create test data for development and testing
+├── dummy_data_creation/        # Scripts to create dummy data for the frontend and dataset (input for generators)
 ├── experimentation/            # Examples of different experimentation configurations
 ├── frontend_deployment/        # Scripts to deploy and interact with the Pixaris UI
 └── example_config.yaml         # Template configuration file
