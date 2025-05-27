@@ -5,6 +5,9 @@ from google.cloud.storage import transfer_manager
 from pixaris.data_loaders.base import DatasetLoader
 from typing import List
 from PIL import Image
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class GCPDatasetLoader(DatasetLoader):
@@ -130,12 +133,14 @@ class GCPDatasetLoader(DatasetLoader):
         # The results list is either `None` or an exception for each blob.
         for name, result in zip(blob_names, results):
             if isinstance(result, Exception):
-                print("Failed to download {} due to exception: {}".format(name, result))
+                logger.error(
+                    "Failed to download %s due to exception: %s", name, result
+                )
             else:
-                print(
-                    "Downloaded {} to {}.".format(
-                        name, os.path.join(self.eval_dir_local, *name.split("/"))
-                    )
+                logger.info(
+                    "Downloaded %s to %s.",
+                    name,
+                    os.path.join(self.eval_dir_local, *name.split("/")),
                 )
 
     def _retrieve_and_check_dataset_image_names(self):

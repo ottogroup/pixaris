@@ -3,12 +3,15 @@ from pixaris.generation.base import ImageGenerator
 from pixaris.generation.comfyui import ComfyGenerator
 from PIL import Image
 import os
+import logging
 
 
 from kubernetes import client, config
 from threading import Lock, Thread
 import requests
 import time
+
+logger = logging.getLogger(__name__)
 
 DEV_MODE = os.getenv("DEV_MODE", "false") == "true"
 mutex = Lock()
@@ -47,7 +50,7 @@ class ComfyClusterGenerator(ImageGenerator):
         ips = []
         for pod in pod_list.items:
             ips.append(pod.status.pod_ip)
-        print(f"Found Pod IPs: {ips}")
+        logger.info("Found Pod IPs: %s", ips)
         return ips
 
     def _fetch_available_hosts(self) -> list[str]:
@@ -81,7 +84,7 @@ class ComfyClusterGenerator(ImageGenerator):
                     self.hosts[host] = {"in_use": False, "unresponsive": False}
                 else:
                     self.hosts[host]["unresponsive"] = False
-        print(f"Available hosts: {self.hosts}")
+        logger.info("Available hosts: %s", self.hosts)
 
     def _get_host(self) -> str:
         """
@@ -213,7 +216,7 @@ class ComfyClusterGenerator(ImageGenerator):
                 return generated_image
 
             except Exception as e:
-                print(f"Error in ComfyGenerator: {e}")
+                logger.error("Error in ComfyGenerator: %s", e)
                 self._mark_host_as_unresponsive(host)
                 time.sleep((retry + 1) ** 2)
                 if retry == 2:

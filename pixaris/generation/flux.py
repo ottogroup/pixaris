@@ -6,6 +6,9 @@ import requests
 import base64
 from io import BytesIO
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class FluxFillGenerator(ImageGenerator):
@@ -124,7 +127,7 @@ class FluxFillGenerator(ImageGenerator):
             if result["status"] == "Ready":
                 image_url = result["result"]["sample"]
                 break
-            print(f"Status: {result['status']}")
+            logger.info("Status: %s", result["status"])
 
         # Download and return the image
         image_response = requests.get(image_url)

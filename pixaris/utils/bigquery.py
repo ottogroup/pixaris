@@ -1,4 +1,7 @@
 from google.cloud import bigquery
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def python_type_to_bq_type(python_type):
@@ -63,6 +66,6 @@ def ensure_table_exists(
             table = bigquery.Table(table_ref, schema=schema)
             bigquery_client.create_table(table)
             table = bigquery_client.get_table(table_ref)
-            print(f"Created table {table_ref}.")
+            logger.info("Created table %s.", table_ref)
         else:
             raise e
