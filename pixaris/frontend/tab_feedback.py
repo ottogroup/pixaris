@@ -226,11 +226,11 @@ def render_feedback_tab(
                                 )
                                 feedback_indicator = gr.Radio(
                                     choices=["Like", "Dislike"],
-                                    label="Feedback",
+                                    label="Rating",
                                     visible=element_visible_bool,
                                 )
                                 feedback_button = gr.Button(
-                                    "Send feedback for this image",
+                                    "Save this image feedback",
                                     visible=element_visible_bool,
                                     size="sm",
                                     min_width=min_width_elements,
