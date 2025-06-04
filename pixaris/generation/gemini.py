@@ -78,7 +78,7 @@ class GeminiGenerator(ImageGenerator):
         """
         Generates images using the Imagen API and checks the status until the image is ready.
 
-        :param pillow_images: A list of dictionaries containing pillow images images.
+        :param pillow_images: A list of dictionaries containing pillow images.
           Example::
 
           [{'node_name': 'Load Input Image', 'pillow_image': <PIL.Image>}]
@@ -212,7 +212,7 @@ class GeminiGenerator(ImageGenerator):
         Generates a single image based on the provided arguments.
 
         :param args: A dictionary containing the following keys:
-        * pillow_images (list[dict]): A list of dictionaries containing pillow images images.
+        * pillow_images (list[dict]): A list of dictionaries containing pillow images.
         * prompt (str): The prompt that should be used for the generation.
         :type args: dict[str, any]
 
