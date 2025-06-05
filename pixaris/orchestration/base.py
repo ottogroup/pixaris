@@ -1,4 +1,9 @@
 import concurrent.futures
+import logging
+from typing import Iterable
+
+from PIL import Image
+
 from pixaris.data_loaders.base import DatasetLoader
 from pixaris.generation.base import ImageGenerator
 from pixaris.experiment_handlers.base import ExperimentHandler
@@ -8,8 +13,8 @@ from pixaris.utils.hyperparameters import (
     expand_hyperparameters,
     generate_hyperparameter_grid,
 )
-from typing import Iterable
-from PIL import Image
+
+logger = logging.getLogger(__name__)
 
 
 def generate_image(data, image_generator, args, failed_args):
@@ -32,8 +37,8 @@ def generate_image(data, image_generator, args, failed_args):
         return image_generator.generate_single_image(consolidated_args)
     except Exception as e:
         failed_args.append({"error_message": str(e), "args": consolidated_args})
-        print("WARNING", e)
-        print("continuing with next image.")
+        logger.warning(e)
+        logger.warning("continuing with next image.")
         return None
 
 
@@ -93,10 +98,12 @@ def generate_images_based_on_dataset(
             f"Failed to generate images for all {len(dataset)} images. \nLast error message: {failed_args[-1]['error_message']}"
         )
 
-    print("Generation done.")
+    logger.info("Generation done.")
     if failed_args:
-        print(f"Failed to generate images for {len(failed_args)} of {len(dataset)}.")
-        print(f"Failed arguments: {failed_args}")
+        logger.warning(
+            f"Failed to generate images for {len(failed_args)} of {len(dataset)}."
+        )
+        logger.warning(f"Failed arguments: {failed_args}")
 
     metric_values = {}
     for metric in metrics:
@@ -158,7 +165,7 @@ def generate_images_for_hyperparameter_search_based_on_dataset(
     # generate images for each hyperparameter combination
     hyperparameter_grid = generate_hyperparameter_grid(hyperparameters)
     for run_number, hyperparameter in enumerate(hyperparameter_grid):
-        print(f"Starting run {run_number + 1} of {len(hyperparameter_grid)}")
+        logger.info(f"Starting run {run_number + 1} of {len(hyperparameter_grid)}")
         run_args = merge_dicts(args, {"generation_params": hyperparameter})
         run_args["experiment_run_name"] = (
             f"hs-{args['experiment_run_name']}-{run_number}"

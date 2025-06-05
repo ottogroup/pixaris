@@ -2,8 +2,10 @@ import unittest
 from unittest.mock import patch
 import shutil
 import os
-
+import logging
 from pixaris.data_loaders.gcp import GCPDatasetLoader
+
+logger = logging.getLogger(__name__)
 
 
 def copy_test_project():
@@ -53,7 +55,7 @@ class TestLocalDataset(unittest.TestCase):
             eval_dir_local="temp_test_files",
         )
         dataset = loader.load_dataset()
-        print(dataset)
+        logger.debug(dataset)
         self.assertEqual(len(dataset), 4)
         for entry in dataset:
             self.assertIn("pillow_images", entry)

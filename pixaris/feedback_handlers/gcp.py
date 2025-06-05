@@ -1,11 +1,16 @@
-from pixaris.feedback_handlers.base import FeedbackHandler
-from google.cloud import bigquery, storage
-import gradio as gr
-from datetime import datetime
+import logging
 import os
+from datetime import datetime
+
 from PIL import Image
+import gradio as gr
+from google.cloud import bigquery, storage
+
+from pixaris.feedback_handlers.base import FeedbackHandler
 
 from pixaris.utils.bigquery import ensure_table_exists
+
+logger = logging.getLogger(__name__)
 
 
 class GCPFeedbackHandler(FeedbackHandler):
@@ -152,7 +157,7 @@ class GCPFeedbackHandler(FeedbackHandler):
                 f"results/{project}/feedback_iterations/{feedback_iteration}/{image_name}"
             )
             blob.upload_from_filename(os.path.join(local_image_directory, image_name))
-            print(f"Uploaded {image_name} to {feedback_iteration}")
+            logger.info("Uploaded %s to %s", image_name, feedback_iteration)
 
     def create_feedback_iteration(
         self,
@@ -212,7 +217,7 @@ class GCPFeedbackHandler(FeedbackHandler):
         :return: List of projects
         :rtype: list[str]
         """
-        print("Querying BigQuery for list of projects...")
+        logger.info("Querying BigQuery for list of projects...")
         bigquery_client = bigquery.Client(project=self.gcp_project_id)
 
         query = f"""
@@ -226,7 +231,7 @@ class GCPFeedbackHandler(FeedbackHandler):
         projects.sort()
         self.projects = projects
 
-        print(f"Done. Found projects: {projects}")
+        logger.info("Done. Found projects: %s", projects)
         return projects
 
     def _load_feedback_df(self, project: str):
@@ -238,7 +243,10 @@ class GCPFeedbackHandler(FeedbackHandler):
         :return: DataFrame with feedback data
         :rtype: pd.DataFrame
         """
-        print(f"Querying BigQuery for feedback data for project {project}...")
+        logger.info(
+            "Querying BigQuery for feedback data for project %s...",
+            project,
+        )
         bigquery_client = bigquery.Client(project=self.gcp_project_id)
 
         query = f"""
@@ -312,7 +320,10 @@ class GCPFeedbackHandler(FeedbackHandler):
         :return: List of local image paths that belong to the feedback iteration.
         :rtype: list[str]
         """
-        print(f"Downloading images for feedback iteration {feedback_iteration}...")
+        logger.info(
+            "Downloading images for feedback iteration %s...",
+            feedback_iteration,
+        )
 
         # get relevant data for this feedback iteration
         iteration_df = self.feedback_df.loc[
@@ -328,7 +339,7 @@ class GCPFeedbackHandler(FeedbackHandler):
                 gr.Info(f"Downloading image '{image_path_bucket}'...", duration=1)
                 os.makedirs(os.path.dirname(image_path_local), exist_ok=True)
                 self._download_image(image_path_bucket, image_path_local)
-        print("Done with download.")
+        logger.info("Done with download.")
 
         # sort images according to user preference
         sorted_df = self._sort_iteration_df(
@@ -361,6 +372,6 @@ class GCPFeedbackHandler(FeedbackHandler):
             blob = bucket.blob(image_path_bucket)
             blob.download_to_filename(image_path_local, timeout=400)
         except Exception as e:
-            print(f"Error downloading image '{image_path_bucket}': {e}")
-            print("Filling with placeholder image")
+            logger.error("Error downloading image '%s': %s", image_path_bucket, e)
+            logger.warning("Filling with placeholder image")
             Image.new(mode="RGB", size=(256, 256), color="white").save(image_path_local)

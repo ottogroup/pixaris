@@ -1,11 +1,16 @@
 import json
+import logging
 import os
 import time
 from typing import Iterable
+
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
-from pixaris.experiment_handlers.base import ExperimentHandler
 import pandas as pd
+
+from pixaris.experiment_handlers.base import ExperimentHandler
+
+logger = logging.getLogger(__name__)
 
 
 class LocalExperimentHandler(ExperimentHandler):
@@ -168,8 +173,9 @@ class LocalExperimentHandler(ExperimentHandler):
             try:
                 return pd.read_json(results_file, lines=True)
             except ValueError:
-                print(
-                    f"Error reading {results_file}. File might be empty or corrupted."
+                logger.warning(
+                    "Error reading %s. File might be empty or corrupted.",
+                    results_file,
                 )
 
     def load_images_for_experiment(

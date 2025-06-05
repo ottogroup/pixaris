@@ -1,6 +1,9 @@
 import unittest
+import logging
 
 from pixaris.data_loaders.local import LocalDatasetLoader
+
+logger = logging.getLogger(__name__)
 
 
 class TestLocalDataset(unittest.TestCase):
@@ -9,7 +12,7 @@ class TestLocalDataset(unittest.TestCase):
             project="test_project", dataset="mock", eval_dir_local="test"
         )
         dataset = loader.load_dataset()
-        print(dataset)
+        logger.debug(dataset)
         self.assertEqual(len(dataset), 4)
         for entry in dataset:
             self.assertIn("pillow_images", entry)
