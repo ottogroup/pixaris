@@ -1,3 +1,4 @@
+import logging
 import os
 
 # os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = (
@@ -19,6 +20,8 @@ import tarfile
 import pathlib
 from kubernetes.stream import stream
 
+logger = logging.getLogger(__name__)
+
 
 @click.group()
 def cli():
@@ -38,7 +41,7 @@ def cli_kubernetes_generate_images_based_on_dataset_execute_remotely():
         wait_cycles += 1
         if wait_cycles > 100:
             raise ValueError("Timeout: Input file was not uploaded.")
-        print("Waiting for inputs to be uploaded...")
+        logger.info("Waiting for inputs to be uploaded...")
         time.sleep(3)
     with open(pickled_input_path, "rb") as f:
         inputs = pickle.load(f)
@@ -49,7 +52,7 @@ def cli_kubernetes_generate_images_based_on_dataset_execute_remotely():
     metrics = inputs["metrics"]
     args = inputs["args"]
 
-    print("Starting generation...")
+    logger.info("Starting generation...")
     generate_images_based_on_dataset(
         data_loader=data_loader,
         image_generator=image_generator,
@@ -98,9 +101,9 @@ def copy_bytes_to_pod(
     while resp.is_open():
         resp.update(timeout=1)
         if resp.peek_stdout():
-            print(f"STDOUT: {resp.read_stdout()}")
+            logger.debug("STDOUT: %s", resp.read_stdout())
         if resp.peek_stderr():
-            print(f"STDERR: {resp.read_stderr()}")
+            logger.debug("STDERR: %s", resp.read_stderr())
         if read := buf.read(chunk_size):
             resp.write_stdin(read)
         else:
@@ -120,7 +123,7 @@ def copy_bytes_to_pod(
     )
     resp.close()
 
-    print(f"File copied to {pod_name}:{dest_path}")
+    logger.info("File copied to %s:%s", pod_name, dest_path)
 
 
 def pixaris_orchestration_kubernetes_locally(
@@ -157,13 +160,13 @@ def pixaris_orchestration_kubernetes_locally(
     config.load_kube_config()
     if auto_scale:  # always necessary unless the cluster was already scaled up manually
         max_parallel_jobs = args.get("max_parallel_jobs", 1)
-        print("Auto scaling...")
-        print(f"Scaling to {max_parallel_jobs} replicas")
+        logger.info("Auto scaling...")
+        logger.info("Scaling to %s replicas", max_parallel_jobs)
         apps_v1 = client.AppsV1Api()
         apps_v1.patch_namespaced_deployment_scale(
             "comfy-ui-deployment", "batch", {"spec": {"replicas": max_parallel_jobs}}
         )
-    print("Triggering remote evaluation...")
+    logger.info("Triggering remote evaluation...")
 
     # Prepare the inputs and and pickle them
     inputs = {
@@ -212,7 +215,7 @@ def pixaris_orchestration_kubernetes_locally(
     core_v1 = client.CoreV1Api()
     pod_name = None
     while pod_name is None:
-        print("Waiting for pod to start...")
+        logger.info("Waiting for pod to start...")
         time.sleep(5)
         job = batch_v1.read_namespaced_job(job_name, "batch")
         if job.status.failed:
@@ -235,8 +238,10 @@ def pixaris_orchestration_kubernetes_locally(
         dest_path="/tmp/input.pkl",
     )
 
-    print("Remote evaluation triggered.")
-    print(f"Job logs: kubectl logs -n batch job/{job_name}")
-    print(
-        f"or https://console.cloud.google.com/kubernetes/job/europe-west4-a/cluster/batch/{job_name}/logs?project={args['gcp_project_id']}"
+    logger.info("Remote evaluation triggered.")
+    logger.info("Job logs: kubectl logs -n batch job/%s", job_name)
+    logger.info(
+        "or https://console.cloud.google.com/kubernetes/job/europe-west4-a/cluster/batch/%s/logs?project=%s",
+        job_name,
+        args["gcp_project_id"],
     )

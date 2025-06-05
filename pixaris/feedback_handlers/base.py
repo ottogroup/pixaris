@@ -1,6 +1,10 @@
+import logging
 from abc import abstractmethod
-import pandas as pd
 from datetime import datetime
+
+import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 
 class FeedbackHandler:
@@ -170,7 +174,7 @@ class FeedbackHandler:
         feedback_iteration_choices.sort()
         self.feedback_iteration_choices = feedback_iteration_choices
 
-        print(f"Done. Found feedback iterations: {feedback_iteration_choices}")
+        logger.info("Done. Found feedback iterations: %s", feedback_iteration_choices)
 
     @abstractmethod
     def load_images_for_feedback_iteration(

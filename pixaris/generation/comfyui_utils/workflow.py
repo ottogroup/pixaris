@@ -1,11 +1,16 @@
-from PIL import Image
-import json
 import io
-import urllib.request
-import urllib.parse
-import requests
+import json
+import logging
 import time
+import urllib.parse
+import urllib.request
+
+import requests
+from PIL import Image
+
 from pixaris.utils.retry import retry
+
+logger = logging.getLogger(__name__)
 
 
 class ComfyWorkflow:
@@ -202,7 +207,7 @@ class ComfyWorkflow:
     @retry(tries=3, delay=5, max_delay=30)
     def queue_prompt(self, prompt: str):
         """Queue a prompt. This is the crucial step to start a workflow."""
-        print(f"Start workflow on {self.api_host}")
+        logger.info("Start workflow on %s", self.api_host)
         p = {"prompt": prompt, "client_id": "paws-frontend"}
         data = json.dumps(p).encode("utf-8")
         req = urllib.request.Request(
@@ -290,4 +295,7 @@ class ComfyWorkflow:
                         "script"
                     )
         except Exception as e:
-            print(f"Error adjusting workflow to one image only.: {e} . CONTINUING ...")
+            logger.warning(
+                "Error adjusting workflow to one image only.: %s . CONTINUING ...",
+                e,
+            )

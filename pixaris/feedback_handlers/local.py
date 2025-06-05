@@ -1,10 +1,15 @@
 import json
-import shutil
-from pixaris.feedback_handlers.base import FeedbackHandler
-import gradio as gr
-from datetime import datetime
+import logging
 import os
+import shutil
+from datetime import datetime
+
 import pandas as pd
+import gradio as gr
+
+from pixaris.feedback_handlers.base import FeedbackHandler
+
+logger = logging.getLogger(__name__)
 
 
 class LocalFeedbackHandler(FeedbackHandler):
@@ -196,7 +201,7 @@ class LocalFeedbackHandler(FeedbackHandler):
         projects.sort()
         self.projects = projects
 
-        print(f"Found projects: {projects}")
+        logger.info("Found projects: %s", projects)
         return projects
 
     def _load_feedback_df(self, project: str) -> pd.DataFrame:
@@ -208,7 +213,10 @@ class LocalFeedbackHandler(FeedbackHandler):
         :return: DataFrame containing feedback data
         :rtype: pd.DataFrame
         """
-        print(f"Searching locally for feedback data for project {project}...")
+        logger.info(
+            "Searching locally for feedback data for project %s...",
+            project,
+        )
         feedback_file_path = os.path.join(
             self.local_feedback_directory,
             project,
@@ -280,7 +288,10 @@ class LocalFeedbackHandler(FeedbackHandler):
         :return: List of local image paths
         :rtype: list[str]
         """
-        print(f"Loading images for feedback iteration {feedback_iteration}...")
+        logger.info(
+            "Loading images for feedback iteration %s...",
+            feedback_iteration,
+        )
 
         # get relevant data for this feedback iteration
         iteration_df = self.feedback_df.loc[

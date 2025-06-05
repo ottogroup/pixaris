@@ -1,3 +1,4 @@
+import logging
 import yaml
 from pixaris.frontend.main import launch_ui
 from pixaris.feedback_handlers.gcp import GCPFeedbackHandler
@@ -5,6 +6,7 @@ from pixaris.experiment_handlers.gcp import GCPExperimentHandler
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     config = yaml.safe_load(open("pixaris/config.yaml"))
     local_results_dir = "/tmp/local_results/"
 

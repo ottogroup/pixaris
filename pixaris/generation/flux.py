@@ -1,11 +1,16 @@
-from typing import List
-from pixaris.generation.base import ImageGenerator
-from PIL import Image
+import logging
 import os
-import requests
-import base64
-from io import BytesIO
 import time
+from io import BytesIO
+import base64
+from typing import List
+
+import requests
+from PIL import Image
+
+from pixaris.generation.base import ImageGenerator
+
+logger = logging.getLogger(__name__)
 
 
 class FluxFillGenerator(ImageGenerator):
@@ -124,7 +129,7 @@ class FluxFillGenerator(ImageGenerator):
             if result["status"] == "Ready":
                 image_url = result["result"]["sample"]
                 break
-            print(f"Status: {result['status']}")
+            logger.info("Status: %s", result["status"])
 
         # Download and return the image
         image_response = requests.get(image_url)
