@@ -7,6 +7,9 @@ from pixaris.generation.comfyui import ComfyGenerator
 from pixaris.orchestration.base import generate_images_based_on_dataset
 import unittest
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def tearDown():
@@ -77,10 +80,10 @@ class TestOrchestration(unittest.TestCase):
         tearDown()
 
     @patch("pixaris.data_loaders.gcp.GCPDatasetLoader")
-    @patch("builtins.print")
+    @patch("pixaris.orchestration.base.logger.warning")
     @patch("pixaris.generation.comfyui.ComfyGenerator.generate_single_image")
     def test_generate_images_one_fault(
-        self, mock_generate_single_image, mock_print, mock_loader
+        self, mock_generate_single_image, mock_warning, mock_loader
     ):
         """
         One of the images is broken. Should run but throw warnings
@@ -135,7 +138,7 @@ class TestOrchestration(unittest.TestCase):
         images = generate_images_based_on_dataset(
             mock_loader, generator, experiment_handler, [], args
         )
-        mock_print.assert_any_call("Failed to generate images for 1 of 2.")
+        mock_warning.assert_any_call("Failed to generate images for 1 of 2.")
         self.assertEqual(len(images), 1)
 
         tearDown()

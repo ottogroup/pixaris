@@ -22,8 +22,12 @@ from PIL import Image, ImageDraw
 import yaml
 from pixaris.experiment_handlers.gcp import GCPExperimentHandler
 from pixaris.feedback_handlers.gcp import GCPFeedbackHandler
+import logging
 
-print(f"Current working directory: {os.getcwd()}")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+logger.info("Current working directory: %s", os.getcwd())
 
 if False:  # set to True if executing from notebook
     os.chdir("../../")
@@ -102,7 +106,7 @@ WORKFLOW_PILLOW_IMAGE = create_tiger_image(random.randint(0, 10_000_000))
 # %% [markdown]
 # ## PART 1: Create Dummy Data for Experiment Tracking
 # %%
-print("\n=== Creating Dummy Experiment Data ===")
+logger.info("\n=== Creating Dummy Experiment Data ===")
 
 # Initialize the GCP Experiment Handler
 experiment_handler = GCPExperimentHandler(
@@ -127,8 +131,11 @@ dummy_args = {
 }
 
 # Store the experiment results in GCP
-print(
-    f"Storing {NUM_EXPERIMENT_ENTRIES} dummy experiment results for project '{PROJECT}', dataset '{DATASET}'"
+logger.info(
+    "Storing %s dummy experiment results for project '%s', dataset '%s'",
+    NUM_EXPERIMENT_ENTRIES,
+    PROJECT,
+    DATASET,
 )
 experiment_handler.store_results(
     project=PROJECT,
@@ -138,19 +145,19 @@ experiment_handler.store_results(
     metric_values={},
     args=dummy_args,
 )
-print("Experiment data successfully stored in GCP")
+logger.info("Experiment data successfully stored in GCP")
 
 # %% [markdown]
 # ## PART 2: Create Dummy Data for Feedback Tracking
 # %%
-print("\n=== Creating Dummy Feedback Data ===")
+logger.info("\n=== Creating Dummy Feedback Data ===")
 
 # Create a temporary directory for the images
 LOCAL_IMAGE_DIRECTORY = "local_results/dummy_project/feedback_iterations/feedback_iteration_with_dummy_images"
 os.makedirs(LOCAL_IMAGE_DIRECTORY, exist_ok=True)
 
 # Generate dummy images and save to temporary directory
-print(f"Generating {NUM_FEEDBACK_ENTRIES} dummy feedback images")
+logger.info("Generating %s dummy feedback images", NUM_FEEDBACK_ENTRIES)
 for i in range(NUM_FEEDBACK_ENTRIES):
     img = create_tiger_image(random.randint(0, 10_000_000))
     img.save(f"{LOCAL_IMAGE_DIRECTORY}/tiger_{i + 1}.png")
@@ -163,8 +170,10 @@ feedback_handler = GCPFeedbackHandler(
 )
 
 # Create feedback iteration with the provided parameters
-print(
-    f"Creating feedback iteration '{FEEDBACK_ITERATION_NAME}' for project '{PROJECT}'"
+logger.info(
+    "Creating feedback iteration '%s' for project '%s'",
+    FEEDBACK_ITERATION_NAME,
+    PROJECT,
 )
 feedback_handler.create_feedback_iteration(
     local_image_directory=LOCAL_IMAGE_DIRECTORY,
@@ -173,7 +182,7 @@ feedback_handler.create_feedback_iteration(
     dataset=DATASET,  # optional
     experiment_name=EXPERIMENT_RUN_NAME,  # optional
 )
-print("Feedback iteration successfully created in GCP")
+logger.info("Feedback iteration successfully created in GCP")
 
 # %% [markdown]
 # ## Clean Up
@@ -182,5 +191,5 @@ print("Feedback iteration successfully created in GCP")
 # Clean up the temporary directory
 if False:
     shutil.rmtree(LOCAL_IMAGE_DIRECTORY)
-    print("Temporary directory cleaned up")
-print("\nDummy data creation completed successfully!")
+    logger.info("Temporary directory cleaned up")
+logger.info("\nDummy data creation completed successfully!")
