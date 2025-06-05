@@ -63,7 +63,7 @@ The following steps will guide you through setting up and running your first ima
 
 1.  **Load Your Data Set:** Define a `DatasetLoader` to manage your input images, masks, and other data required by your image generation workflow.
 
-2.  **Set Up Image Generation:** Configure an `Generator` to handle the actual image generation process. Pixaris provides pre-built generators, e.g. for ComfyUI (`ComfyGenerator`) and Flux (`FluxFillGenerator`).
+2.  **Set Up Image Generation:** Configure a `Generator` to handle the actual image generation process. Pixaris provides pre-built generators, e.g. for ComfyUI (`ComfyGenerator`) and Flux (`FluxFillGenerator`).
 
 3.  **Set Up Experiment Tracking:** Utilize an `ExperimentHandler` to specify where your experiment data (generated images and metrics) will be stored.
 
@@ -113,9 +113,9 @@ loader = GCPDatasetLoader(
     eval_dir_local="local_experiment_inputs", # this is the local path where all your datasets are stored
 )
 ```
-Alternatively, you can  use the `LocalDatasetLoader` if you have your `dataset` saved locally, or implement your own `DatasetLoader` with whatever requirements and tools you have. A `DatasetLoader` should return a dataset that can be parsed by an `ImageGenerator`.
+Alternatively, you can use the `LocalDatasetLoader` if you have your `dataset` saved locally, or implement your own `DatasetLoader` with whatever requirements and tools you have. A `DatasetLoader` should return a dataset that can be parsed by an `ImageGenerator`.
 
-Information on how what an `dataset` consists of and how you can create one can be found [here](https://github.com/ottogroup/pixaris/tree/main/examples/dummy_data_creation/create_dummy_eval_data_for_Generator_locally.py).
+Information on what a `dataset` consists of and how you can create one can be found [here](https://github.com/ottogroup/pixaris/tree/main/examples/dummy_data_creation/create_dummy_eval_data_for_Generator_locally.py).
 
 ### Setting up how you are generating images
 We implemented a neat `ImageGenerator` that uses ComfyUI.
@@ -272,4 +272,4 @@ For more detailed guidelines, see our [Contributing Guide](https://opensource.gu
 
 ## License
 
-Pixaris is released under the GPL-3.0 license License. See the [LICENSE](https://github.com/ottogroup/pixaris/tree/main/LICENSE) file for details.
+Pixaris is released under the GPL-3.0 License. See the [LICENSE](https://github.com/ottogroup/pixaris/tree/main/LICENSE) file for details.
