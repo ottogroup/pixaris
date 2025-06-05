@@ -59,7 +59,7 @@ class TestImagen2Generator(unittest.TestCase):
         Test if the function raises an error if prompt is not in the correct format.
         """
         pillow_images = self.args.get("pillow_images", [])
-        prompt = []
+        prompt = ["wrong prompt"]
 
         with self.assertRaises(
             ValueError,

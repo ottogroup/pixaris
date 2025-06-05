@@ -63,11 +63,18 @@ make install
 
 If you dont have poetry installed, follow [these instructions](https://python-poetry.org/docs/).
 
-If you don't need some of the functionality, like GCP or Comfy generation on a cluster (kubernetes), install only parts of the poetry groups. This example excludes kubernetes and dev dependencies:
+If you don't need some of the functionality, like GCP, Comfy generation on a cluster (kubernetes) or dev, install only parts of the poetry groups. This example excludes kubernetes and dev dependencies:
 
 ```sh
-poetry install --without cluster,dev
+poetry install --without cluster
 ```
+
+If you need dev tools for example for contributing to this project, install with dev tools:
+
+```sh
+poetry install --with dev
+```
+
 
 ### pip
 You can also install the latest stable version of Pixaris from PyPI using pip:
@@ -78,6 +85,7 @@ pip install pixaris
 
 Online documentation is available [here](https://ottogroup.github.io/pixaris/modules.html).
 The open source repository is found [here](https://github.com/ottogroup/pixaris).
+
 ## Getting Started
 
 The following steps will guide you through setting up and running your first image generation experiment with Pixaris.
@@ -96,6 +104,8 @@ The following steps will guide you through setting up and running your first ima
 
 7.  **View Your Results:** Launch the Pixaris UI to visualize the generated images, metrics, and collected feedback.
 
+For example usages, check the [examples](https://github.com/ottogroup/pixaris/tree/main/examples) directory. To set up GCP components, such as `GCPDatasetLoader`, we use a configuration file. An [example_config.yaml](https://github.com/ottogroup/pixaris/tree/main/examples/example_config.yaml) is provided; just adjust it and save a local version.
+
 ### Summary
 
 At a high level, using Pixaris involves defining a `DatasetLoader`, `ImageGenerator`, `ExperimentHandler`, and any necessary arguments. These components are then passed to an orchestration function like `generate_images_based_on_dataset`, which handles loading the data, executing the experiment, and saving the results.
@@ -103,8 +113,6 @@ At a high level, using Pixaris involves defining a `DatasetLoader`, `ImageGenera
 Pixaris provides several pre-built components to choose from, such as the `GCPDatasetLoader` for accessing data in Google Cloud Storage and the `LocalDatasetLoader` for accessing local evaluation data. You can also implement your own custom components to tailor Pixaris to your specific needs.
 
 ![Overview of Classes for Orchestration](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/overview.png)
-
-For example usages, check the [examples](https://github.com/ottogroup/pixaris/tree/main/examples) directory. To set up GCP components, such as `GCPDatasetLoader`, we use a configuration file. An [example_config.yaml](https://github.com/ottogroup/pixaris/tree/main/examples/example_config.yaml) is provided; just adjust it and save a local version.
 
 #### Load the examples as a notebook
 If you prefer working with Notebooks, install [jupytext](https://github.com/mwouts/jupytext) and you can convert our py files to ipynb.
