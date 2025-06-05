@@ -13,7 +13,7 @@ from pixaris.generation.utils import (
 
 class Imagen2Generator(ImageGenerator):
     """
-    ImagenGenerator is a class that generates images using the Google Gemini API.
+    Imagen2Generator is a class that generates images using the Google Imagen API.
 
     :param gcp_project_id: The Google Cloud Platform project ID.
     :type gcp_project_id: str

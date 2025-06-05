@@ -17,8 +17,8 @@ def extract_value_from_list_of_dicts(
 
     :param dict_list: A list of dictionaries to search through.
     :type dict_list: list[dict]
-    :param itentifying_key: The key to identify the dictionary.
-    :type itentifying_key: _any
+    :param identifying_key: The key to identify the dictionary.
+    :type identifying_key: _any
     :param identifying_value: The value to match against the identifying key.
     :type identifying_value: _any
     :param return_key: The key whose value is to be returned from the matching dictionary.

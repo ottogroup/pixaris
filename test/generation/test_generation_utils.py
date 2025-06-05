@@ -30,12 +30,12 @@ class TestGenerationUtils(unittest.TestCase):
             {"node_name": "Load Input Image", "pillow_image": "image1"},
             {"node_name": "Load Mask Image", "pillow_image": "image2"},
         ]
-        itentifying_key = "node_name"
+        identifying_key = "node_name"
         identifying_value = "Load Input Image"
         return_key = "pillow_image"
 
         result = extract_value_from_list_of_dicts(
-            dict_list, itentifying_key, identifying_value, return_key
+            dict_list, identifying_key, identifying_value, return_key
         )
 
         self.assertEqual(result, "image1")
@@ -48,12 +48,12 @@ class TestGenerationUtils(unittest.TestCase):
             {"node_name": "Load Input Image", "pillow_image": "image1"},
             {"node_name": "Load Input Image", "pillow_image": "image2"},
         ]
-        itentifying_key = "node_name"
+        identifying_key = "node_name"
         identifying_value = "Load Input Image"
         return_key = "pillow_image"
 
         result = extract_value_from_list_of_dicts(
-            dict_list, itentifying_key, identifying_value, return_key
+            dict_list, identifying_key, identifying_value, return_key
         )
 
         self.assertEqual(result, "image1")
@@ -63,13 +63,13 @@ class TestGenerationUtils(unittest.TestCase):
         There are no fitting instances. Tests if the default value is returned
         """
         dict_list = [{"node_name": "Load Input Image", "pillow_image": "image1"}]
-        itentifying_key = "node_name"
+        identifying_key = "node_name"
         identifying_value = "Load Mask Image"
         return_key = "pillow_image"
         default_value = "default_image"
 
         result = extract_value_from_list_of_dicts(
-            dict_list, itentifying_key, identifying_value, return_key, default_value
+            dict_list, identifying_key, identifying_value, return_key, default_value
         )
 
         self.assertEqual(result, "default_image")
@@ -79,7 +79,7 @@ class TestGenerationUtils(unittest.TestCase):
         There are no fitting instances. Since there is no default value, a ValueError is raised
         """
         dict_list = [{"node_name": "Load Input Image", "pillow_image": "image1"}]
-        itentifying_key = "node_name"
+        identifying_key = "node_name"
         identifying_value = "Load Mask Image"
         return_key = "pillow_image"
 
@@ -88,7 +88,7 @@ class TestGenerationUtils(unittest.TestCase):
             "No dict with pair 'node_name': 'Load Mask Image' and key 'pillow_image' found.",
         ):
             extract_value_from_list_of_dicts(
-                dict_list, itentifying_key, identifying_value, return_key
+                dict_list, identifying_key, identifying_value, return_key
             )
 
     def test_extract_value_from_list_of_dicts_wrong_return_value(self):
@@ -96,7 +96,7 @@ class TestGenerationUtils(unittest.TestCase):
         There is a fitting instance, but the return key is wrong. Tests if a ValueError is raised
         """
         dict_list = [{"node_name": "Load Input Image", "pillow_image": "image1"}]
-        itentifying_key = "node_name"
+        identifying_key = "node_name"
         identifying_value = "Load Mask Image"
         return_key = "image"
 
@@ -105,7 +105,7 @@ class TestGenerationUtils(unittest.TestCase):
             "No dict with pair 'node_name': 'Load Mask Image' and key 'image' found.",
         ):
             extract_value_from_list_of_dicts(
-                dict_list, itentifying_key, identifying_value, return_key
+                dict_list, identifying_key, identifying_value, return_key
             )
 
 
