@@ -9,7 +9,7 @@
 #
 # ## Requirements
 # - pixaris package installed
-# - Valid Flux API key in pixaris/config.yaml
+# - Valid Flux API key in config.yaml
 # - Test assets available in the project structure
 
 # %% [markdown]
@@ -30,7 +30,7 @@ print(f"Current working directory: {os.getcwd()}")
 
 # %%
 # Load configuration from config file
-config = yaml.safe_load(open("pixaris/config.yaml", "r"))
+config = yaml.safe_load(open("config.yaml", "r"))
 
 # Set your API Key for Flux
 os.environ["BFL_API_KEY"] = config["bfl_api_key"]

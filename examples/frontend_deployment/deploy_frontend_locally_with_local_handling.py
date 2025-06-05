@@ -8,7 +8,7 @@
 #
 # ## Requirements
 # - pixaris package installed
-# - Valid configuration in pixaris/config.yaml
+# - Valid configuration in config.yaml
 
 # %% [markdown]
 # ## Import Libraries and Setup
@@ -28,7 +28,7 @@ print(f"Current working directory: {os.getcwd()}")
 # %%
 # Load configuration from config file
 print("\n=== Loading Configuration ===")
-config = yaml.safe_load(open("pixaris/config.yaml", "r"))
+config = yaml.safe_load(open("config.yaml", "r"))
 
 # Note: To create dummy data for the frontend:
 # Run examples/dummy_data_creation/create_dummy_data_for_frontend_locally.py

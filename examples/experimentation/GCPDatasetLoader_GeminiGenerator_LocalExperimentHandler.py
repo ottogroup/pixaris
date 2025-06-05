@@ -8,7 +8,7 @@
 #
 # ## Requirements
 # - pixaris package installed
-# - Valid GCP configuration in pixaris/config.yaml
+# - Valid GCP configuration in config.yaml
 
 # %% [markdown]
 # ## Import Libraries and Setup
@@ -27,7 +27,7 @@ print(f"Current working directory: {__import__('os').getcwd()}")
 
 # %%
 # Load configuration from config file
-config = yaml.safe_load(open("pixaris/config.yaml", "r"))
+config = yaml.safe_load(open("config.yaml", "r"))
 
 # Configuration parameters - MODIFY THESE VALUES
 PROJECT = "dummy_project"  # Your project name

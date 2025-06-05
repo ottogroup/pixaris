@@ -1,7 +1,7 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
   script: |
-    gcp_project_id=$(yq '.gcp_project_id' ../pixaris/config.yaml)
+    gcp_project_id=$(yq '.gcp_project_id' ../config.yaml)
     docker build -t europe-west4-docker.pkg.dev/${gcp_project_id}/docker-registry/pixaris_image:latest -f docker/Dockerfile .
   automapSubstitutions: true
 images:

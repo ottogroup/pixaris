@@ -9,7 +9,7 @@
 #
 # ## Requirements
 # - pixaris package installed
-# - Valid GCP configuration in pixaris/config.yaml for Imagen2 API access
+# - Valid GCP configuration in config.yaml for Imagen2 API access
 # - Test assets available in the local experiment inputs directory
 
 # %% [markdown]
@@ -31,7 +31,7 @@ print(f"Current working directory: {os.getcwd()}")
 
 # %%
 # Load configuration from config file
-config = yaml.safe_load(open("pixaris/config.yaml", "r"))
+config = yaml.safe_load(open("config.yaml", "r"))
 
 # Configuration parameters - MODIFY THESE VALUES
 PROJECT = "test_project"

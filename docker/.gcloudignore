@@ -1,5 +1,5 @@
 .github
-pixaris/config.yaml
+config.yaml
 .git
 examples
 local_experiment_inputs
