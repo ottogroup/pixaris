@@ -49,7 +49,9 @@ class Imagen2Generator(ImageGenerator):
                 raise ValueError("Each entry in the dataset must be a dictionary.")
 
         # Validate parameters, if given
-        if not isinstance(prompt, str):
+        if not (
+            isinstance(prompt, str) or prompt == []
+        ):  # temporary fix until generation.base.generate_images_based_on_dataset has correct way of calling image_generator.validate_inputs_and_parameters(dataset, generation_params)
             raise ValueError("Prompt must be a string.")
 
     def _run_imagen(self, pillow_images: List[dict], prompt: str) -> Image.Image:
