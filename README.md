@@ -62,6 +62,19 @@ make install
 
 If you dont have poetry installed, follow [these instructions](https://python-poetry.org/docs/).
 
+If you don't need some of the functionality, like GCP, Comfy generation on a cluster (kubernetes) or dev, install only parts of the poetry groups. This example excludes kubernetes and dev dependencies:
+
+```sh
+poetry install --without cluster
+```
+
+If you need dev tools for example for contributing to this project, install with dev tools:
+
+```sh
+poetry install --with dev
+```
+
+
 ### pip
 You can also install the latest stable version of Pixaris from PyPI using pip:
 
