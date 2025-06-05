@@ -49,7 +49,6 @@
 
 ## Installation
 
-You can install the latest stable version of Pixaris from PyPI using pip:
 Pixaris requires python = "^3.12"
 
 ### clone and own
