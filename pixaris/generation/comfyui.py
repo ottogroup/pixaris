@@ -49,7 +49,7 @@ class ComfyGenerator(ImageGenerator):
     def validate_inputs_and_parameters(
         self,
         dataset: List[dict[str, List[dict[str, Image.Image]]]] = [],
-        parameters: list[dict[str, str, any]] = [],
+        args: dict[str, any] = {},
     ) -> str:
         """
         Validates the workflow file to ensure that it is in the correct format.
@@ -61,6 +61,7 @@ class ComfyGenerator(ImageGenerator):
         :return: The path to the validated workflow file.
         :rtype: str
         """
+        parameters = args.get("generation_params", [])
 
         # assert each existing element of generation_params has the keys "node_name", "input", "value"
         for value_info in parameters:

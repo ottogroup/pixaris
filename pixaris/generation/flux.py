@@ -17,7 +17,7 @@ class FluxFillGenerator(ImageGenerator):
     def validate_inputs_and_parameters(
         self,
         dataset: List[dict[str, List[dict[str, Image.Image]]]] = [],
-        parameters: list[dict[str, str, any]] = [],
+        args: dict[str, any] = {},
     ):
         """
         Validates the provided dataset and parameters for image generation.
@@ -28,6 +28,8 @@ class FluxFillGenerator(ImageGenerator):
         :type parameters: list[dict[str, str, any]]
         :raises ValueError: If the validation fails for any reason (e.g., missing fields).
         """
+        parameters = args.get("generation_params", [])
+
         # Validate dataset
         if not dataset:
             raise ValueError("Dataset cannot be empty.")

@@ -31,13 +31,13 @@ class TestFluxFillGenerator(unittest.TestCase):
         Test if the function raises an error if dataset is not in the correct format.
         """
         dataset = ["wrong_format"]
-        generation_params = []
+        args = {"generation_params": []}
 
         with self.assertRaises(
             ValueError,
             msg="Each entry in the dataset must be a dictionary.",
         ):
-            self.generator.validate_inputs_and_parameters(dataset, generation_params)
+            self.generator.validate_inputs_and_parameters(dataset, args)
 
     def test_run_flux_success(self):
         """
