@@ -178,3 +178,4 @@ requirements.txt
 
 # Documentation
 *.rst
+config.yaml

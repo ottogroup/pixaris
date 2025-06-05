@@ -34,8 +34,8 @@ print(f"Current working directory: {os.getcwd()}")
 config = yaml.safe_load(open("config.yaml", "r"))
 
 # Configuration parameters - MODIFY THESE VALUES
-PROJECT = "test_project"
-DATASET = "mock"
+PROJECT = "dummy_project"
+DATASET = "dummy_dataset"
 EXPERIMENT_RUN_NAME = "example-run"
 PROMPT = "Place the animal in front of a background of a nice lush green forest."
 
