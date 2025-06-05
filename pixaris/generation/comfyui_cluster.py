@@ -144,7 +144,7 @@ class ComfyClusterGenerator(ImageGenerator):
     def validate_inputs_and_parameters(
         self,
         dataset: List[dict[str, List[dict[str, Image.Image]]]] = [],
-        parameters: list[dict[str, str, any]] = [],
+        args: dict[str, any] = {},
     ) -> str:
         """
         Creates a dummy generator and then calls ComfyGenerator's validate_inputs_and_parameters method.
@@ -157,7 +157,8 @@ class ComfyClusterGenerator(ImageGenerator):
         :rtype: str
         """
         dummy_generator = ComfyGenerator(self.workflow_apiformat_json)
-        dummy_generator.validate_inputs_and_parameters(dataset, parameters)
+        generation_params = args.get("generation_params", [])
+        dummy_generator.validate_inputs_and_parameters(dataset, generation_params)
 
     def generate_single_image(self, args: dict[str, any]) -> tuple[Image.Image, str]:
         # Todo: change the docstring format when this issue is closed: https://github.com/sphinx-doc/sphinx/issues/4220

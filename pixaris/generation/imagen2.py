@@ -28,7 +28,7 @@ class Imagen2Generator(ImageGenerator):
     def validate_inputs_and_parameters(
         self,
         dataset: List[dict[str, List[dict[str, Image.Image]]]],
-        prompt: str,
+        args: dict[str, any] = {},
     ):
         """
         Validates the provided dataset and parameters for image generation.
@@ -39,6 +39,7 @@ class Imagen2Generator(ImageGenerator):
         :type parameters: list[dict[str, str, any]]
         :raises ValueError: If the validation fails for any reason (e.g., missing fields).
         """
+        prompt = args.get("prompt", "")
 
         # Validate dataset
         if not dataset:
@@ -115,8 +116,6 @@ class Imagen2Generator(ImageGenerator):
         """
         pillow_images = args.get("pillow_images", [])
         prompt = args.get("prompt", "")
-
-        self.validate_inputs_and_parameters(pillow_images, prompt)
 
         image = self._run_imagen(pillow_images, prompt)
 

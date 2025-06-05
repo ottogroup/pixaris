@@ -35,10 +35,9 @@ class TestImagen2Generator(unittest.TestCase):
         Test if the function does not raise an error if dataset is in the correct format.
         """
         pillow_images = self.args.get("pillow_images", [])
-        prompt = self.args.get("prompt", "")
 
         self.assertIsNone(
-            self.generator.validate_inputs_and_parameters(pillow_images, prompt)
+            self.generator.validate_inputs_and_parameters(pillow_images, self.args)
         )
 
     def test_validate_inputs_and_parameters_wrong_dataset_format(self):
@@ -46,26 +45,25 @@ class TestImagen2Generator(unittest.TestCase):
         Test if the function raises an error if dataset is not in the correct format.
         """
         pillow_images = ["wrong_format"]
-        prompt = self.args.get("prompt", "")
 
         with self.assertRaises(
             ValueError,
             msg="Each entry in the dataset must be a dictionary.",
         ):
-            self.generator.validate_inputs_and_parameters(pillow_images, prompt)
+            self.generator.validate_inputs_and_parameters(pillow_images, self.args)
 
     def test_validate_inputs_and_parameters_wrong_prompt(self):
         """
         Test if the function raises an error if prompt is not in the correct format.
         """
         pillow_images = self.args.get("pillow_images", [])
-        prompt = ["wrong prompt"]
+        self.args["prompt"] = ["wrong prompt"]
 
         with self.assertRaises(
             ValueError,
             msg="Prompt must be a string.",
         ):
-            self.generator.validate_inputs_and_parameters(pillow_images, prompt)
+            self.generator.validate_inputs_and_parameters(pillow_images, self.args)
 
     def test_generate_single_image(self):
         """
