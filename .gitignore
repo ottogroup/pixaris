@@ -165,7 +165,7 @@ cython_debug/
 # ruff
 .ruff_cache
 
-# config.yaml
+config.yaml
 local_experiment_inputs
 temp
 temp_test_files
