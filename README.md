@@ -50,6 +50,27 @@
 ## Installation
 
 You can install the latest stable version of Pixaris from PyPI using pip:
+Pixaris requires python = "^3.12"
+
+### clone and own
+We recommend you to clone the [repository](https://github.com/ottogroup/pixaris) and customize it to your needs. 
+Adapt the examples and classes to fit your specific usecase, thats how we use it.
+To install the cloned repository and make it usable you can simply run:
+
+```sh
+make install
+```
+
+If you dont have poetry installed, follow [these instructions](https://python-poetry.org/docs/).
+
+If you don't need some of the functionality, like GCP or Comfy generation on a cluster (kubernetes), install only parts of the poetry groups. This example excludes kubernetes and dev dependencies:
+
+```sh
+poetry install --without cluster,dev
+```
+
+### pip
+You can also install the latest stable version of Pixaris from PyPI using pip:
 
 ```sh
 pip install pixaris
