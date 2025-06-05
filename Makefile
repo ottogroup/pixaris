@@ -1,8 +1,12 @@
 .ONESHELL:
-.PHONY: install lint fmt test docs
+.PHONY: install install-all lint fmt test docs
 
 install:
 	poetry install
+
+install-all:
+	poetry install --with gcp,cluster,dev
+	$(MAKE) install
 
 lint:
 	set -e
