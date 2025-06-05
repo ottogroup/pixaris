@@ -19,15 +19,19 @@ import yaml
 from pixaris.frontend.main import launch_ui
 from pixaris.feedback_handlers.local import LocalFeedbackHandler
 from pixaris.experiment_handlers.local import LocalExperimentHandler
+import logging
 
-print(f"Current working directory: {os.getcwd()}")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+logger.info("Current working directory: %s", os.getcwd())
 
 # %% [markdown]
 # ## Configuration Parameters
 
 # %%
 # Load configuration from config file
-print("\n=== Loading Configuration ===")
+logger.info("\n=== Loading Configuration ===")
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 
 # Note: To create dummy data for the frontend:
@@ -37,20 +41,20 @@ config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 # ## Initialize Components
 
 # %%
-print("\n=== Initializing Components ===")
+logger.info("\n=== Initializing Components ===")
 
 # Initialize the Local Feedback Handler
-print("Initializing LocalFeedbackHandler")
+logger.info("Initializing LocalFeedbackHandler")
 feedback_handler = LocalFeedbackHandler()
 
 # Initialize the Local Experiment Handler
-print("Initializing LocalExperimentHandler")
+logger.info("Initializing LocalExperimentHandler")
 experiment_handler = LocalExperimentHandler()
 
 # %% [markdown]
 # ## Launch the UI
 
 # %%
-print("\n=== Launching Pixaris UI ===")
-print("Starting local UI server with local data handling")
+logger.info("\n=== Launching Pixaris UI ===")
+logger.info("Starting local UI server with local data handling")
 launch_ui(feedback_handler, experiment_handler)

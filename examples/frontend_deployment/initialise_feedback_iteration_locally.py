@@ -18,8 +18,12 @@
 import os
 import yaml
 from pixaris.feedback_handlers.local import LocalFeedbackHandler
+import logging
 
-print(f"Current working directory: {os.getcwd()}")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+logger.info("Current working directory: %s", os.getcwd())
 
 # Optional: Adjust working directory if running from a notebook
 if False:  # set to True if executing from notebook
@@ -30,7 +34,7 @@ if False:  # set to True if executing from notebook
 
 # %%
 # Load configuration from config file
-print("\n=== Loading Configuration ===")
+logger.info("\n=== Loading Configuration ===")
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 
 # Configuration parameters - MODIFY THESE VALUES
@@ -44,17 +48,17 @@ LOCAL_IMAGE_DIRECTORY = "local_results/dummy_project/feedback_iterations/feedbac
 # ## Initialize Components
 
 # %%
-print("\n=== Initializing Components ===")
+logger.info("\n=== Initializing Components ===")
 
 # Initialize the Local Feedback Handler
-print("Initializing LocalFeedbackHandler")
+logger.info("Initializing LocalFeedbackHandler")
 feedback_handler = LocalFeedbackHandler()
 
 # %% [markdown]
 # ## Create Feedback Iteration
 
 # %%
-print("\n=== Creating Feedback Iteration ===")
+logger.info("\n=== Creating Feedback Iteration ===")
 
 # Create feedback iteration with the provided parameters
 feedback_handler.create_feedback_iteration(
@@ -65,4 +69,4 @@ feedback_handler.create_feedback_iteration(
     experiment_name=None,  # optional
 )
 
-print("\n=== Feedback Iteration Created Successfully ===")
+logger.info("\n=== Feedback Iteration Created Successfully ===")
