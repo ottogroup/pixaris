@@ -6,7 +6,7 @@
 #
 # ## Requirements
 # - pixaris package installed
-# - Valid GCP configuration in pixaris/config.yaml
+# - Valid GCP configuration in config.yaml
 # - Test assets available in the project structure
 # %% [markdown]
 # ## Import Libraries and Setup

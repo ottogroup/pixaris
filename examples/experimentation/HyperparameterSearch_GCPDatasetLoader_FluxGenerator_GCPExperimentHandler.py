@@ -9,7 +9,7 @@
 #
 # ## Requirements
 # - pixaris package installed
-# - Valid GCP configuration in pixaris/config.yaml
+# - Valid GCP configuration in config.yaml
 # - Beautiful.AI Flux API key in config.yaml
 
 # %% [markdown]
@@ -32,7 +32,7 @@ print(f"Current working directory: {os.getcwd()}")
 
 # %%
 # Load configuration from config file
-config = yaml.safe_load(open("pixaris/config.yaml", "r"))
+config = yaml.safe_load(open("config.yaml", "r"))
 os.environ["BFL_API_KEY"] = config["bfl_api_key"]
 
 # Configuration parameters - MODIFY THESE VALUES
