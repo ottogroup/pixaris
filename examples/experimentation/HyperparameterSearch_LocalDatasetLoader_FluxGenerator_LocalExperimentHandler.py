@@ -10,8 +10,8 @@ import os
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 os.environ["BFL_API_KEY"] = config["bfl_api_key"]
 
-PROJECT = "test_project"  # Your project name
-DATASET = "mock"  # Your dataset name
+PROJECT = "dummy_project"
+DATASET = "dummy_dataset"
 PROMPT_1 = "A beautiful woman in the desert"
 PROMPT_2 = "A beautiful woman on a moon"
 EXPERIMENT_RUN_NAME = "example-flux"

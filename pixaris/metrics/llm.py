@@ -129,7 +129,7 @@ class BaseLLMMetric(BaseMetric):
         :return: The LLM response.
         :rtype: str
         """
-        with open("pixaris/config.yaml", "r") as f:
+        with open("config.yaml", "r") as f:
             config = yaml.safe_load(f)
 
         vertexai.init(project=config["gcp_project_id"], location=config["gcp_location"])

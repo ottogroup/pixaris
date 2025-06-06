@@ -31,7 +31,7 @@ if False:  # set to True if executing from notebook
 # %%
 # Load configuration from config file
 print("\n=== Loading Configuration ===")
-config = yaml.safe_load(open("pixaris/config.yaml", "r"))
+config = yaml.safe_load(open("config.yaml", "r"))
 
 # Note: For dummy data examples, see: examples/dummy_data_creation
 

@@ -27,7 +27,7 @@ from pixaris.orchestration.base import generate_images_based_on_dataset
 
 # %%
 # Load configuration
-config = yaml.safe_load(open("pixaris/config.yaml", "r"))
+config = yaml.safe_load(open("config.yaml", "r"))
 
 # Define project parameters
 PROJECT = "dummy_project"
