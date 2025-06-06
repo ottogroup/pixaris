@@ -30,9 +30,9 @@ from pixaris.orchestration.base import generate_images_based_on_dataset
 config = yaml.safe_load(open("pixaris/config.yaml", "r"))
 
 # Define project parameters
-PROJECT = "examples_for_readme"
-DATASET = "animals"
-EXPERIMENT_RUN_NAME = "example-2"
+PROJECT = "dummy_project"
+DATASET = "dummy_dataset"
+EXPERIMENT_RUN_NAME = "example-run"
 
 # Load workflow data
 with open(os.getcwd() + "/test/assets/test_inspo_apiformat.json", "r") as file:
