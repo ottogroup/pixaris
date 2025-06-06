@@ -50,8 +50,8 @@ class GeminiGenerator(ImageGenerator):
 
         :param dataset: A list of dicts containing image information.
         :type dataset: List[dict[str, List[dict[str, Image.Image]]]
-        :param parameters: A list of dictionaries containing generation parameters.
-        :type parameters: list[dict[str, str, any]]
+        :param args: A dictionary containing the parameters to be used for the image generation process.
+        :type args: dict[str, any]
         :raises ValueError: If the validation fails for any reason (e.g., missing fields).
         """
         parameters = args.get("generation_params", [])

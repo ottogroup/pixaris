@@ -56,8 +56,8 @@ class ComfyGenerator(ImageGenerator):
 
         :param dataset: A list of dictionaries containing the images to be loaded.
         :type dataset: List[dict[str, List[dict[str, Image.Image]]]
-        :param parameters: A list of dictionaries containing the parameters to be used for the image generation process.
-        :type parameters: list[dict[str, str, any]]
+        :param args: A dictionary containing the parameters to be used for the image generation process.
+        :type args: dict[str, any]
         :return: The path to the validated workflow file.
         :rtype: str
         """
