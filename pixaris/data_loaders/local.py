@@ -26,7 +26,7 @@ class LocalDatasetLoader(DatasetLoader):
         self.dataset = dataset
         self.project = project
         self.eval_dir_local = eval_dir_local
-        
+
         # Check if the dataset directory exists
         dataset_path = os.path.join(self.eval_dir_local, self.project, self.dataset)
         if not os.path.exists(dataset_path):
@@ -34,13 +34,13 @@ class LocalDatasetLoader(DatasetLoader):
                 f"Dataset directory does not exist: {dataset_path}. "
                 f"Please create the directory structure or check your project and dataset names."
             )
-        
+
         self.image_dirs = [
             name
             for name in os.listdir(dataset_path)
             if os.path.isdir(os.path.join(dataset_path, name))
         ]
-        
+
         if not self.image_dirs:
             raise ValueError(
                 f"No image directories found in {dataset_path}. "
