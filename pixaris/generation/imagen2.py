@@ -28,7 +28,7 @@ class Imagen2Generator(ImageGenerator):
     def validate_inputs_and_parameters(
         self,
         dataset: List[dict[str, List[dict[str, Image.Image]]]],
-        parameters: list[dict[str, str, any]] = [],
+        prompt: str,
     ):
         """
         Validates the provided dataset and parameters for image generation.
@@ -49,10 +49,8 @@ class Imagen2Generator(ImageGenerator):
                 raise ValueError("Each entry in the dataset must be a dictionary.")
 
         # Validate parameters, if given
-        if parameters:
-            for param in parameters:
-                if not isinstance(param, dict):
-                    raise ValueError("Each parameter must be a dictionary.")
+        if not isinstance(prompt, str):
+            raise ValueError("Prompt must be a string.")
 
     def _run_imagen(self, pillow_images: List[dict], prompt: str) -> Image.Image:
         """
@@ -117,13 +115,7 @@ class Imagen2Generator(ImageGenerator):
         prompt = args.get("prompt", "")
 
         # Validate prompt
-        if not isinstance(prompt, str):
-            raise ValueError("Prompt must be a string.")
-
-        # Create a temporary dataset format for validation
-        dataset = [{"pillow_images": pillow_images}] if pillow_images else []
-        generation_params = args.get("generation_params", [])
-        self.validate_inputs_and_parameters(dataset, generation_params)
+        self.validate_inputs_and_parameters(pillow_images, prompt)
 
         image = self._run_imagen(pillow_images, prompt)
 
