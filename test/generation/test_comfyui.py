@@ -80,10 +80,8 @@ class TestComfyUI(unittest.TestCase):
                 ]
             },
         ]
-        generation_params = []
-        validation = self.generator.validate_inputs_and_parameters(
-            dataset, generation_params
-        )
+        args = {"generation_params": []}
+        validation = self.generator.validate_inputs_and_parameters(dataset, args)
         self.assertIsNone(validation)
 
     def test_validate_inputs_and_parameters_dataset_wrong_keys(self):
@@ -104,7 +102,7 @@ class TestComfyUI(unittest.TestCase):
                 ]
             },
         ]
-        generation_params = []
+        args = {"generation_params": []}
 
         with self.assertRaisesRegex(
             ValueError,
@@ -112,7 +110,7 @@ class TestComfyUI(unittest.TestCase):
         ):
             self.generator.validate_inputs_and_parameters(
                 dataset,
-                generation_params,
+                args,
             )
 
     def test_validate_inputs_and_parameters_dataset_not_image(self):
@@ -133,14 +131,14 @@ class TestComfyUI(unittest.TestCase):
                 ]
             },
         ]
-        generation_params = []
+        args = {"generation_params": []}
 
         with self.assertRaisesRegex(
             ValueError, "All pillow_images should be PIL Image objects."
         ):
             self.generator.validate_inputs_and_parameters(
                 dataset,
-                generation_params,
+                args,
             )
 
     def test_validate_inputs_and_parameters_params_correct(self):
@@ -148,17 +146,17 @@ class TestComfyUI(unittest.TestCase):
         Test if generation works for correct parameters.
         """
         dataset = []
-        generation_params = [
-            {
-                "node_name": "KSampler (Efficient) - Generation",
-                "input": "seed",
-                "value": 1,
-            },
-        ]
+        args = {
+            "generation_params": [
+                {
+                    "node_name": "KSampler (Efficient) - Generation",
+                    "input": "seed",
+                    "value": 1,
+                },
+            ]
+        }
 
-        validation = self.generator.validate_inputs_and_parameters(
-            dataset, generation_params
-        )
+        validation = self.generator.validate_inputs_and_parameters(dataset, args)
         self.assertIsNone(validation)
 
     def test_validate_inputs_and_parameters_params_wrong_keys1(self):
@@ -167,13 +165,15 @@ class TestComfyUI(unittest.TestCase):
         has key "node" instead of "node_name"
         """
         dataset = []
-        generation_params = [
-            {
-                "node": "KSampler (Efficient) - Generation",
-                "input": "seed",
-                "value": 1,
-            },
-        ]
+        args = {
+            "generation_params": [
+                {
+                    "node": "KSampler (Efficient) - Generation",
+                    "input": "seed",
+                    "value": 1,
+                },
+            ]
+        }
 
         with self.assertRaisesRegex(
             ValueError,
@@ -181,7 +181,7 @@ class TestComfyUI(unittest.TestCase):
         ):
             self.generator.validate_inputs_and_parameters(
                 dataset,
-                generation_params,
+                args,
             )
 
     def test_validate_inputs_and_parameters_params_wrong_keys2(self):
@@ -190,12 +190,14 @@ class TestComfyUI(unittest.TestCase):
         'input' is missing
         """
         dataset = []
-        generation_params = [
-            {
-                "node_name": "KSampler (Efficient) - Generation",
-                "seed": 1,
-            },
-        ]
+        args = {
+            "generation_params": [
+                {
+                    "node_name": "KSampler (Efficient) - Generation",
+                    "seed": 1,
+                },
+            ]
+        }
 
         with self.assertRaisesRegex(
             ValueError,
@@ -203,7 +205,7 @@ class TestComfyUI(unittest.TestCase):
         ):
             self.generator.validate_inputs_and_parameters(
                 dataset,
-                generation_params,
+                args,
             )
 
     def test_validate_inputs_and_parameters_params_nodename(self):
@@ -212,20 +214,22 @@ class TestComfyUI(unittest.TestCase):
         nodename 'KSampler' does not exist in the workflow
         """
         dataset = []
-        generation_params = [
-            {
-                "node_name": "KSampler",
-                "input": "seed",
-                "value": 1,
-            },
-        ]
+        args = {
+            "generation_params": [
+                {
+                    "node_name": "KSampler",
+                    "input": "seed",
+                    "value": 1,
+                },
+            ]
+        }
 
         with self.assertRaisesRegex(
             ValueError, "Node KSampler does not exist in the workflow."
         ):
             self.generator.validate_inputs_and_parameters(
                 dataset,
-                generation_params,
+                args,
             )
 
     def test_validate_inputs_and_parameters_params_input(self):
@@ -234,13 +238,15 @@ class TestComfyUI(unittest.TestCase):
         input 'schritte' does not exist for the node 'KSampler (Efficient) - Generation'
         """
         dataset = []
-        generation_params = [
-            {
-                "node_name": "KSampler (Efficient) - Generation",
-                "input": "schritte",
-                "value": 1,
-            },
-        ]
+        args = {
+            "generation_params": [
+                {
+                    "node_name": "KSampler (Efficient) - Generation",
+                    "input": "schritte",
+                    "value": 1,
+                },
+            ]
+        }
 
         with self.assertRaisesRegex(
             ValueError,
@@ -250,7 +256,7 @@ class TestComfyUI(unittest.TestCase):
         ):
             self.generator.validate_inputs_and_parameters(
                 dataset,
-                generation_params,
+                args,
             )
 
     def test_validate_inputs_and_parameters_params_type(self):
@@ -259,13 +265,15 @@ class TestComfyUI(unittest.TestCase):
         "value" is a string instead of an integer for the input "seed"
         """
         dataset = []
-        generation_params = [
-            {
-                "node_name": "KSampler (Efficient) - Generation",
-                "input": "seed",
-                "value": "1",
-            },
-        ]
+        args = {
+            "generation_params": [
+                {
+                    "node_name": "KSampler (Efficient) - Generation",
+                    "input": "seed",
+                    "value": "1",
+                },
+            ]
+        }
 
         with self.assertRaisesRegex(
             ValueError,
@@ -275,7 +283,7 @@ class TestComfyUI(unittest.TestCase):
         ):
             self.generator.validate_inputs_and_parameters(
                 dataset,
-                generation_params,
+                args,
             )
 
     def test_modify_workflow_set_image(self):
@@ -305,14 +313,16 @@ class TestComfyUI(unittest.TestCase):
                 "pillow_image": self.mock_image1,
             }
         ]
-        generation_params = [
-            {
-                "node_name": "KSampler (Efficient) - Generation",
-                "input": "steps",
-                "value": 1,
-            },
-        ]
-        self.generator._modify_workflow(pillow_images, generation_params)
+        args = {
+            "generation_params": [
+                {
+                    "node_name": "KSampler (Efficient) - Generation",
+                    "input": "steps",
+                    "value": 1,
+                },
+            ]
+        }
+        self.generator._modify_workflow(pillow_images, args["generation_params"])
         self.assertEqual(
             self.generator.workflow.workflow_apiformat_json["76"]["inputs"]["steps"], 1
         )
