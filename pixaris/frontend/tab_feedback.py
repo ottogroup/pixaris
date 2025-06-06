@@ -42,8 +42,8 @@ def render_feedback_tab(
         feedback_handler.write_single_feedback(feedback=previous_details)
         return previous_details
 
-    with gr.Sidebar(open=True, position="right"):
-        with gr.Row(scale=8):
+    with gr.Row():
+        with gr.Column(scale=2, min_width=250):
             project_name = gr.Dropdown(
                 choices=PROJECTS,
                 label="Project",
@@ -81,7 +81,7 @@ def render_feedback_tab(
                 ],
                 outputs=[feedback_iterations],
             )
-        with gr.Row(scale=1):
+
             reload_projects_button = gr.Button(
                 "Reload projects",
                 variant="secondary",
@@ -104,7 +104,7 @@ def render_feedback_tab(
                 inputs=[project_name],
                 outputs=[project_name],
             )
-        with gr.Row(scale=1):
+
             columns = gr.Slider(
                 minimum=1,
                 maximum=7,
@@ -112,7 +112,7 @@ def render_feedback_tab(
                 label="Number of images per row",
                 step=1,
             )
-        with gr.Row(scale=1):
+
             display_feedback_checkbox = gr.Checkbox(
                 value=False,
                 label="Show previous feedback",
@@ -145,152 +145,166 @@ def render_feedback_tab(
                 outputs=[reloaded_feedback_count],
             )
 
-    @gr.render(
-        inputs=[
-            feedback_iterations,
-            columns,
-            display_feedback_checkbox,
-            sorting_of_images,
-            reloaded_feedback_count,
-        ]
-    )
-    def render_images_per_iteration(
-        feedback_iterations,
-        columns,
-        display_feedback_checkbox,
-        sorting_of_images,
-        reloaded_feedback_count,
-    ):
-        """
-        This function renders the images for each feedback iteration. It is decorated with gr.render
-        to allow for dynamic rendering of the images based on the selected feedback iterations.
-        - for each feedback_iteration, there is a separate accordion
-        - each accordion contains rows of images with the number of columns specified by the user
-        - each image is associated with feedback functionality
-        """
-        if not feedback_iterations:
-            gr.Markdown("No feedback iteration selected.")
-            return
-        for feedback_iteration in feedback_iterations:
-            # load the images corresponding to this feedback iteration
-            feedback_iteration_images = (
-                feedback_handler.load_images_for_feedback_iteration(
-                    feedback_iteration, sorting_of_images
-                )
+        # Main content on the right
+        with gr.Column(scale=8):
+
+            @gr.render(
+                inputs=[
+                    feedback_iterations,
+                    columns,
+                    display_feedback_checkbox,
+                    sorting_of_images,
+                    reloaded_feedback_count,
+                ]
             )
+            def render_images_per_iteration(
+                feedback_iterations,
+                columns,
+                display_feedback_checkbox,
+                sorting_of_images,
+                reloaded_feedback_count,
+            ):
+                """
+                This function renders the images for each feedback iteration. It is decorated with gr.render
+                to allow for dynamic rendering of the images based on the selected feedback iterations.
+                - for each feedback_iteration, there is a separate accordion
+                - each accordion contains rows of images with the number of columns specified by the user
+                - each image is associated with feedback functionality
+                """
+                if not feedback_iterations:
+                    gr.Markdown("No feedback iteration selected.")
+                    return
+                for feedback_iteration in feedback_iterations:
+                    # load the images corresponding to this feedback iteration
+                    feedback_iteration_images = (
+                        feedback_handler.load_images_for_feedback_iteration(
+                            feedback_iteration, sorting_of_images
+                        )
+                    )
 
-            # split images into batches of number of columns
-            num_images = len(feedback_iteration_images)
-            images_batches = [
-                feedback_iteration_images[i : i + columns]
-                for i in range(0, num_images, columns)
-            ]
+                    # split images into batches of number of columns
+                    num_images = len(feedback_iteration_images)
+                    images_batches = [
+                        feedback_iteration_images[i : i + columns]
+                        for i in range(0, num_images, columns)
+                    ]
 
-            # fill up last batch with Nones to have same number of images in each row
-            if len(images_batches[-1]) < columns:
-                images_batches[-1] += [None] * (columns - len(images_batches[-1]))
+                    # fill up last batch with Nones to have same number of images in each row
+                    if len(images_batches[-1]) < columns:
+                        images_batches[-1] += [None] * (
+                            columns - len(images_batches[-1])
+                        )
 
-            # render images
-            min_width_elements = "10px"
-            with gr.Accordion(label=f"Iteration {feedback_iteration}"):
-                for batch in images_batches:
-                    with gr.Row(variant="compact"):
-                        for img in batch:
-                            # string of image_name is needed later on, img will be modified by gradio hereafter.
-                            img_path = str(img)
-                            img_name = img_path.split("/")[-1]
-                            # only display image with buttons if it exists
-                            element_visible_bool = bool(img)
-                            with gr.Column(
-                                variant="compact", min_width=min_width_elements
-                            ):
-                                gr.Image(
-                                    value=img,
-                                    label=img_name,
-                                    show_download_button=True,
-                                    show_fullscreen_button=True,
-                                    visible=element_visible_bool,
-                                    min_width=min_width_elements,
-                                    scale=1,
-                                )
-                                img_textbox = gr.Textbox(
-                                    value=img_path, visible=False
-                                )  # needed bc gr.render
-                                comment = gr.Textbox(
-                                    label="Comment",
-                                    value="",
-                                    visible=element_visible_bool,
-                                    min_width=min_width_elements,
-                                    scale=1,
-                                    interactive=True,
-                                )
-                                feedback_indicator = gr.Radio(
-                                    choices=["Like", "Dislike"],
-                                    label="Rating",
-                                    visible=element_visible_bool,
-                                )
-                                feedback_button = gr.Button(
-                                    "Save this image feedback",
-                                    visible=element_visible_bool,
-                                    size="sm",
-                                    min_width=min_width_elements,
-                                    scale=1,
-                                    variant="primary",
-                                    interactive=False,
-                                )
+                    # render images
+                    min_width_elements = "10px"
+                    with gr.Accordion(label=f"Iteration {feedback_iteration}"):
+                        for batch in images_batches:
+                            with gr.Row(variant="compact"):
+                                for img in batch:
+                                    # string of image_name is needed later on, img will be modified by gradio hereafter.
+                                    img_path = str(img)
+                                    img_name = img_path.split("/")[-1]
+                                    # only display image with buttons if it exists
+                                    element_visible_bool = bool(img)
+                                    with gr.Column(
+                                        variant="compact", min_width=min_width_elements
+                                    ):
+                                        gr.Image(
+                                            value=img,
+                                            label=img_name,
+                                            show_download_button=True,
+                                            show_fullscreen_button=True,
+                                            visible=element_visible_bool,
+                                            min_width=min_width_elements,
+                                            scale=1,
+                                        )
+                                        img_textbox = gr.Textbox(
+                                            value=img_path, visible=False
+                                        )  # needed bc gr.render
+                                        comment = gr.Textbox(
+                                            label="Comment",
+                                            value="",
+                                            visible=element_visible_bool,
+                                            min_width=min_width_elements,
+                                            scale=1,
+                                            interactive=True,
+                                        )
+                                        feedback_indicator = gr.Radio(
+                                            choices=["Like", "Dislike"],
+                                            label="Rating",
+                                            visible=element_visible_bool,
+                                        )
+                                        feedback_button = gr.Button(
+                                            "Save this image feedback",
+                                            visible=element_visible_bool,
+                                            size="sm",
+                                            min_width=min_width_elements,
+                                            scale=1,
+                                            variant="primary",
+                                            interactive=False,
+                                        )
 
-                                # feedback button is only clickable if feedback indicator is changed recently
-                                def change_feedback_button_interactivity(
-                                    feedback_indicator,
-                                    feedback_button,
-                                ):
-                                    if feedback_indicator:
-                                        feedback_button = gr.Button(interactive=True)
-                                    else:
-                                        feedback_button = gr.Button(interactive=False)
+                                        # feedback button is only clickable if feedback indicator is changed recently
+                                        def change_feedback_button_interactivity(
+                                            feedback_indicator,
+                                            feedback_button,
+                                        ):
+                                            if feedback_indicator:
+                                                feedback_button = gr.Button(
+                                                    interactive=True
+                                                )
+                                            else:
+                                                feedback_button = gr.Button(
+                                                    interactive=False
+                                                )
 
-                                    return feedback_button
+                                            return feedback_button
 
-                                feedback_indicator.change(
-                                    fn=change_feedback_button_interactivity,
-                                    inputs=[feedback_indicator, feedback_button],
-                                    outputs=[feedback_button],
-                                )
+                                        feedback_indicator.change(
+                                            fn=change_feedback_button_interactivity,
+                                            inputs=[
+                                                feedback_indicator,
+                                                feedback_button,
+                                            ],
+                                            outputs=[feedback_button],
+                                        )
 
-                                # adjusts gr.State object with feedback details and writes feedback
-                                feedback_button.click(
-                                    fn=adjust_feedback_details,
-                                    inputs=[
-                                        img_textbox,
-                                        feedback_indicator,
-                                        comment,
-                                        feedback_details,
-                                    ],
-                                    outputs=[feedback_details],
-                                ).then(
-                                    # change feedback button to non-interactive again (avoid double feedback)
-                                    fn=lambda: gr.update(interactive=False),
-                                    inputs=None,
-                                    outputs=feedback_button,
-                                )
+                                        # adjusts gr.State object with feedback details and writes feedback
+                                        feedback_button.click(
+                                            fn=adjust_feedback_details,
+                                            inputs=[
+                                                img_textbox,
+                                                feedback_indicator,
+                                                comment,
+                                                feedback_details,
+                                            ],
+                                            outputs=[feedback_details],
+                                        ).then(
+                                            # change feedback button to non-interactive again (avoid double feedback)
+                                            fn=lambda: gr.update(interactive=False),
+                                            inputs=None,
+                                            outputs=feedback_button,
+                                        )
 
-                                feedback = feedback_handler.get_feedback_per_image(
-                                    feedback_iteration=feedback_iteration,
-                                    image_name=img_name,
-                                )
-                                gr.Markdown(
-                                    label="Previous Feedback",
-                                    value=f"Likes: {feedback['likes']} - Comments: {feedback['comments_liked']}"
-                                    if feedback and reloaded_feedback_count > 0
-                                    else "",
-                                    visible=display_feedback_checkbox
-                                    and element_visible_bool,
-                                )
-                                gr.Markdown(
-                                    label="Previous Feedback",
-                                    value=f"Dislikes: {feedback['dislikes']} - Comments: {feedback['comments_disliked']}"
-                                    if feedback and reloaded_feedback_count > 0
-                                    else "",
-                                    visible=display_feedback_checkbox
-                                    and element_visible_bool,
-                                )
+                                        feedback = (
+                                            feedback_handler.get_feedback_per_image(
+                                                feedback_iteration=feedback_iteration,
+                                                image_name=img_name,
+                                            )
+                                        )
+                                        gr.Markdown(
+                                            label="Previous Feedback",
+                                            value=f"Likes: {feedback['likes']} - Comments: {feedback['comments_liked']}"
+                                            if feedback and reloaded_feedback_count > 0
+                                            else "",
+                                            visible=display_feedback_checkbox
+                                            and element_visible_bool,
+                                        )
+                                        gr.Markdown(
+                                            label="Previous Feedback",
+                                            value=f"Dislikes: {feedback['dislikes']} - Comments: {feedback['comments_disliked']}"
+                                            if feedback and reloaded_feedback_count > 0
+                                            else "",
+                                            visible=display_feedback_checkbox
+                                            and element_visible_bool,
+                                        )
