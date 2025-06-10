@@ -28,7 +28,7 @@ print(f"Current working directory: {os.getcwd()}")
 if False:  # set to True if executing from notebook
     os.chdir("../../")
 
-config = yaml.safe_load(open("pixaris/config.yaml", "r"))
+config = yaml.safe_load(open("config.yaml", "r"))
 
 # %% [markdown]
 # ## Define Tiger Image Creation Function

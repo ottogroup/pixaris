@@ -117,6 +117,9 @@ class Imagen2Generator(ImageGenerator):
         pillow_images = args.get("pillow_images", [])
         prompt = args.get("prompt", "")
 
+        # Validate prompt
+        self.validate_inputs_and_parameters(pillow_images, prompt)
+
         image = self._run_imagen(pillow_images, prompt)
 
         # Since the names should all be the same, we can just take the first.
