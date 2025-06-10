@@ -7,8 +7,11 @@ This Agents.md file provides guidance for OpenAI Codex and other AI agents worki
 - `/pixaris`: Core library code
   - `/data_loaders`: dataset loaders
   - `/experiment_handlers`: experiment orchestration
+  - `/feedback_handlers`: feedback handling
   - `/generation`: image generation modules
+  - `/metrics`: evaluate experiment
   - `/frontend`: Gradio UI components
+  - `/orchestration`: glue between the components
   - `/utils`: helper utilities
 - `/examples`: Example scripts demonstrating usage
 - `/test`: Pytest suite for maintaining quality
@@ -56,7 +59,6 @@ make test
 Before submitting changes, run:
 
 ```bash
-make fmt
 make lint
 make test
 ```
