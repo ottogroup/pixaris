@@ -66,8 +66,7 @@ def generate_images_based_on_dataset(
 
     # Validate inputs
     dataset = data_loader.load_dataset()
-    generation_params = args.get("generation_params", [])
-    image_generator.validate_inputs_and_parameters(dataset, generation_params)
+    image_generator.validate_inputs_and_parameters(dataset, args)
     experiment_handler._validate_experiment_run_name(args["experiment_run_name"])
     max_parallel_jobs = args.get("max_parallel_jobs", 1)
 

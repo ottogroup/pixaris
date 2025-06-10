@@ -10,9 +10,10 @@ def render_experiment_tracking_tab(
     results_directory: str,
 ):
     dataset_experiment_tracking_results = gr.State(pd.DataFrame())
-    with gr.Sidebar(open=True, position="right"):
-        gr.Markdown("Experiments")
-        with gr.Row(scale=8):
+    with gr.Row():
+        # Sidebar on the left
+        with gr.Column(scale=2, min_width=250):
+            gr.Markdown("Experiments")
             # load all projects and corresponding datasets at the beginning
             PROJECTS_DICT = experiment_handler.load_projects_and_datasets()
             global PROJECTS
@@ -30,7 +31,6 @@ def render_experiment_tracking_tab(
             def update_dataset_choices(project_name, dataset):
                 """Update choices of feedback iterations for selected project and display reload button."""
                 dataset_choices = PROJECTS_DICT[project_name]
-
                 dataset = gr.Dropdown(
                     label="Dataset",
                     choices=dataset_choices,
@@ -44,10 +44,7 @@ def render_experiment_tracking_tab(
             # change dataset choices upon project change
             project_name.change(
                 fn=update_dataset_choices,
-                inputs=[
-                    project_name,
-                    dataset,
-                ],
+                inputs=[project_name, dataset],
                 outputs=[dataset],
             )
 
@@ -91,7 +88,7 @@ def render_experiment_tracking_tab(
                 ],
                 outputs=[experiments, dataset_experiment_tracking_results],
             )
-        with gr.Row(scale=1):
+
             reload_projects_button = gr.Button(
                 "Reload projects",
                 variant="secondary",
@@ -110,8 +107,8 @@ def render_experiment_tracking_tab(
                 inputs=[project_name],
                 outputs=[project_name],
             )
-        # columns and gallery height sliders
-        with gr.Row(scale=1):
+
+            # columns and gallery height sliders
             columns = gr.Slider(
                 minimum=1,
                 maximum=20,
@@ -119,7 +116,6 @@ def render_experiment_tracking_tab(
                 label="Number of images per row",
                 step=1,
             )
-        with gr.Row(scale=1):
             gallery_height = gr.Slider(
                 minimum=100,
                 maximum=1000,
@@ -128,58 +124,64 @@ def render_experiment_tracking_tab(
                 step=10,
             )
 
-    with gr.Tab("Images"):
-        # Display images in a gallery
+        # Main content on the right
+        with gr.Column(scale=8):
+            with gr.Tab("Images"):
+                # Display images in a gallery
 
-        @gr.render(inputs=[project_name, dataset, experiments, columns, gallery_height])
-        def render_images_per_experiment(
-            project_name, dataset, experiments, columns, gallery_height
-        ):
-            """
-            Renders one accordion with a gallery per experiment. Render decorator enables listening to experiments checkbox group.
-            """
-            if not experiments:
-                gr.Markdown("No experiment selected.")
-                return
-            for experiment_name in experiments:
-                with gr.Accordion(label=f"Experiment {experiment_name}"):
-                    experiment_images = experiment_handler.load_images_for_experiment(
-                        project=project_name,
-                        dataset=dataset,
-                        experiment_run_name=experiment_name,
-                        local_results_directory=results_directory,
-                    )
-                    gr.Gallery(
-                        value=experiment_images,
-                        columns=columns,
-                        rows=1,
-                        show_download_button=True,
-                        show_fullscreen_button=True,
-                        height=gallery_height,
-                        object_fit="contain",
-                    )
-
-    with gr.Tab("Table"):
-        # Display experiment results in a table
-
-        @gr.render(inputs=[experiments, dataset_experiment_tracking_results])
-        def render_experiment_results_table(
-            experiments, dataset_experiment_tracking_results
-        ):
-            if not experiments:
-                gr.Markdown("No experiment selected.")
-                return
-
-            table_data = dataset_experiment_tracking_results.copy()
-            table_data = table_data.loc[
-                dataset_experiment_tracking_results["experiment_run_name"].isin(
-                    experiments
+                @gr.render(
+                    inputs=[project_name, dataset, experiments, columns, gallery_height]
                 )
-            ]
-            gr.DataFrame(
-                table_data,
-                label="Experiment Results",
-                wrap=True,
-                show_search="filter",
-                max_height=1000,
-            )
+                def render_images_per_experiment(
+                    project_name, dataset, experiments, columns, gallery_height
+                ):
+                    """
+                    Renders one accordion with a gallery per experiment. Render decorator enables listening to experiments checkbox group.
+                    """
+                    if not experiments:
+                        gr.Markdown("No experiment selected.")
+                        return
+                    for experiment_name in experiments:
+                        with gr.Accordion(label=f"Experiment {experiment_name}"):
+                            experiment_images = (
+                                experiment_handler.load_images_for_experiment(
+                                    project=project_name,
+                                    dataset=dataset,
+                                    experiment_run_name=experiment_name,
+                                    local_results_directory=results_directory,
+                                )
+                            )
+                            gr.Gallery(
+                                value=experiment_images,
+                                columns=columns,
+                                rows=1,
+                                show_download_button=True,
+                                show_fullscreen_button=True,
+                                height=gallery_height,
+                                object_fit="contain",
+                            )
+
+            with gr.Tab("Table"):
+                # Display experiment results in a table
+
+                @gr.render(inputs=[experiments, dataset_experiment_tracking_results])
+                def render_experiment_results_table(
+                    experiments, dataset_experiment_tracking_results
+                ):
+                    if not experiments:
+                        gr.Markdown("No experiment selected.")
+                        return
+
+                    table_data = dataset_experiment_tracking_results.copy()
+                    table_data = table_data.loc[
+                        dataset_experiment_tracking_results["experiment_run_name"].isin(
+                            experiments
+                        )
+                    ]
+                    gr.DataFrame(
+                        table_data,
+                        label="Experiment Results",
+                        wrap=True,
+                        show_search="filter",
+                        max_height=1000,
+                    )
