@@ -118,7 +118,7 @@ class Imagen2Generator(ImageGenerator):
         prompt = args.get("prompt", "")
 
         # Validate prompt
-        self.validate_inputs_and_parameters(pillow_images, prompt)
+        self.validate_inputs_and_parameters(pillow_images, args)
 
         image = self._run_imagen(pillow_images, prompt)
 
