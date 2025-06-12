@@ -99,8 +99,8 @@ class FeedbackHandler:
         Creates a feedback iteration, which involves persisting the creation to a feedback table as well as
         save the corresponding images.
 
-        :param images_directory: Path to local directory containing images to upload
-        :type images_directory: str
+        :param local_image_directory: Path to local directory containing images to upload
+        :type local_image_directory: str
         :param project: Name of the project
         :type project: str
         :param feedback_iteration: Name of the feedback iteration
