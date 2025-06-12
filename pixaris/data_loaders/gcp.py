@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import shutil
 from google.cloud import storage
 from google.cloud.storage import transfer_manager
@@ -202,3 +203,62 @@ class GCPDatasetLoader(DatasetLoader):
                 )
             dataset.append({"pillow_images": pillow_images})
         return dataset
+
+    def _upload_dir_to_bucket(self, source_dir: str, bucket_prefix: str, workers=8):
+        storage_client = storage.Client(project=self.gcp_project_id)
+        bucket = storage_client.get_bucket(self.bucket_name)
+
+        # this follows https://cloud.google.com/storage/docs/uploading-objects?hl=de
+        # First, recursively get all files in `directory` as Path objects.
+        directory_as_path_obj = Path(source_dir)
+        paths = directory_as_path_obj.rglob("*")
+
+        # Filter so the list only includes files, not directories themselves.
+        file_paths = [path for path in paths if path.is_file()]
+
+        # These paths are relative to the current working directory. Next, make them
+        # relative to `directory`
+        relative_paths = [path.relative_to(source_dir) for path in file_paths]
+
+        # Finally, convert them all to strings.
+        string_paths = [str(path) for path in relative_paths]
+
+        # Start the upload.
+        results = transfer_manager.upload_many_from_filenames(
+            bucket,
+            string_paths,
+            source_directory=source_dir,
+            blob_name_prefix=bucket_prefix,
+            max_workers=workers,
+        )
+
+        for name, result in zip(string_paths, results):
+            # The results list is either `None` or an exception for each filename in
+            # the input list, in order.
+
+            if isinstance(result, Exception):
+                print("Failed to upload {} due to exception: {}".format(name, result))
+            else:
+                print("Uploaded {} to {}.".format(name, bucket.name))
+
+    def create_dataset(
+        self,
+    ):
+        """
+        Creates a gcp dataset based on an existing local directory structure.
+        """
+        # check if local dataset exists
+        local_dataset_path = os.path.join(
+            self.eval_dir_local, self.project, self.dataset
+        )
+
+        if not os.path.exists(local_dataset_path):
+            raise FileNotFoundError(
+                f"Local dataset path does not exist: {local_dataset_path}"
+            )
+
+        # upload dataset
+        self._upload_dir_to_bucket(
+            source_dir=local_dataset_path,
+            bucket_prefix=f"experiment_inputs/{self.project}/{self.dataset}/",
+        )

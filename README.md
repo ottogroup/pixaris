@@ -22,6 +22,7 @@
   - [Getting Started](#getting-started)
     - [Summary](#summary)
       - [Load the examples as a notebook](#load-the-examples-as-a-notebook)
+    - [Setting up a data set](#setting-up-a-data-set)
     - [Loading your data set](#loading-your-data-set)
     - [Setting up how you are generating images](#setting-up-how-you-are-generating-images)
     - [Setting up your experiment tracking](#setting-up-your-experiment-tracking)
@@ -127,6 +128,29 @@ jupytext --to py notebook.ipynb
 # convert notebook.py to an .ipynb file with no outputs
 jupytext --to notebook notebook.py
 ```
+
+### Setting up a data set
+Start setting up data you want to use to generate your outputs.
+We need a project and a dataset in this project.
+In the dataset we have some folders containing the images we use to run an experiment.
+The structure should look like this: Where Input and Mask are the directories containing the images used to generate outputs.
+You can define more or less input dirs if you like.
+
+```
+local_results
+└───dummy_project
+    └───dummy_dataset
+        ├───Input
+        │   ├───image_01.jpg
+        │   └───image_02.jpg
+        ├───Mask
+        │   ├───image_01.jpg
+        │   └───image_02.jpg
+```
+
+[This example](https://github.com/ottogroup/pixaris/tree/main/examples/dummy_data_creation/create_dummy_eval_data_for_Generator_locally.py) can be set up automatically.
+
+You can upload an existing dataset to GCP by following [this example](https://github.com/ottogroup/pixaris/tree/main/examples/dataset_creation/initialise_dataset_for_GCPDatasetLoader.py) 
 
 ### Loading your data set
 First step: load your dataset using a `DatasetLoader`. If you have your data in a Google Cloud bucket, you can use the `GCPDatasetLoader`.
