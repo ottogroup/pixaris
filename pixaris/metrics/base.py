@@ -6,4 +6,5 @@ class BaseMetric:
 
     @abstractmethod
     def calculate(self, x: any) -> dict:
+        """Calculate the metric for the provided input."""
         pass

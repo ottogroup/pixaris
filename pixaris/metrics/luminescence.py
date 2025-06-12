@@ -32,6 +32,7 @@ class LuminescenceComparisonByMaskMetric(BaseMetric):
         self,
         mask_images: Iterable[Image],
     ):
+        """Store mask images used for luminescence comparison."""
         super().__init__()
         self.mask_images = mask_images
 

@@ -27,6 +27,7 @@ class ComfyClusterGenerator(ImageGenerator):
         self,
         workflow_apiformat_json: str,
     ):
+        """Initialise the cluster generator with the workflow path."""
         self.workflow_apiformat_json = workflow_apiformat_json
         self.hosts = {}
         self.run_background_task = False
@@ -128,6 +129,7 @@ class ComfyClusterGenerator(ImageGenerator):
         """
 
         def task():
+            """Background loop that periodically updates host availability."""
             while self.run_background_task:
                 self.update_available_hosts()
                 time.sleep(60)

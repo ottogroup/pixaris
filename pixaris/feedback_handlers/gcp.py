@@ -31,6 +31,7 @@ class GCPFeedbackHandler(FeedbackHandler):
         gcp_pixaris_bucket_name: str,
         local_feedback_directory: str = "local_results",
     ):
+        """Set up access to GCP services and local storage."""
         self.gcp_project_id = gcp_project_id
         self.gcp_bq_feedback_table = gcp_bq_feedback_table
         self.gcp_pixaris_bucket_name = gcp_pixaris_bucket_name

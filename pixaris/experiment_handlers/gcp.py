@@ -32,6 +32,7 @@ class GCPExperimentHandler(ExperimentHandler):
         gcp_bq_experiment_dataset: str,
         gcp_pixaris_bucket_name: str,
     ):
+        """Initialise connections and GCP resource identifiers."""
         self.gcp_project_id = gcp_project_id
         self.gcp_bq_experiment_dataset = gcp_bq_experiment_dataset
         self.gcp_pixaris_bucket_name = gcp_pixaris_bucket_name

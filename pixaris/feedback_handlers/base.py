@@ -4,6 +4,8 @@ from datetime import datetime
 
 
 class FeedbackHandler:
+    """Base class for persisting and retrieving user feedback."""
+
     feedback_iteration_choices = []
     feedback_df = pd.DataFrame()
 

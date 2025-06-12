@@ -22,6 +22,7 @@ from kubernetes.stream import stream
 
 @click.group()
 def cli():
+    """Entry point for the kubernetes orchestration CLI."""
     pass
 
 

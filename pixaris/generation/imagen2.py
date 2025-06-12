@@ -22,6 +22,7 @@ class Imagen2Generator(ImageGenerator):
     """
 
     def __init__(self, gcp_project_id: str, gcp_location: str):
+        """Set GCP project and location used for Imagen2 calls."""
         self.gcp_project_id = gcp_project_id
         self.gcp_location = gcp_location
 

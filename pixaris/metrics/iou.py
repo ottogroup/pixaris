@@ -7,7 +7,10 @@ from pixaris.metrics.utils import normalize_image
 
 
 class IoUMetric(BaseMetric):
+    """Intersection over Union metric for binary images."""
+
     def __init__(self, reference_images: Iterable[Image]):
+        """Store reference images used for IoU calculation."""
         super().__init__()
         self.reference_images = reference_images
 

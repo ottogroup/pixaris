@@ -22,6 +22,7 @@ class ComfyGenerator(ImageGenerator):
         workflow_apiformat_json: dict,
         api_host: str = "localhost:8188",
     ):
+        """Create a generator for a given ComfyUI workflow and API host."""
         self.api_host = api_host
         self.workflow_apiformat_json = workflow_apiformat_json
         self.workflow = ComfyWorkflow(

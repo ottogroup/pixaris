@@ -7,6 +7,7 @@ PROJECTS = []
 def render_feedback_tab(
     feedback_handler: FeedbackHandler,
 ):
+    """Render the feedback tab allowing users to review images."""
     # initially load all projects
     global PROJECTS
     PROJECTS = [""] + feedback_handler.load_projects_list()
@@ -90,6 +91,7 @@ def render_feedback_tab(
             )
 
             def reload_projects(project_name):
+                """Reload the list of projects from storage."""
                 global PROJECTS
                 PROJECTS = feedback_handler.load_projects_list()
                 project_name = gr.Dropdown(
@@ -132,6 +134,7 @@ def render_feedback_tab(
             reloaded_feedback_count = gr.State(value=1)
 
             def reload_feedback(project_name, reloaded_feedback_count):
+                """Refresh feedback information for the selected project."""
                 feedback_handler.load_all_feedback_iteration_info_for_project(
                     project_name
                 )
@@ -249,6 +252,7 @@ def render_feedback_tab(
                                             feedback_indicator,
                                             feedback_button,
                                         ):
+                                            """Enable the save button only after feedback is selected."""
                                             if feedback_indicator:
                                                 feedback_button = gr.Button(
                                                     interactive=True
