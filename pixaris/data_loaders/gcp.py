@@ -1,15 +1,16 @@
+import io
 import os
 import shutil
 from google.cloud import storage
 from google.cloud.storage import transfer_manager
 from pixaris.data_loaders.base import DatasetLoader
-from typing import List
+from typing import Any, Dict, List
 from PIL import Image
 
 
 class GCPDatasetLoader(DatasetLoader):
     """
-    GCPDatasetLoader is a class for loading datasets from a Google Cloud Storage bucket. Upon initialisation, the dataset is downloaded to a local directory.
+    GCPDatasetLoader is a class for loading datasets from a Google Cloud Storage bucket. Images are loaded directly from the bucket without being stored locally.
 
     :param gcp_project_id: The Google Cloud Platform project ID.
     :type gcp_project_id: str
@@ -43,29 +44,34 @@ class GCPDatasetLoader(DatasetLoader):
         self.force_download = force_download
         self.bucket = None
         self.image_dirs = None
+        self.dataset_blob_map: Dict[str, Dict[str, Any]] = {}
 
     def _download_dataset(self):
         """
-        Downloads evaluation images for a given evaluation set.
+        Prepares references to the evaluation images for a given evaluation set.
         """
         storage_client = storage.Client(project=self.gcp_project_id)
         self.bucket = storage_client.get_bucket(self.bucket_name)
         if self.force_download:
             self._verify_bucket_folder_exists()
 
-        # only download if the local directory does not exist or is empty
-        if self._decide_if_download_needed():
-            self._download_bucket_dir()
+        blobs = self.bucket.list_blobs(
+            prefix=f"experiment_inputs/{self.project}/{self.dataset}/"
+        )
+        dataset_blob_map: Dict[str, Dict[str, Any]] = {}
+        for blob in blobs:
+            if blob.name.endswith("/"):
+                continue
+            parts = blob.name.split("/")
+            if len(parts) < 5:
+                continue
+            _, _proj, _data, image_dir, image_name = parts[:5]
+            dataset_blob_map.setdefault(image_name, {})[image_dir] = blob
 
-        self.image_dirs = [
-            name
-            for name in os.listdir(
-                os.path.join(self.eval_dir_local, self.project, self.dataset)
-            )
-            if os.path.isdir(
-                os.path.join(self.eval_dir_local, self.project, self.dataset, name)
-            )
-        ]
+        self.dataset_blob_map = dataset_blob_map
+        self.image_dirs = sorted(
+            {dir_name for mapping in dataset_blob_map.values() for dir_name in mapping}
+        )
 
     def _verify_bucket_folder_exists(self):
         """
@@ -146,19 +152,19 @@ class GCPDatasetLoader(DatasetLoader):
         :rtype: List[str]
         :raises: ValueError: If the names of the images in each image directory are not the same.
         """
-        basis_names = os.listdir(
-            os.path.join(
-                self.eval_dir_local, self.project, self.dataset, self.image_dirs[0]
-            )
-        )
-        basis_names = [name for name in basis_names if name != ".DS_Store"]
-        for image_dir in self.image_dirs:
-            image_names = os.listdir(
-                os.path.join(self.eval_dir_local, self.project, self.dataset, image_dir)
-            )
-            image_names = [name for name in image_names if name != ".DS_Store"]
+        dir_to_names: Dict[str, List[str]] = {
+            dir_name: [] for dir_name in self.image_dirs
+        }
+        for image_name, mapping in self.dataset_blob_map.items():
+            for dir_name in mapping.keys():
+                dir_to_names[dir_name].append(image_name)
 
-            if basis_names != image_names:
+        for key in dir_to_names:
+            dir_to_names[key] = sorted(dir_to_names[key])
+
+        basis_names = dir_to_names[self.image_dirs[0]]
+        for image_dir in self.image_dirs[1:]:
+            if basis_names != dir_to_names[image_dir]:
                 raise ValueError(
                     "The names of the images in each image directory should be the same. {} does not match {}.".format(
                         self.image_dirs[0], image_dir
@@ -185,15 +191,9 @@ class GCPDatasetLoader(DatasetLoader):
         for image_name in image_names:
             pillow_images = []
             for image_dir in self.image_dirs:
-                image_path = os.path.join(
-                    self.eval_dir_local,
-                    self.project,
-                    self.dataset,
-                    image_dir,
-                    image_name,
-                )
-                # Load the image using PIL
-                pillow_image = Image.open(image_path)
+                blob = self.dataset_blob_map[image_name][image_dir]
+                img_bytes = self._download_blob_bytes(blob)
+                pillow_image = Image.open(io.BytesIO(img_bytes))
                 pillow_images.append(
                     {
                         "node_name": f"Load {image_dir.capitalize()} Image",
@@ -202,3 +202,7 @@ class GCPDatasetLoader(DatasetLoader):
                 )
             dataset.append({"pillow_images": pillow_images})
         return dataset
+
+    def _download_blob_bytes(self, blob: Any) -> bytes:
+        """Download a blob and return its bytes."""
+        return blob.download_as_bytes()
