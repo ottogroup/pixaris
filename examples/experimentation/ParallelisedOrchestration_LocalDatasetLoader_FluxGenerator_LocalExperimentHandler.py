@@ -36,9 +36,9 @@ config = yaml.safe_load(open("config.yaml", "r"))
 os.environ["BFL_API_KEY"] = config["bfl_api_key"]
 
 # Configuration parameters - MODIFY THESE VALUES
-PROJECT = "test_project"  # Your project name
-DATASET = "mock"  # Your dataset name
-PROMPT = "A beautiful woman on a beach"  # The prompt to use for generation
+PROJECT = "dummy_project"  # Your project name
+DATASET = "dummy_dataset"  # Your dataset name
+PROMPT = "An animal on a beach"  # The prompt to use for generation
 EXPERIMENT_RUN_NAME = "example-flux"  # Name of this experiment run
 
 # %% [markdown]
@@ -52,7 +52,7 @@ print(f"Initializing LocalDatasetLoader for project '{PROJECT}', dataset '{DATAS
 data_loader = LocalDatasetLoader(
     project=PROJECT,
     dataset=DATASET,
-    eval_dir_local="test",
+    eval_dir_local="local_experiment_inputs",
 )
 
 # Initialize the FluxFillGenerator
