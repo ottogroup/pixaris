@@ -13,8 +13,6 @@ data_loader = GCPDatasetLoader(
     gcp_pixaris_bucket_name=config["gcp_pixaris_bucket_name"],
     project=PROJECT,
     dataset=DATASET,
-    eval_dir_local="local_experiment_inputs",
-    force_download=False,
 )
 
-data_loader.create_dataset()
+data_loader.create_dataset(project=PROJECT, dataset=DATASET)

@@ -204,12 +204,21 @@ class GCPDatasetLoader(DatasetLoader):
             dataset.append({"pillow_images": pillow_images})
         return dataset
 
-    def _upload_dir_to_bucket(self, source_dir: str, bucket_prefix: str, workers=8):
+    def _upload_dir_to_bucket(self, bucket_prefix: str, workers=8):
+        """takes a project and uploads its contents to a GCP bucket.
+        project and bucket are set in the constructor.
+
+        :param bucket_prefix: The prefix under which the files will be uploaded in the bucket.
+        :type bucket_prefix: str
+        :param workers: The number of worker threads to use for the upload. Defaults to 8.
+        :type workers: int, optional
+        """
         storage_client = storage.Client(project=self.gcp_project_id)
         bucket = storage_client.get_bucket(self.bucket_name)
 
         # this follows https://cloud.google.com/storage/docs/uploading-objects?hl=de
         # First, recursively get all files in `directory` as Path objects.
+        source_dir = os.path.join(self.eval_dir_local, self.project, self.dataset)
         directory_as_path_obj = Path(source_dir)
         paths = directory_as_path_obj.rglob("*")
 
@@ -242,23 +251,21 @@ class GCPDatasetLoader(DatasetLoader):
                 print("Uploaded {} to {}.".format(name, bucket.name))
 
     def create_dataset(
-        self,
+        self, project: str, dataset: str,
     ):
         """
-        Creates a gcp dataset based on an existing local directory structure.
+        Creates a gcp dataset based on an existing local directory structure and uploads it to gcp.
+        
+        :param project: The name of the project containing the dataset.
+        :type project: str
+        :param dataset: The name of the dataset to upload.
+        :type dataset: str
         """
-        # check if local dataset exists
-        local_dataset_path = os.path.join(
-            self.eval_dir_local, self.project, self.dataset
-        )
+        self.project = project
+        self.dataset = dataset
+        
+        self._retrieve_and_check_dataset_image_names()
 
-        if not os.path.exists(local_dataset_path):
-            raise FileNotFoundError(
-                f"Local dataset path does not exist: {local_dataset_path}"
-            )
-
-        # upload dataset
         self._upload_dir_to_bucket(
-            source_dir=local_dataset_path,
             bucket_prefix=f"experiment_inputs/{self.project}/{self.dataset}/",
         )
