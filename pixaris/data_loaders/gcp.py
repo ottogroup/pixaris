@@ -251,11 +251,13 @@ class GCPDatasetLoader(DatasetLoader):
                 print("Uploaded {} to {}.".format(name, bucket.name))
 
     def create_dataset(
-        self, project: str, dataset: str,
+        self,
+        project: str,
+        dataset: str,
     ):
         """
         Creates a gcp dataset based on an existing local directory structure and uploads it to gcp.
-        
+
         :param project: The name of the project containing the dataset.
         :type project: str
         :param dataset: The name of the dataset to upload.
@@ -263,7 +265,7 @@ class GCPDatasetLoader(DatasetLoader):
         """
         self.project = project
         self.dataset = dataset
-        
+
         self._retrieve_and_check_dataset_image_names()
 
         self._upload_dir_to_bucket(
