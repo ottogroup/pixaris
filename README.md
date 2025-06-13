@@ -147,7 +147,7 @@ local_experiment_inputs
         │   ├───image_01.jpg
         │   └───image_02.jpg
 
-[This example](https://github.com/ottogroup/pixaris/tree/main/examples/dummy_data_creation/create_dummy_eval_data_for_Generator_locally.py) can be set up automatically.
+[This example](https://github.com/ottogroup/pixaris/tree/main/examples/dummy_data_creation/create_dummy_eval_data_for_Generator_locally.py) shows you how to setup a dataset with dummy data for experimenting.
 
 You can upload an existing dataset to GCP by following [this example](https://github.com/ottogroup/pixaris/tree/main/examples/dataset_creation/initialise_dataset_for_GCPDatasetLoader.py) 
 
