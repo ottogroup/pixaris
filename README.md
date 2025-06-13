@@ -132,9 +132,9 @@ jupytext --to notebook notebook.py
 ### Setting up a data set
 Start setting up data you want to use to generate your outputs.
 We need a project and a dataset in this project.
-In the dataset we have some folders containing the images we use to run an experiment.
-The structure should look like this: Where Input and Mask are the directories containing the images used to generate outputs.
-You can define more or less input dirs if you like.
+In the dataset we have some folders containing the images we use to run an experiment. One folder holds images that are the inputs of one kind.
+The structure should look like this, where Object and Mask are the directories containing the images used to generate outputs. Both directories need to hold equivalent images, so image_01.jpg in `Object` folder has a corresponding mask in `Mask` folder with the same name.
+You can define more or less input directories if you like.
 
 ```
 local_results
