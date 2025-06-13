@@ -9,10 +9,10 @@
 # local_results
 # └───dummy_project
 #     └───dummy_dataset
-#         ├───Input
+#         ├───input
 #         │   ├───image_01.jpg
 #         │   └───image_02.jpg
-#         ├───Mask
+#         ├───mask
 #         │   ├───image_01.jpg
 #         │   └───image_02.jpg
 # ```
@@ -106,8 +106,8 @@ img = create_tiger_image(random.randint(0, 10_000_000))
 # Create the directory structure
 print("\n=== Creating Directory Structure ===")
 dataset_path = os.path.join(BASE_DIR, PROJECT_NAME, DATASET_NAME)
-input_dir = os.path.join(dataset_path, "Input")
-mask_dir = os.path.join(dataset_path, "Mask")
+input_dir = os.path.join(dataset_path, "input")
+mask_dir = os.path.join(dataset_path, "mask")
 
 create_directory(input_dir)
 create_directory(mask_dir)
