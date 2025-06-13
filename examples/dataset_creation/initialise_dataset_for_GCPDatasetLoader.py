@@ -7,7 +7,6 @@ config = yaml.safe_load(open("config.yaml", "r"))
 # dummy_data_creation/create_dummy_dataset_for_Generator_locally.py
 PROJECT = "dummy_project"  # Your project name
 DATASET = "dummy_dataset"  # Your dataset name
-EXPERIMENT_RUN_NAME = "example-run"  # Name of this experiment run
 
 data_loader = GCPDatasetLoader(
     gcp_project_id=config["gcp_project_id"],
