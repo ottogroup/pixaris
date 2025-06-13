@@ -137,16 +137,15 @@ The structure should look like this, where Object and Mask are the directories c
 You can define more or less input directories if you like.
 
 ```
-local_results
+local_experiment_inputs
 └───dummy_project
     └───dummy_dataset
-        ├───Input
+        ├───Object
         │   ├───image_01.jpg
         │   └───image_02.jpg
         ├───Mask
         │   ├───image_01.jpg
         │   └───image_02.jpg
-```
 
 [This example](https://github.com/ottogroup/pixaris/tree/main/examples/dummy_data_creation/create_dummy_eval_data_for_Generator_locally.py) can be set up automatically.
 
