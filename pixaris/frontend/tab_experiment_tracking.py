@@ -9,6 +9,7 @@ def render_experiment_tracking_tab(
     experiment_handler: ExperimentHandler,
     results_directory: str,
 ):
+    """Render the experiment tracking tab of the frontend."""
     dataset_experiment_tracking_results = gr.State(pd.DataFrame())
     with gr.Row():
         # Sidebar on the left
@@ -97,6 +98,7 @@ def render_experiment_tracking_tab(
             )
 
             def reload_projects(project_name):
+                """Reload project list from the experiment handler."""
                 PROJECTS_DICT = experiment_handler.load_projects_and_datasets()
                 global PROJECTS
                 PROJECTS = [""] + list(PROJECTS_DICT.keys())
@@ -168,6 +170,7 @@ def render_experiment_tracking_tab(
                 def render_experiment_results_table(
                     experiments, dataset_experiment_tracking_results
                 ):
+                    """Render a dataframe with experiment metrics."""
                     if not experiments:
                         gr.Markdown("No experiment selected.")
                         return

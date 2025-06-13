@@ -23,6 +23,7 @@ class LocalDatasetLoader(DatasetLoader):
         dataset: str,
         eval_dir_local: str = "local_experiment_inputs",
     ):
+        """Initialise the loader and verify the dataset directory."""
         self.dataset = dataset
         self.project = project
         self.eval_dir_local = eval_dir_local
