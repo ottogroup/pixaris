@@ -52,7 +52,7 @@
 Pixaris requires python = "^3.12"
 
 ### clone and own
-We recommend you to clone the [repository](https://github.com/ottogroup/pixaris) and customize it to your needs. 
+We recommend you to clone the [repository](https://github.com/ottogroup/pixaris) and customize it to your needs.
 Adapt the examples and classes to fit your specific usecase, thats how we use it.
 To install the cloned repository and make it usable you can simply run:
 
@@ -103,7 +103,7 @@ The following steps will guide you through setting up and running your first ima
 
 7.  **View Your Results:** Launch the Pixaris UI to visualize the generated images, metrics, and collected feedback.
 
-For example usages, check the [examples](https://github.com/ottogroup/pixaris/tree/main/examples) directory. To set up GCP components, such as `GCPDatasetLoader`, we use a configuration file. An [example_config.yaml](https://github.com/ottogroup/pixaris/tree/main/examples/example_config.yaml) is provided; just adjust it and save a local version.
+For example usages, check the [examples](https://github.com/ottogroup/pixaris/tree/main/examples) directory. To set up GCP components, such as `GCPDatasetLoader`, we use a configuration file. An [config.yaml](https://github.com/ottogroup/pixaris/tree/main/config.yaml) is provided; just adjust it and save a local version.
 
 ### Summary
 
@@ -296,7 +296,7 @@ For more detailed guidelines, see our [Contributing Guide](https://opensource.gu
 ## Release
 1. Update the version in `pyproject.toml`.
 2. Create a new release. Follow [GitHub Release Docu](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
-3. Validate that the github action `release_new_version.yaml` was successful. 
+3. Validate that the github action `release_new_version.yaml` was successful.
 
 ## License
 
