@@ -30,6 +30,7 @@ class GeminiGenerator(ImageGenerator):
         model_name: str = "gemini-2.0-flash-exp",
         verbose: bool = False,
     ):
+        """Configure Gemini generator settings and API details."""
         self.gcp_project_id = gcp_project_id
         # todo: once gemini is available in other regions, remove this check and the default value for gcp_location
         if gcp_location != "us-central1":

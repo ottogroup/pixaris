@@ -61,6 +61,7 @@ def retry(exceptions=Exception, tries=-1, delay=0, max_delay=None, backoff=1):
 
     @decorator
     def retry_decorator(f, *fargs, **fkwargs):
+        """Wrapper executing ``f`` with retry logic applied."""
         args = fargs if fargs else list()
         kwargs = fkwargs if fkwargs else dict()
         return __retry_internal(

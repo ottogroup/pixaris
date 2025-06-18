@@ -28,6 +28,7 @@ class BaseLLMMetric(BaseMetric):
     def __init__(
         self, prompt: str, sample_size: int = 3, **reference_images: list[Image]
     ):
+        """Initialise the metric with prompt, sample size and references."""
         super().__init__()
         self.prompt = prompt
         self.sample_size = sample_size

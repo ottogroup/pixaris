@@ -34,6 +34,7 @@ class GCPDatasetLoader(DatasetLoader):
         eval_dir_local: str = "local_experiment_inputs",
         force_download: bool = True,
     ):
+        """Initialise the loader and optionally download the dataset."""
         self.gcp_project_id = gcp_project_id
         self.bucket_name = gcp_pixaris_bucket_name
         self.project = project
