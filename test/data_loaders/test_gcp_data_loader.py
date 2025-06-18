@@ -121,7 +121,10 @@ class TestLocalDataset(unittest.TestCase):
             eval_dir_local="temp_test_files",
         )
         loader.image_dirs = ["input", "mask"]
-        image_names = loader._retrieve_and_check_dataset_image_names()
+        dataset_dir = os.path.join("temp_test_files", "test_project", "mock")
+        image_names = loader._retrieve_and_check_dataset_image_names(
+            dataset_dir, loader.image_dirs
+        )
         self.assertEqual(
             set(image_names),
             set(["doggo.png", "cat.png", "sillygoose.png", "chinchilla.png"]),
@@ -146,11 +149,14 @@ class TestLocalDataset(unittest.TestCase):
             eval_dir_local="temp_test_files",
         )
         loader.image_dirs = ["input", "mask"]
+        dataset_dir = os.path.join("temp_test_files", "test_project", "faulty_names")
         with self.assertRaisesRegex(
             ValueError,
             "The names of the images in each image directory should be the same. input does not match mask.",
         ):
-            loader._retrieve_and_check_dataset_image_names()
+            loader._retrieve_and_check_dataset_image_names(
+                dataset_dir, loader.image_dirs
+            )
 
         # Clean up the temporary directory
         tearDown()
