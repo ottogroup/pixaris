@@ -32,10 +32,42 @@ def tearDown():
         shutil.rmtree(temp_test_project_path)
 
 
-class TestLocalDataset(unittest.TestCase):
-    def mock_download(self):
-        self.image_dirs = ["input", "mask"]
+def mock_download(self):
+    base_path = os.path.join(
+        os.getcwd(), "temp_test_files", "test_project", self.dataset
+    )
+    self.image_dirs = [
+        name
+        for name in os.listdir(base_path)
+        if os.path.isdir(os.path.join(base_path, name))
+    ]
+    dir_to_names = {
+        d: [
+            name
+            for name in os.listdir(os.path.join(base_path, d))
+            if name != ".DS_Store"
+        ]
+        for d in self.image_dirs
+    }
+    all_names = set().union(*dir_to_names.values())
+    self.dataset_blob_map = {name: {} for name in all_names}
+    for name in all_names:
+        for d in self.image_dirs:
+            path = os.path.join(base_path, d, name)
+            if os.path.exists(path):
+                self.dataset_blob_map[name][d] = path
 
+
+def mock_blob_bytes(self, path):
+    with open(path, "rb") as f:
+        return f.read()
+
+
+class TestLocalDataset(unittest.TestCase):
+    @patch(
+        "pixaris.data_loaders.gcp.GCPDatasetLoader._download_blob_bytes",
+        mock_blob_bytes,
+    )
     @patch("pixaris.data_loaders.gcp.GCPDatasetLoader._download_dataset", mock_download)
     def test_load_dataset(self):
         """
@@ -120,7 +152,7 @@ class TestLocalDataset(unittest.TestCase):
             dataset="mock",
             eval_dir_local="temp_test_files",
         )
-        loader.image_dirs = ["input", "mask"]
+        mock_download(loader)
         image_names = loader._retrieve_and_check_dataset_image_names()
         self.assertEqual(
             set(image_names),
@@ -145,7 +177,7 @@ class TestLocalDataset(unittest.TestCase):
             dataset="faulty_names",
             eval_dir_local="temp_test_files",
         )
-        loader.image_dirs = ["input", "mask"]
+        mock_download(loader)
         with self.assertRaisesRegex(
             ValueError,
             "The names of the images in each image directory should be the same. input does not match mask.",
