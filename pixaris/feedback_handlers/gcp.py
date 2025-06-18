@@ -141,8 +141,8 @@ class GCPFeedbackHandler(FeedbackHandler):
         :type feedback_iteration: str
         :param image_names: List of image names to upload
         :type image_names: list[str]
-        :param images_directory: Path to local directory containing images to upload
-        :type images_directory: str
+        :param local_image_directory: Path to local directory containing images to upload
+        :type local_image_directory: str
         """
         storage_client = storage.Client(project=self.gcp_project_id)
         bucket = storage_client.bucket(self.gcp_pixaris_bucket_name)
@@ -166,8 +166,8 @@ class GCPFeedbackHandler(FeedbackHandler):
         """
         Upload images to GCP bucket and persist initialisation of feedback iteration to BigQuery.
 
-        :param images_directory: Path to local directory containing images to upload
-        :type images_directory: str
+        :param local_image_directory: Path to local directory containing images to upload
+        :type local_image_directory: str
         :param project: Name of the project
         :type project: str
         :param feedback_iteration: Name of the feedback iteration
