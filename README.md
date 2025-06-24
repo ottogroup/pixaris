@@ -287,13 +287,14 @@ The UI is then available at `http://localhost:8080`.
 Find code to setup dummy data and deploy the frontend in [this folder](https://github.com/ottogroup/pixaris/tree/main/examples/frontend_deployment/).
 ### Viewing the Experiment Results
 In the Experiment Tab, you can see the generated images as well as the results of metrics in tabular form.
-![ExperimentTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/pixaris_experiment_screenshot_explanations.png)
+![ExperimentTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/pixaris_experiment_screenshot_explanations.jpg)
 
 ### Giving Feedback on Generated Images
 When reviewing your generated images, Pixaris UI lets you rate which images are good and which aren't. To do this either alone or with your team, you can use Feedback tab in the UI. `feedback_iteration`s are independent from experiment datasets. You could e.g. have a feedback_iteration that consists of your favorite experiment runs, or you could freely generate a bunch of images and form them into a `feedback_iteration`. It is completely up to you. Here you can see some cute chinchillas and how the author would rate the images.
 
-![FeedbackTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/pixaris_feedback_screenshot_explanations.png)
+![FeedbackTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/pixaris_feedback_screenshot_explanations.jpg)
 
+# todo reference how to create feedback iterations here
 
 ## Naming Conventions
 For clarity, we would like to state what terminology we use in Pixaris:
