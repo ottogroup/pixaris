@@ -150,7 +150,7 @@ local_experiment_inputs
 
 [This example](https://github.com/ottogroup/pixaris/tree/main/examples/dummy_data_creation/create_dummy_eval_data_for_Generator_locally.py) shows you how to setup a dataset with dummy data for experimenting.
 
-If you already have an existing dataset with your own images, you can upload it to GCP by following [this example](https://github.com/ottogroup/pixaris/tree/main/examples/dataset_creation/initialise_dataset_for_GCPDatasetLoader.py)
+If you already have an existing dataset with your own images, you can upload it to GCP by following [this example](https://github.com/ottogroup/pixaris/tree/main/examples/dummy_data_creation/initialise_dataset_for_GCPDatasetLoader.py)
 
 ### Loading your data set
 First step: load your dataset using a `DatasetLoader`. If you have your data in a Google Cloud bucket, you can use the `GCPDatasetLoader`.
@@ -285,7 +285,8 @@ launch_ui(feedback_handler, experiment_handler)
 ```
 The UI is then available at `http://localhost:8080`.
 
-Find code to setup dummy data and deploy the frontend in [this folder](https://github.com/ottogroup/pixaris/tree/main/examples/frontend_deployment/).
+Find code to populate the pixaris frontend with dummy data [in this folder](https://github.com/ottogroup/pixaris/tree/main/examples/dummy_data_creation/) and to deploy the frontend in [this folder](https://github.com/ottogroup/pixaris/tree/main/examples/frontend_deployment/).
+
 ### Viewing the Experiment Results
 In the Experiment Tab, you can see the generated images as well as the results of metrics in tabular form.
 ![ExperimentTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/pixaris_experiment_screenshot_explanations.jpg)
@@ -295,7 +296,7 @@ When reviewing your generated images, Pixaris UI lets you rate which images are 
 
 ![FeedbackTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/pixaris_feedback_screenshot_explanations.jpg)
 
-# todo reference how to create feedback iterations here
+For a deeper understanding of `feedback_iteration`s and how to set them up, see [here](https://github.com/ottogroup/pixaris/tree/main/examples/frontend_deployment/). These scripts provide a quick way to populate the frontend with test data and understand how the feedback systems work.
 
 ## Naming Conventions
 For clarity, we would like to state what terminology we use in Pixaris:
