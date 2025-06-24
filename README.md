@@ -53,7 +53,7 @@
 Pixaris requires python = "^3.12"
 
 ### clone and own
-We recommend you to clone the [repository](https://github.com/ottogroup/pixaris) and customize it to your needs. 
+We recommend you to clone the [repository](https://github.com/ottogroup/pixaris) and customize it to your needs.
 Adapt the examples and classes to fit your specific usecase, thats how we use it.
 To install the cloned repository and make it usable you can simply run:
 
@@ -90,7 +90,7 @@ The open source repository is found [here](https://github.com/ottogroup/pixaris)
 
 The following steps will guide you through setting up and running your first image generation experiment with Pixaris.
 
-1.  **Load Your Data Set:** Define a `DatasetLoader` to manage your input images, masks, and other data required by your image generation workflow.
+1.  **Create and Load Your Data Set:** Define a `DatasetLoader` to manage your input images, masks, and other data required by your image generation workflow.
 
 2.  **Set Up Image Generation:** Configure a `Generator` to handle the actual image generation process. Pixaris provides pre-built generators, e.g. for ComfyUI (`ComfyGenerator`) and Flux (`FluxFillGenerator`).
 
@@ -146,10 +146,11 @@ local_experiment_inputs
         ├───Mask
         │   ├───image_01.jpg
         │   └───image_02.jpg
+```
 
 [This example](https://github.com/ottogroup/pixaris/tree/main/examples/dummy_data_creation/create_dummy_eval_data_for_Generator_locally.py) shows you how to setup a dataset with dummy data for experimenting.
 
-If you already have an existing dataset with your own images, you can upload it to GCP by following [this example](https://github.com/ottogroup/pixaris/tree/main/examples/dataset_creation/initialise_dataset_for_GCPDatasetLoader.py) 
+If you already have an existing dataset with your own images, you can upload it to GCP by following [this example](https://github.com/ottogroup/pixaris/tree/main/examples/dataset_creation/initialise_dataset_for_GCPDatasetLoader.py)
 
 ### Loading your data set
 First step: load your dataset using a `DatasetLoader`. If you have your data in a Google Cloud bucket, you can use the `GCPDatasetLoader`.
@@ -320,7 +321,7 @@ For more detailed guidelines, see our [Contributing Guide](https://opensource.gu
 ## Release
 1. Update the version in `pyproject.toml`.
 2. Create a new release. Follow [GitHub Release Docu](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
-3. Validate that the github action `release_new_version.yaml` was successful. 
+3. Validate that the github action `release_new_version.yaml` was successful.
 
 ## License
 
