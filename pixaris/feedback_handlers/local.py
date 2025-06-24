@@ -28,6 +28,7 @@ class LocalFeedbackHandler(FeedbackHandler):
         project_feedback_file: str = "feedback_tracking.jsonl",
         local_feedback_directory: str = "local_results",
     ):
+        """Create directories and initialise local feedback storage."""
         os.makedirs(local_feedback_directory, exist_ok=True)
         self.local_feedback_directory = local_feedback_directory
         self.project_feedback_dir = project_feedback_dir

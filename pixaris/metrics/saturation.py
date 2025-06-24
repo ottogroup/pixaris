@@ -14,6 +14,7 @@ class SaturationComparisonByMaskMetric(BaseMetric):
     """
 
     def __init__(self, mask_images: Iterable[Image]):
+        """Store mask images for later comparison."""
         super().__init__()
         self.mask_images = mask_images
 

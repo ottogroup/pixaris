@@ -7,4 +7,5 @@ class DatasetLoader:
 
     @abstractmethod
     def load_dataset(self) -> Iterable[dict[str, any]]:
+        """Load the dataset and return it as an iterable of dictionaries."""
         pass

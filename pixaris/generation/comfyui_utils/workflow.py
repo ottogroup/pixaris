@@ -21,6 +21,7 @@ class ComfyWorkflow:
     last_history = {}
 
     def __init__(self, api_host: str, workflow_apiformat_json: dict):
+        """Initialise with API host and clean workflow definition."""
         self.api_host = api_host
         cleaned_workflow_apiformat_json = self._remove_preview_images(
             workflow_apiformat_json
@@ -225,6 +226,7 @@ class ComfyWorkflow:
 
     @retry(tries=3, delay=5, max_delay=30)
     def check_for_error(self, history):
+        """Raise an exception if the workflow execution finished with an error."""
         status = history.get(list(history.keys())[0])["status"]["status_str"]
         if status == "error":
             details = history.get(list(history.keys())[0])["status"]["messages"]
