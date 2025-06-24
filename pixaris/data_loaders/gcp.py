@@ -147,7 +147,13 @@ class GCPDatasetLoader(DatasetLoader):
         :rtype: List[str]
         :raises: ValueError: If the names of the images in each image directory are not the same.
         """
-        self.image_dirs = [file for file in os.listdir(os.path.join(self.eval_dir_local, self.project, self.dataset)) if file != ".DS_Store"]
+        self.image_dirs = [
+            file
+            for file in os.listdir(
+                os.path.join(self.eval_dir_local, self.project, self.dataset)
+            )
+            if file != ".DS_Store"
+        ]
         basis_names = os.listdir(
             os.path.join(
                 self.eval_dir_local, self.project, self.dataset, self.image_dirs[0]
@@ -227,7 +233,9 @@ class GCPDatasetLoader(DatasetLoader):
         file_paths = [path for path in paths if path.is_file()]
 
         # only upload if a path does not end with .DS_Store
-        file_paths = [path for path in file_paths if not str(path).endswith(".DS_Store")]
+        file_paths = [
+            path for path in file_paths if not str(path).endswith(".DS_Store")
+        ]
 
         # These paths are relative to the current working directory. Next, make them
         # relative to `directory`
