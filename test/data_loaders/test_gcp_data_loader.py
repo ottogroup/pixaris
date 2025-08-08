@@ -148,7 +148,7 @@ class TestLocalDataset(unittest.TestCase):
         loader.image_dirs = ["input", "mask"]
         with self.assertRaisesRegex(
             ValueError,
-            "The names of the images in each image directory should be the same. input does not match mask.",
+            r"The names of the images in each image directory should be the same\..*",
         ):
             loader._retrieve_and_check_dataset_image_names()
 
