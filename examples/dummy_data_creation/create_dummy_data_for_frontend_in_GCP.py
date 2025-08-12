@@ -150,7 +150,7 @@ logger.info("Experiment data successfully stored in GCP")
 # %% [markdown]
 # ## PART 2: Create Dummy Data for Feedback Tracking
 # %%
-logger.info("\n=== Creating Dummy Feedback Data ===")
+logger.info("=== Creating Dummy Feedback Data ===")
 
 # Create a temporary directory for the images
 LOCAL_IMAGE_DIRECTORY = "local_results/dummy_project/feedback_iterations/feedback_iteration_with_dummy_images"
