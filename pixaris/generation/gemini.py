@@ -170,7 +170,7 @@ class GeminiGenerator(ImageGenerator):
                         candidate_image = Image.open(BytesIO(candidate_image.data))
                     else:
                         logger.warning(
-                            "  Warning: No content or parts found for candidate (Finish Reason: %s).",
+                            "No content or parts found for candidate (Finish Reason: %s).",
                             candidate.finish_reason,
                         )
                         if (
