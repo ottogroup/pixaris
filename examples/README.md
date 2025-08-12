@@ -11,12 +11,12 @@ examples/
 ├── dummy_data_creation/        # Scripts to create dummy data for the frontend and dataset (input for generators)
 ├── experimentation/            # Examples of different experimentation configurations
 ├── frontend_deployment/        # Scripts to deploy and interact with the Pixaris UI
-└── example_config.yaml         # Template configuration file
+config.yaml                     # Template configuration file
 ```
 
 ## Configuration for GCP or Flux usage
 
-Before running any examples, you should customize the `example_config.yaml` file with your own settings, particularly if you're using Google Cloud Platform (GCP) resources. This file contains configuration parameters for:
+Before running any examples, you should customize the `config.yaml` file with your own settings, particularly if you're using Google Cloud Platform (GCP) resources. This file contains configuration parameters for:
 
 - GCP project ID, location, and bucket names
 - BigQuery tables for experiment and feedback tracking
@@ -79,7 +79,7 @@ Located in the `frontend_deployment/` directory, these scripts help you deploy a
 ## Getting Started
 
 1. Install the Pixaris package and its dependencies
-2. Optional: Configure your `example_config.yaml` file with appropriate settings
+2. Optional: Configure your `config.yaml` file with appropriate settings
 3. Select an example that matches your use case
 4. Run the example script, either in a notebook environment or directly from Python
 

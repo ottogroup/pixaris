@@ -71,8 +71,7 @@ def generate_images_based_on_dataset(
 
     # Validate inputs
     dataset = data_loader.load_dataset()
-    generation_params = args.get("generation_params", [])
-    image_generator.validate_inputs_and_parameters(dataset, generation_params)
+    image_generator.validate_inputs_and_parameters(dataset, args)
     experiment_handler._validate_experiment_run_name(args["experiment_run_name"])
     max_parallel_jobs = args.get("max_parallel_jobs", 1)
 
@@ -160,7 +159,8 @@ def generate_images_for_hyperparameter_search_based_on_dataset(
     # check if all parameters are valid
     expanded_hyperparameters = expand_hyperparameters(hyperparameters)
     dataset = data_loader.load_dataset()
-    image_generator.validate_inputs_and_parameters(dataset, expanded_hyperparameters)
+    for expanded_hyperparameter in expanded_hyperparameters:
+        image_generator.validate_inputs_and_parameters(dataset, expanded_hyperparameter)
 
     # generate images for each hyperparameter combination
     hyperparameter_grid = generate_hyperparameter_grid(hyperparameters)

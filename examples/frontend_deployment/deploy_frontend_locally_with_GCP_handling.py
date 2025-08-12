@@ -8,7 +8,7 @@
 #
 # ## Requirements
 # - pixaris package installed
-# - Valid GCP configuration in pixaris/config.yaml
+# - Valid GCP configuration in config.yaml
 # - GCP resources properly configured (BigQuery tables, GCS buckets)
 
 # %% [markdown]
@@ -29,7 +29,7 @@ print(f"Current working directory: {os.getcwd()}")
 # %%
 # Load configuration from config file
 print("\n=== Loading Configuration ===")
-config = yaml.safe_load(open("pixaris/config.yaml", "r"))
+config = yaml.safe_load(open("config.yaml", "r"))
 
 # Note: To create dummy data for the frontend:
 # Run examples/dummy_data_creation/create_dummy_data_for_frontend_in_GCP.py

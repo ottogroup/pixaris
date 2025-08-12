@@ -7,7 +7,7 @@ from pixaris.experiment_handlers.gcp import GCPExperimentHandler
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    config = yaml.safe_load(open("pixaris/config.yaml"))
+    config = yaml.safe_load(open("config.yaml"))
     local_results_dir = "/tmp/local_results/"
 
     feedback_handler = GCPFeedbackHandler(

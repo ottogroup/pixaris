@@ -22,6 +22,7 @@
   - [Getting Started](#getting-started)
     - [Summary](#summary)
       - [Load the examples as a notebook](#load-the-examples-as-a-notebook)
+    - [Setting up a data set](#setting-up-a-data-set)
     - [Loading your data set](#loading-your-data-set)
     - [Setting up how you are generating images](#setting-up-how-you-are-generating-images)
     - [Setting up your experiment tracking](#setting-up-your-experiment-tracking)
@@ -52,7 +53,7 @@
 Pixaris requires python = "^3.12"
 
 ### clone and own
-We recommend you to clone the [repository](https://github.com/ottogroup/pixaris) and customize it to your needs. 
+We recommend you to clone the [repository](https://github.com/ottogroup/pixaris) and customize it to your needs.
 Adapt the examples and classes to fit your specific usecase, thats how we use it.
 To install the cloned repository and make it usable you can simply run:
 
@@ -89,7 +90,7 @@ The open source repository is found [here](https://github.com/ottogroup/pixaris)
 
 The following steps will guide you through setting up and running your first image generation experiment with Pixaris.
 
-1.  **Load Your Data Set:** Define a `DatasetLoader` to manage your input images, masks, and other data required by your image generation workflow.
+1.  **Create and Load Your Data Set:** Define a `DatasetLoader` to manage your input images, masks, and other data required by your image generation workflow.
 
 2.  **Set Up Image Generation:** Configure a `Generator` to handle the actual image generation process. Pixaris provides pre-built generators, e.g. for ComfyUI (`ComfyGenerator`) and Flux (`FluxFillGenerator`).
 
@@ -103,7 +104,7 @@ The following steps will guide you through setting up and running your first ima
 
 7.  **View Your Results:** Launch the Pixaris UI to visualize the generated images, metrics, and collected feedback.
 
-For example usages, check the [examples](https://github.com/ottogroup/pixaris/tree/main/examples) directory. To set up GCP components, such as `GCPDatasetLoader`, we use a configuration file. An [example_config.yaml](https://github.com/ottogroup/pixaris/tree/main/examples/example_config.yaml) is provided; just adjust it and save a local version.
+For example usages, check the [examples](https://github.com/ottogroup/pixaris/tree/main/examples) directory. To set up GCP components, such as `GCPDatasetLoader`, we use a configuration file. An [config.yaml](https://github.com/ottogroup/pixaris/tree/main/config.yaml) is provided; just adjust it and save a local version.
 
 ### Summary
 
@@ -127,6 +128,29 @@ jupytext --to py notebook.ipynb
 # convert notebook.py to an .ipynb file with no outputs
 jupytext --to notebook notebook.py
 ```
+
+### Setting up a data set
+Start setting up data you want to use to generate your outputs.
+We need a project and a dataset in this project.
+In the dataset we have some folders containing the images we use to run an experiment. One folder holds images that are the inputs of one kind.
+The structure should look like this, where Object and Mask are the directories containing the images used to generate outputs. Both directories need to hold equivalent images, so image_01.jpg in `Object` folder has a corresponding mask in `Mask` folder with the same name.
+You can define more or less input directories if you like.
+
+```
+local_experiment_inputs
+└───dummy_project
+    └───dummy_dataset
+        ├───Object
+        │   ├───image_01.jpg
+        │   └───image_02.jpg
+        ├───Mask
+        │   ├───image_01.jpg
+        │   └───image_02.jpg
+```
+
+[This example](https://github.com/ottogroup/pixaris/tree/main/examples/dummy_data_creation/create_dummy_eval_data_for_Generator_locally.py) shows you how to setup a dataset with dummy data for experimenting.
+
+If you already have an existing dataset with your own images, you can upload it to GCP by following [this example](https://github.com/ottogroup/pixaris/tree/main/examples/dummy_data_creation/initialise_dataset_for_GCPDatasetLoader.py)
 
 ### Loading your data set
 First step: load your dataset using a `DatasetLoader`. If you have your data in a Google Cloud bucket, you can use the `GCPDatasetLoader`.
@@ -261,16 +285,18 @@ launch_ui(feedback_handler, experiment_handler)
 ```
 The UI is then available at `http://localhost:8080`.
 
-Find code to setup dummy data and deploy the frontend in [this folder](https://github.com/ottogroup/pixaris/tree/main/examples/frontend_deployment/).
+Find code to populate the pixaris frontend with dummy data [in this folder](https://github.com/ottogroup/pixaris/tree/main/examples/dummy_data_creation/) and to deploy the frontend in [this folder](https://github.com/ottogroup/pixaris/tree/main/examples/frontend_deployment/).
+
 ### Viewing the Experiment Results
 In the Experiment Tab, you can see the generated images as well as the results of metrics in tabular form.
-![ExperimentTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/pixaris_experiment_screenshot_explanations.png)
+![ExperimentTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/pixaris_experiment_screenshot_explanations.jpg)
 
 ### Giving Feedback on Generated Images
 When reviewing your generated images, Pixaris UI lets you rate which images are good and which aren't. To do this either alone or with your team, you can use Feedback tab in the UI. `feedback_iteration`s are independent from experiment datasets. You could e.g. have a feedback_iteration that consists of your favorite experiment runs, or you could freely generate a bunch of images and form them into a `feedback_iteration`. It is completely up to you. Here you can see some cute chinchillas and how the author would rate the images.
 
-![FeedbackTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/pixaris_feedback_screenshot_explanations.png)
+![FeedbackTrackingView](https://raw.githubusercontent.com/ottogroup/pixaris/refs/heads/main/assets/pixaris_feedback_screenshot_explanations.jpg)
 
+For a deeper understanding of `feedback_iteration`s and how to set them up, see [here](https://github.com/ottogroup/pixaris/tree/main/examples/frontend_deployment/). These scripts provide a quick way to populate the frontend with test data and understand how the feedback systems work.
 
 ## Naming Conventions
 For clarity, we would like to state what terminology we use in Pixaris:
@@ -296,7 +322,7 @@ For more detailed guidelines, see our [Contributing Guide](https://opensource.gu
 ## Release
 1. Update the version in `pyproject.toml`.
 2. Create a new release. Follow [GitHub Release Docu](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
-3. Validate that the github action `release_new_version.yaml` was successful. 
+3. Validate that the github action `release_new_version.yaml` was successful.
 
 ## License
 

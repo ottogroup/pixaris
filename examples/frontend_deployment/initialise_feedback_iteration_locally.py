@@ -35,7 +35,7 @@ if False:  # set to True if executing from notebook
 # %%
 # Load configuration from config file
 logger.info("\n=== Loading Configuration ===")
-config = yaml.safe_load(open("pixaris/config.yaml", "r"))
+config = yaml.safe_load(open("config.yaml", "r"))
 
 # Configuration parameters - MODIFY THESE VALUES
 PROJECT = "dummy_project"  # Your project name
