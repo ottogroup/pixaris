@@ -192,4 +192,4 @@ logger.info("Feedback iteration successfully created in GCP")
 if False:
     shutil.rmtree(LOCAL_IMAGE_DIRECTORY)
     logger.info("Temporary directory cleaned up")
-logger.info("\nDummy data creation completed successfully!")
+logger.info("Dummy data creation completed successfully!")
