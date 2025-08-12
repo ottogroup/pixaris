@@ -182,7 +182,7 @@ class GeminiGenerator(ImageGenerator):
 
                 else:
                     logger.warning(
-                        "  Warning: No candidates found in the response for this call."
+                        "No candidates found in the response for this call."
                     )
                     error_text = "Generation failed: No candidates in response."
                     # Log the full response if possible for debugging
