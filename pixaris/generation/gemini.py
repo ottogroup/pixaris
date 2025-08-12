@@ -162,7 +162,7 @@ class GeminiGenerator(ImageGenerator):
                     if candidate.content and candidate.content.parts:
                         if self.verbose:
                             logger.info(
-                                "  Candidate has %s parts.",
+                                "Candidate has %s parts.",
                                 len(candidate.content.parts),
                             )
                         image_data = candidate.content.parts[0].inline_data.data
