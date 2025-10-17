@@ -16,6 +16,7 @@ db-dtypes = "^1.4.2"
 starlette = ">=0.47.2" # to fix dependabot alert
 urllib3 = ">=0.5.0" # to fix dependabot alert
 
+brotli = "^1.1.0"
 [tool.poetry.group.gcp.dependencies]
 google-cloud-storage = "^2.18.2"
 google-cloud-bigquery = "^3.31.0"
