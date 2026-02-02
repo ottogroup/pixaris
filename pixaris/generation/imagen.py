@@ -106,7 +106,7 @@ class ImagenGenerator(ImageGenerator):
         ]
 
         config = types.EditImageConfig(
-            editMode="INPAINT",
+            editMode=types.EditMode.EDIT_MODE_INPAINT_INSERTION,
         )
 
         response = client.models.edit_image(
