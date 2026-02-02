@@ -10,9 +10,9 @@ from pixaris.generation.utils import (
 )
 
 
-class Imagen2Generator(ImageGenerator):
+class ImagenGenerator(ImageGenerator):
     """
-    Imagen2Generator is a class that generates images using the Google Imagen API.
+    ImagenGenerator is a class that generates images using Google's Imagen 4 API.
 
     :param gcp_project_id: The Google Cloud Platform project ID.
     :type gcp_project_id: str
@@ -56,15 +56,15 @@ class Imagen2Generator(ImageGenerator):
 
     def _run_imagen(self, pillow_images: List[dict], prompt: str) -> Image.Image:
         """
-        Generates images using the Imagen API and checks the status until the image is ready.
+        Generates images using the Imagen 4 API with mask-based inpainting.
 
         :param pillow_images: A list of dictionaries containing pillow images and mask images.
           Example::
 
           [{'node_name': 'Load Input Image', 'pillow_image': <PIL.Image>}, {'node_name': 'Load Mask Image', 'pillow_image': <PIL.Image>}]
         :type pillow_images: List[dict]
-        :param generation_params: A list of dictionaries containing generation params.
-        :type generation_params: list[dict]
+        :param prompt: The prompt describing the desired edit in the masked region.
+        :type prompt: str
         :return: The generated image.
         :rtype: PIL.Image.Image
         """
@@ -100,7 +100,7 @@ class Imagen2Generator(ImageGenerator):
         )
 
         response = client.models.edit_image(
-            model="imagegeneration@006", config=edit_config
+            model="imagen-4.0-generate-001", config=edit_config
         )
 
         # Get the first generated image

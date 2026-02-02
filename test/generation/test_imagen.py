@@ -1,16 +1,16 @@
 import unittest
 from unittest.mock import patch
 from PIL import Image
-from pixaris.generation.imagen2 import Imagen2Generator
+from pixaris.generation.imagen import ImagenGenerator
 
 
-class TestImagen2Generator(unittest.TestCase):
+class TestImagenGenerator(unittest.TestCase):
     """
-    A few tests for the Imagen2Generator class.
+    A few tests for the ImagenGenerator class.
     """
 
     def setUp(self):
-        self.generator = Imagen2Generator("test_project_id", "test_location")
+        self.generator = ImagenGenerator("test_project_id", "test_location")
         mock_image1 = Image.open("test/test_project/mock/input/chinchilla.png")
         mock_mask1 = Image.open("test/test_project/mock/mask/chinchilla.png")
 
