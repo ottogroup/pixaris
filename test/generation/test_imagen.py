@@ -1,18 +1,16 @@
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import patch
 from PIL import Image
-import vertexai
-from pixaris.generation.imagen2 import Imagen2Generator
+from pixaris.generation.imagen import ImagenGenerator
 
 
-class TestImagen2Generator(unittest.TestCase):
+class TestImagenGenerator(unittest.TestCase):
     """
-    A few tests for the Imagen2Generator class.
+    A few tests for the ImagenGenerator class.
     """
 
     def setUp(self):
-        vertexai.init = MagicMock()
-        self.generator = Imagen2Generator("test_project_id", "test_location")
+        self.generator = ImagenGenerator("test_project_id", "test_location")
         mock_image1 = Image.open("test/test_project/mock/input/chinchilla.png")
         mock_mask1 = Image.open("test/test_project/mock/mask/chinchilla.png")
 
@@ -71,7 +69,7 @@ class TestImagen2Generator(unittest.TestCase):
         is a PIL Image and the name is matching the expected name.
         """
 
-        with unittest.mock.patch.object(
+        with patch.object(
             self.generator, "_run_imagen", return_value=Image.new("RGB", (100, 100))
         ):
             image, image_name = self.generator.generate_single_image(self.args)

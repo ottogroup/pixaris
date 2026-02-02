@@ -15,11 +15,12 @@ gradio = ">=5.22.0"
 db-dtypes = "^1.4.2"
 
 brotli = "^1.1.0"
+protobuf = ">=6.33.5"
 [tool.poetry.group.gcp.dependencies]
 google-cloud-storage = "^2.18.2"
 google-cloud-bigquery = "^3.31.0"
 google-genai = "^1.14.0"
-vertexai = "^1.71.1"
+protobuf = ">=6.33.5"
 
 [tool.poetry.group.cluster.dependencies]
 kubernetes = ">=32.0.1,<36.0.0"

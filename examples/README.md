@@ -50,7 +50,7 @@ The example scripts follow a naming convention that indicates the components use
 
 #### Local Configurations
 - `LocalDatasetLoader_ComfyGenerator_LocalExperimentHandler_WithMetrics.py` - Load dataset from local, run experiments using ComfyUI with metrics and save results locally
-- `LocalDatasetLoader_Imagen2Generator_LocalExperimentHandler.py` - Load dataset from local, run experiments using Imagen2 and save results locally
+- `LocalDatasetLoader_ImagenGenerator_LocalExperimentHandler.py` - Load dataset from local, run experiments using Imagen 4 and save results locally
 - `ParallelisedOrchestration_LocalDatasetLoader_FluxGenerator_LocalExperimentHandler.py` - Load dataset from local, run parallelized experiments using Flux and save results locally
 
 #### Cloud Configurations

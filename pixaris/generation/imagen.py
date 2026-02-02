@@ -1,9 +1,8 @@
 from typing import List
 from pixaris.generation.base import ImageGenerator
 from PIL import Image
-import vertexai
-from vertexai.preview.vision_models import Image as GoogleImage
-from vertexai.preview.vision_models import ImageGenerationModel
+from google import genai
+from google.genai import types
 
 from pixaris.generation.utils import (
     encode_image_to_bytes,
@@ -11,9 +10,9 @@ from pixaris.generation.utils import (
 )
 
 
-class Imagen2Generator(ImageGenerator):
+class ImagenGenerator(ImageGenerator):
     """
-    Imagen2Generator is a class that generates images using the Google Imagen API.
+    ImagenGenerator is a class that generates images using Google's Imagen 4 API.
 
     :param gcp_project_id: The Google Cloud Platform project ID.
     :type gcp_project_id: str
@@ -57,20 +56,22 @@ class Imagen2Generator(ImageGenerator):
 
     def _run_imagen(self, pillow_images: List[dict], prompt: str) -> Image.Image:
         """
-        Generates images using the Imagen API and checks the status until the image is ready.
+        Generates images using the Imagen 4 API with mask-based inpainting.
 
         :param pillow_images: A list of dictionaries containing pillow images and mask images.
           Example::
 
           [{'node_name': 'Load Input Image', 'pillow_image': <PIL.Image>}, {'node_name': 'Load Mask Image', 'pillow_image': <PIL.Image>}]
         :type pillow_images: List[dict]
-        :param generation_params: A list of dictionaries containing generation params.
-        :type generation_params: list[dict]
+        :param prompt: The prompt describing the desired edit in the masked region.
+        :type prompt: str
         :return: The generated image.
         :rtype: PIL.Image.Image
         """
 
-        vertexai.init(project=self.gcp_project_id, location=self.gcp_location)
+        client = genai.Client(
+            vertexai=True, project=self.gcp_project_id, location=self.gcp_location
+        )
 
         # gets input image and mask image from pillow_images
         input_image = extract_value_from_list_of_dicts(
@@ -86,18 +87,37 @@ class Imagen2Generator(ImageGenerator):
             return_key="pillow_image",
         )
 
-        model = ImageGenerationModel.from_pretrained("imagegeneration@006")
-        base_img = GoogleImage(encode_image_to_bytes(input_image))
-        mask_img = GoogleImage(encode_image_to_bytes(mask_image))
+        base_img_bytes = encode_image_to_bytes(input_image)
+        mask_img_bytes = encode_image_to_bytes(mask_image)
 
-        images = model.edit_image(
-            base_image=base_img,
-            mask=mask_img,
-            prompt=prompt,
-            edit_mode="inpainting-insert",
+        reference_images = [
+            types.RawReferenceImage(
+                referenceId=1,
+                referenceImage=types.Image(
+                    image_bytes=base_img_bytes, mime_type="image/jpeg"
+                ),
+            ),
+            types.MaskReferenceImage(
+                referenceId=2,
+                referenceImage=types.Image(
+                    image_bytes=mask_img_bytes, mime_type="image/jpeg"
+                ),
+            ),
+        ]
+
+        config = types.EditImageConfig(
+            editMode=types.EditMode.EDIT_MODE_INPAINT_INSERTION,
         )
 
-        return images[0]._pil_image
+        response = client.models.edit_image(
+            model="imagen-4.0-generate-001",
+            prompt=prompt,
+            reference_images=reference_images,
+            config=config,
+        )
+
+        # Get the first generated image
+        return response.generated_images[0].image
 
     def generate_single_image(self, args: dict[str, any]) -> tuple[Image.Image, str]:
         """
