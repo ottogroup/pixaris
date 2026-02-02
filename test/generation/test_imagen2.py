@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
 from PIL import Image
-import vertexai
 from pixaris.generation.imagen2 import Imagen2Generator
 
 
@@ -11,7 +10,6 @@ class TestImagen2Generator(unittest.TestCase):
     """
 
     def setUp(self):
-        vertexai.init = MagicMock()
         self.generator = Imagen2Generator("test_project_id", "test_location")
         mock_image1 = Image.open("test/test_project/mock/input/chinchilla.png")
         mock_mask1 = Image.open("test/test_project/mock/mask/chinchilla.png")

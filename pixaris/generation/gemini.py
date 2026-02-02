@@ -5,7 +5,6 @@ from pixaris.generation.base import ImageGenerator
 from PIL import Image
 from io import BytesIO
 from google.genai import Client, types
-from vertexai.generative_models import Image as VertexImage
 
 from pixaris.generation.utils import (
     encode_image_to_bytes,
@@ -157,8 +156,7 @@ class GeminiGenerator(ImageGenerator):
                                 f"  Candidate has {len(candidate.content.parts)} parts."
                             )
                         image_data = candidate.content.parts[0].inline_data.data
-                        candidate_image = VertexImage.from_bytes(image_data)
-                        candidate_image = Image.open(BytesIO(candidate_image.data))
+                        candidate_image = Image.open(BytesIO(image_data))
                     else:
                         print(
                             f"  Warning: No content or parts found for candidate (Finish Reason: {candidate.finish_reason})."

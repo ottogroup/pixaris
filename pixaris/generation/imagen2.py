@@ -1,9 +1,8 @@
 from typing import List
 from pixaris.generation.base import ImageGenerator
 from PIL import Image
-import vertexai
-from vertexai.preview.vision_models import Image as GoogleImage
-from vertexai.preview.vision_models import ImageGenerationModel
+from google import genai
+from google.genai import types
 
 from pixaris.generation.utils import (
     encode_image_to_bytes,
@@ -70,7 +69,9 @@ class Imagen2Generator(ImageGenerator):
         :rtype: PIL.Image.Image
         """
 
-        vertexai.init(project=self.gcp_project_id, location=self.gcp_location)
+        client = genai.Client(
+            vertexai=True, project=self.gcp_project_id, location=self.gcp_location
+        )
 
         # gets input image and mask image from pillow_images
         input_image = extract_value_from_list_of_dicts(
@@ -86,18 +87,24 @@ class Imagen2Generator(ImageGenerator):
             return_key="pillow_image",
         )
 
-        model = ImageGenerationModel.from_pretrained("imagegeneration@006")
-        base_img = GoogleImage(encode_image_to_bytes(input_image))
-        mask_img = GoogleImage(encode_image_to_bytes(mask_image))
+        base_img_bytes = encode_image_to_bytes(input_image)
+        mask_img_bytes = encode_image_to_bytes(mask_image)
 
-        images = model.edit_image(
-            base_image=base_img,
-            mask=mask_img,
+        edit_config = types.EditImageConfig(
+            reference_images=[
+                types.RawReferenceImage(reference_id="raw", image=base_img_bytes),
+                types.MaskReferenceImage(reference_id="mask", image=mask_img_bytes),
+            ],
             prompt=prompt,
-            edit_mode="inpainting-insert",
+            edit_mode="INPAINT",
         )
 
-        return images[0]._pil_image
+        response = client.models.edit_image(
+            model="imagegeneration@006", config=edit_config
+        )
+
+        # Get the first generated image
+        return response.generated_images[0].image
 
     def generate_single_image(self, args: dict[str, any]) -> tuple[Image.Image, str]:
         """
