@@ -92,8 +92,18 @@ class ImagenGenerator(ImageGenerator):
 
         edit_config = types.EditImageConfig(
             reference_images=[
-                types.RawReferenceImage(reference_id="raw", image=base_img_bytes),
-                types.MaskReferenceImage(reference_id="mask", image=mask_img_bytes),
+                types.RawReferenceImage(
+                    referenceId=1,
+                    referenceImage=types.Image(
+                        image_bytes=base_img_bytes, mime_type="image/jpeg"
+                    ),
+                ),
+                types.MaskReferenceImage(
+                    referenceId=2,
+                    referenceImage=types.Image(
+                        image_bytes=mask_img_bytes, mime_type="image/jpeg"
+                    ),
+                ),
             ],
             prompt=prompt,
             edit_mode="INPAINT",
