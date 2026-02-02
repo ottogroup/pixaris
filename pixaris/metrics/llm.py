@@ -66,7 +66,9 @@ class BaseLLMMetric(BaseMetric):
         """
         img_byte_arr = io.BytesIO()
         image.save(img_byte_arr, format="PNG")
-        return types.Part.from_bytes(data=img_byte_arr.getvalue(), mime_type="image/png")
+        return types.Part.from_bytes(
+            data=img_byte_arr.getvalue(), mime_type="image/png"
+        )
 
     def _llm_prompt(
         self,
@@ -84,7 +86,7 @@ class BaseLLMMetric(BaseMetric):
         :rtype: list[google.genai.types.Part]
         """
         return [
-            types.Part.from_text(json_prompt),
+            types.Part.from_text(text=json_prompt),
             *[self._PIL_image_to_vertex_image(image) for image in images],
         ]
 
@@ -355,7 +357,11 @@ class StyleLLMMetric(BaseLLMMetric):
             self._PIL_image_to_vertex_image(image) for image in evaluation_images
         ]
         vertex_prompts = [
-            [types.Part.from_text(prompts.COMPARISON_PROMPT), image_part, types.Part.from_text(description)]
+            [
+                types.Part.from_text(text=prompts.COMPARISON_PROMPT),
+                image_part,
+                types.Part.from_text(text=description),
+            ]
             for image_part, description in zip(
                 image_parts, reference_image_descriptions
             )

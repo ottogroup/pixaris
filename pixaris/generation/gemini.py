@@ -114,11 +114,11 @@ class GeminiGenerator(ImageGenerator):
                 print("\n--- Wait 5 seconds to avoid 429 error ---")
                 print(f"\n--- Generating image {i + 1}/{num_images} ---")
                 print(f"Sending request to model '{self.model_name}'...")
-            candidate_image: Optional[VertexImage] = None
+            candidate_image: Optional[Image.Image] = None
             candidate_text: Optional[str] = None
             error_text: Optional[str] = None
 
-            generated_outputs: List[Optional[VertexImage]] = []
+            generated_outputs: List[Optional[Image.Image]] = []
 
             try:
                 # Generate content - expecting one result per call
