@@ -90,27 +90,30 @@ class ImagenGenerator(ImageGenerator):
         base_img_bytes = encode_image_to_bytes(input_image)
         mask_img_bytes = encode_image_to_bytes(mask_image)
 
-        edit_config = types.EditImageConfig(
-            reference_images=[
-                types.RawReferenceImage(
-                    referenceId=1,
-                    referenceImage=types.Image(
-                        image_bytes=base_img_bytes, mime_type="image/jpeg"
-                    ),
+        reference_images = [
+            types.RawReferenceImage(
+                referenceId=1,
+                referenceImage=types.Image(
+                    image_bytes=base_img_bytes, mime_type="image/jpeg"
                 ),
-                types.MaskReferenceImage(
-                    referenceId=2,
-                    referenceImage=types.Image(
-                        image_bytes=mask_img_bytes, mime_type="image/jpeg"
-                    ),
+            ),
+            types.MaskReferenceImage(
+                referenceId=2,
+                referenceImage=types.Image(
+                    image_bytes=mask_img_bytes, mime_type="image/jpeg"
                 ),
-            ],
-            prompt=prompt,
-            edit_mode="INPAINT",
+            ),
+        ]
+
+        config = types.EditImageConfig(
+            editMode="INPAINT",
         )
 
         response = client.models.edit_image(
-            model="imagen-4.0-generate-001", config=edit_config
+            model="imagen-4.0-generate-001",
+            prompt=prompt,
+            reference_images=reference_images,
+            config=config,
         )
 
         # Get the first generated image
