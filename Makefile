@@ -2,7 +2,7 @@
 .PHONY: install lint fmt test docs
 
 install:
-	poetry install
+	poetry install --with gcp,dev
 
 lint:
 	set -e

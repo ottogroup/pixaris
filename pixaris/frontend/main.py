@@ -22,9 +22,6 @@ def launch_ui(
     """
     with gr.Blocks(
         title="Pixaris",
-        theme=gr.themes.Monochrome(
-            spacing_size=gr.themes.sizes.spacing_sm, radius_size="none"
-        ),
         analytics_enabled=False,
         fill_width=False,
     ) as demo:
@@ -37,9 +34,7 @@ def launch_ui(
                     show_label=False,
                     height=100,
                     width=100,
-                    show_download_button=False,
-                    show_fullscreen_button=False,
-                    show_share_button=False,
+                    buttons=[], # show neither download, share nor full screen buttons
                     interactive=False,
                 )
             with gr.Column(scale=20):
@@ -61,5 +56,10 @@ def launch_ui(
                 feedback_handler=feedback_handler,
             )
     demo.launch(
-        server_name=server_name, server_port=8080, allowed_paths=[os.path.abspath("./")]
+        server_name=server_name,
+        server_port=8080,
+        allowed_paths=[os.path.abspath("./")],
+        theme=gr.themes.Monochrome(
+            spacing_size=gr.themes.sizes.spacing_sm, radius_size="none"
+        ),
     )
