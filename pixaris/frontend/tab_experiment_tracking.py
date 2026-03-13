@@ -155,8 +155,7 @@ def render_experiment_tracking_tab(
                                 value=experiment_images,
                                 columns=columns,
                                 rows=1,
-                                show_download_button=True,
-                                show_fullscreen_button=True,
+                                buttons=["download", "fullscreen"],
                                 height=gallery_height,
                                 object_fit="contain",
                             )

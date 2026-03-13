@@ -266,14 +266,14 @@ class GCPFeedbackHandler(FeedbackHandler):
 
         # adjust feedback columns so that they are lists of strings
         feedback_df["comments_liked"] = feedback_df["comments_liked"].apply(
-            lambda x: [e.strip() for e in x.split(",") if e not in ["", " "]]
-            if x
-            else []
+            lambda x: (
+                [e.strip() for e in x.split(",") if e not in ["", " "]] if x else []
+            )
         )
         feedback_df["comments_disliked"] = feedback_df["comments_disliked"].apply(
-            lambda x: [e.strip() for e in x.split(",") if e not in ["", " "]]
-            if x
-            else []
+            lambda x: (
+                [e.strip() for e in x.split(",") if e not in ["", " "]] if x else []
+            )
         )
 
         # add paths for images to feedback_df (local and GCS bucket)

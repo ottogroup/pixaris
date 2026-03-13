@@ -212,8 +212,7 @@ def render_feedback_tab(
                                         gr.Image(
                                             value=img,
                                             label=img_name,
-                                            show_download_button=True,
-                                            show_fullscreen_button=True,
+                                            buttons=["download", "fullscreen"],
                                             visible=element_visible_bool,
                                             min_width=min_width_elements,
                                             scale=1,
