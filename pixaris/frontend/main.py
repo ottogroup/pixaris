@@ -34,7 +34,7 @@ def launch_ui(
                     show_label=False,
                     height=100,
                     width=100,
-                    buttons=[], # show neither download, share nor full screen buttons
+                    buttons=[],  # show neither download, share nor full screen buttons
                     interactive=False,
                 )
             with gr.Column(scale=20):
