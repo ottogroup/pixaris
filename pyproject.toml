@@ -16,7 +16,7 @@ brotli = "^1.1.0"
 gradio = "^6.9.0"
 
 [tool.poetry.group.gcp.dependencies]
-google-cloud-storage = "^2.18.2"
+google-cloud-storage = ">=2.18.2,<4.0.0"
 google-cloud-bigquery = "^3.31.0"
 google-genai = "^1.14.0"
 google-cloud-aiplatform = {version = "^1.133.0", extras = ["all"]}
