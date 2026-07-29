@@ -267,12 +267,12 @@ class GCPFeedbackHandler(FeedbackHandler):
         # adjust feedback columns so that they are lists of strings
         feedback_df["comments_liked"] = feedback_df["comments_liked"].apply(
             lambda x: (
-                [e.strip() for e in x.split(",") if e not in ["", " "]] if x else []
+                [e.strip() for e in x.split(",") if e not in ["", " "]] if isinstance(x, str) else []
             )
         )
         feedback_df["comments_disliked"] = feedback_df["comments_disliked"].apply(
             lambda x: (
-                [e.strip() for e in x.split(",") if e not in ["", " "]] if x else []
+                [e.strip() for e in x.split(",") if e not in ["", " "]] if isinstance(x, str) else []
             )
         )
 
